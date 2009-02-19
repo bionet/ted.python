@@ -21,8 +21,8 @@ remezord             Determine filter parameters for Remez algorithm.
 ==================== =============================================================
 """
 
-from numpy import sqrt, mean, abs, min, max, log2, log10, shape, zeros, asarray, \
-     ceil, floor, argmin, pi, arctan, int, hstack, sqrt, mod
+from numpy import arange, sqrt, mean, abs, min, max, log2, log10, shape, zeros, \
+     asarray, ceil, floor, argmin, pi, arctan, int, hstack, sqrt, mod
 from numpy.fft import fft, ifft
 
 # --- Error analysis functions ---
