@@ -18,9 +18,9 @@ finfo_dict = {single:finfo(single),
               longdouble:finfo(longdouble)}
 
 def realmax(t=double):
-    '''Return the largest positive floating point number representable
+    """Return the largest positive floating point number representable
     with the specified precision on this computer. Double precision is
-    assumed if no floating point type is specified.'''
+    assumed if no floating point type is specified."""
 
     if t not in finfo_dict:
         raise ValueError('invalid floating point type')
@@ -28,9 +28,9 @@ def realmax(t=double):
         return finfo_dict[t].max
 
 def realmin(t=double):
-    '''Return the smallest positive floating point number
+    """Return the smallest positive floating point number
     representable with the specified precision on this computer.
-    Double precision is assumed if no floating point type is specified.'''
+    Double precision is assumed if no floating point type is specified."""
 
     if t not in finfo_dict:
         raise ValueError('invalid floating point type')
@@ -38,14 +38,13 @@ def realmin(t=double):
         return finfo_dict[t].tiny.item()
 
 def eps(x):
-    '''Compute the spacing of floating point numbers.'''
-
-    ## This function doesn't always seem to work properly. ###
+    """Compute the spacing of floating point numbers."""
     
     t = type(x)
     if t not in finfo_dict:
         raise ValueError('invalid floating point type')
-    ibeta = finfo_dict[t].machar.ibeta
+
+    ibeta = int(finfo_dict[t].machar.ibeta)
     maxexp = finfo_dict[t].maxexp
     machep = finfo_dict[t].machep
     minexp = finfo_dict[t].minexp
@@ -59,7 +58,10 @@ def eps(x):
     elif x >= xmax:
         return ibeta**(maxexp+negep)
     elif x > xmin:
-        return ibeta**(machep+floor(log2(x)))
+
+	# Convert output of log2() to int to prevent 
+	# imprecision from confusing floor():
+        return ibeta**(machep+int(floor(int(log2(x)))))
     else:
         return ibeta**(minexp+negep+1)
     
