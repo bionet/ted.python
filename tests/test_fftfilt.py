@@ -4,29 +4,25 @@
 Test fftfilt function.
 """
 
-from numpy import pi
-from scipy.signal import lfilter, remez, firwin
+from numpy.testing import *
+import numpy as np
+import scipy.signal as si 
 
-import utils.signal_extras as s
-import utils.gen_test_signal as g
+import bionet.utils.signal_extras as s
+import bionet.utils.gen_test_signal as g
 
-print 'creating test signal..'
-dur = 0.2
-dt = 1e-6
-fs = 1/dt
-fmax = 50000.0
-u = g.gen_test_signal(dur,dt,fmax,nc=10)
-
-print 'creating filter..'
-f1 = 10000.0
-f2 = 20000.0
-a = 1
-#[numtaps,bands,desired,weight] = s.remezord([f1,f2],[1,0],[0.01,0.01],fs)
-#b = remez(numtaps,bands,desired,weight)
-b = firwin(50,f1/fs)
-#print 'filtering with lfilter..'
-#u_lfilter = lfilter(b,a,u)
-
-print 'filtering with fftfilt..'
-u_fftfilt = s.fftfilt(b,u)
-
+class TestFFTFilt(TestCase):
+    def setUp(self):
+        dur = 0.2
+        fmax = 50000.0
+        dt = 1e-6
+        self.fs = 1/dt
+        self.u = g.gen_test_signal(dur,dt,fmax,nc=10)
+        
+    def test_fftfilt(self):
+        f = 10000.0
+        b = si.firwin(50,f/self.fs)
+        
+        u_lfilter = si.lfilter(b,1,self.u)
+        u_fftfilt = s.fftfilt(b,self.u)
+        assert_almost_equal(u_lfilter,u_fftfilt)
