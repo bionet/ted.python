@@ -7,7 +7,13 @@ Pylab Extras
 This module contains various functions similar to those in
 Matlab that are not in pylab.
 
+- eps             Compute spacing of floating point numbers.
+- realmax         Return largest representable positive floating point number.
+- realmin         Return smallest representable positive floating point number.
+
 """
+
+__all__ = ['eps','realmax','realmin']
 
 from numpy import finfo, single, float, double, longdouble, \
      ceil, floor, log2, abs, inf, NaN

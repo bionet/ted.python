@@ -7,19 +7,29 @@ Signal Processing Extras
 This module contains various signal processing tools and
 algorithms that are not currently in scipy.signal.
 
-==================== =============================================================
-db                   Convert a power value to decibels.
-rms                  Compute the root mean squared value of an array.
-snr                  Compute the signal-to-noise ratio of two signals.
-upsample             Upsample an array.
-downsample           Downsample an array.
-nextpow2             Return n such that 2**n >= abs(x).
-fftfilt              Apply an FIR filter to a signal using the overlap-add method.
-oddround             Return the nearest odd integer nearest to x.
-oddceil              Return the smallest odd integer no less than x.
-remezord             Determine filter parameters for Remez algorithm.
-==================== =============================================================
+Error analysis functions
+------------------------
+- db              Convert a power value to decibels.
+- rms             Compute the root mean squared value of an array.
+- snr             Compute the signal-to-noise ratio of two signals.
+
+Filtering functions
+-------------------
+- downsample      Downsample an array.
+- fftfilt         Apply an FIR filter to a signal using the overlap-add method.
+- remezord        Determine filter parameters for Remez algorithm.
+- upsample        Upsample an array.
+
+Miscellaneous functions
+-----------------------
+- nextpow2        Return n such that 2**n >= abs(x).
+- oddceil         Return the smallest odd integer no less than x.
+- oddround        Return the nearest odd integer nearest to x.
+
 """
+
+__all__ = ['db','rms','snr','upsample','downsample','nextpow2','fftfilt','oddround',
+           'oddceil','remezord']
 
 from numpy import arange, sqrt, mean, abs, min, max, log2, log10, shape, zeros, \
      asarray, ceil, floor, argmin, pi, arctan, int, hstack, sqrt, mod

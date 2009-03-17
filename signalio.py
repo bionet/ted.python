@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 
 """
-Classes for writing and reading signals to and from disk as HDF files.
+Signal I/O classes
+==================
+
+Classes for writing and reading sampled and encoded signals
+to and from HDF5 files.
+
 """
 
 import tables as t

@@ -7,8 +7,8 @@ from numpy.distutils.core import setup
 DISTNAME = 'bionet.utils'
 DESCRIPTION = 'Bionet utilities'
 VERSION = '0.01'
-MAINTAINER = 'Lev Givon'
-MAINTAINER_EMAIL = 'lev@columbia.edu'
+AUTHOR = 'Lev Givon'
+AUTHOR_EMAIL = 'lev@columbia.edu'
 URL = 'http://bionet.ee.columbia.edu/code'
 DOWNLOAD_URL = URL
 LICENSE = 'BSD'
@@ -19,8 +19,8 @@ def configuration(parent_package='', top_path=None,
     from numpy.distutils.misc_util import Configuration
     config = Configuration(package_name, parent_package, top_path,
                            version = VERSION,
-                           maintainer = MAINTAINER,
-                           maintainer_email = MAINTAINER_EMAIL,
+                           author = AUTHOR,
+                           author_email = AUTHOR_EMAIL,
                            description = DESCRIPTION,
                            license = LICENSE,
                            url = URL,
@@ -32,7 +32,7 @@ if __name__=="__main__":
           namespace_packages = ['bionet'],
           packages = ['bionet.utils'],
           package_dir = {'bionet.utils': '.'},
-          install_requires = ['numpy','tables']
+          install_requires = ['numpy','tables'],
           classifiers = [
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
