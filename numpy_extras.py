@@ -7,16 +7,17 @@ Numpy Extras
 This module contains various functions not currently included in
 numpy.
 
-==================== =============================================================
-mdot                 Compute the matrix product of several matricies.
-rank                 Estime the number of linearly independent rows in a matrix.
-mpower               Raise a square matrix to a (possibly non-integer) power.
-hilb                 Generate a Hilbert matrix of the specified size.
-==================== =============================================================
+- mdot            Compute the matrix product of several matricies.
+- rank            Estimate the number of linearly independent rows in a matrix.
+- mpower          Raise a square matrix to a (possibly non-integer) power.
+- hilb            Generate a Hilbert matrix of the specified size.
+
 """
 
+__all__ = ['mdot','rank','mpower','hilb']
+
 from numpy import dot, eye, asarray, abs, shape, diag, \
-     complex, float, zeros, arange
+     complex, float, zeros, arange, real, imag, iscomplexobj, any
 from numpy.linalg import svd, eig, inv
 
 def mdot(*args):
@@ -58,10 +59,18 @@ def mpower(x,y):
     # Need to do this because negative reals can't be raised to a
     # noninteger exponent:
     if any(e < 0):
-        d = asarray(diag(e**y),complex)
+        d = diag(asarray(e,complex)**y)
     else:
         d = diag(e**y)
-    return mdot(v,d,inv(v))
+
+    # Return a complex array only if the input array was complex or
+    # the output of the computation contains complex numbers:
+    result = mdot(v,d,inv(v))
+    if not(iscomplexobj(x)) and not(any(imag(result))):
+        return real(result)
+    else:
+        return result
+    
 
 def hilb(n):
     """Construct a Hilbert matrix of size n x n."""
