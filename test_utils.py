@@ -76,8 +76,7 @@ def plot_encoded(t, u, s, fig_title='', file_name=''):
     p.gcf().canvas.set_window_title(fig_title)
     p.axes([0.125,0.3,0.775,0.6])
     p.stem(cs,u[np.asarray(cs/dt,int)])
-    p.hold()
-    p.plot(t,u)
+    p.plot(t,u,hold=True)
     p.xlabel('t (s)')
     p.ylabel('u(t)')
     p.title(fig_title)
@@ -90,7 +89,7 @@ def plot_encoded(t, u, s, fig_title='', file_name=''):
     if file_name:
         p.savefig(file_name)
 
-def plot_compare(t, u, v, fig_title, file_name=''):
+def plot_compare(t, u, v, fig_title='', file_name=''):
     """Compare two signals and plot the difference between them.
 
     Parameters
