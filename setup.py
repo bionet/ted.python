@@ -29,9 +29,8 @@ def configuration(parent_package='', top_path=None,
                            
 if __name__=="__main__":
     setup(configuration = configuration,
-          namespace_packages = ['bionet'],
-          packages = ['bionet.utils'],
-          package_dir = {'bionet.utils': '.'},
+          packages = ['bionet','bionet.utils'],
+          package_dir = {'bionet.utils': 'bionet/utils'},
           install_requires = ['numpy','tables'],
           classifiers = [
         'Development Status :: 4 - Beta',
