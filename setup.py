@@ -6,7 +6,7 @@ from numpy.distutils.core import setup
 
 DISTNAME = 'bionet.utils'
 DESCRIPTION = 'Bionet utilities'
-VERSION = '0.01'
+VERSION = '0.1'
 AUTHOR = 'Lev Givon'
 AUTHOR_EMAIL = 'lev@columbia.edu'
 URL = 'http://bionet.ee.columbia.edu/code'
