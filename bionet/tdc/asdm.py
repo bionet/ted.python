@@ -161,19 +161,16 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
     # use of one loop below to perform the integration regardless of
     # the method chosen:
     if quad_method == 'rect':
-
-        # Rectangular integration only requires one point at a time:
-        compute_y = lambda y_curr, u_0, u_1=0: y_curr + dt*(sgn*b+u_0)/k
-        last = nu
+        compute_y = lambda y_curr, i: y_curr + dt*(sgn*b+u[i])/k
+        last = nu-1
     elif quad_method == 'trapz':
-        compute_y = lambda y_curr, u_0, u_1: y_curr + \
-                    dt*(sgn*b+(u_0+u_1)/2.0)/k
+        compute_y = lambda y_curr, i: y_curr + dt*(sgn*b+(u[i]+u[i+1])/2.0)/k
         last = nu-1
     else:
         raise ValueError('unrecognized quadrature method')
     
     for i in xrange(last):
-        y = compute_y(y,u[i],u[i+1])
+        y = compute_y(y,i)
         interval += dt
         if abs(y) >= d:
             s.append(interval)
