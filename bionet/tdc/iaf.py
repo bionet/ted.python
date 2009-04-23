@@ -130,12 +130,12 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
 
     # Choose integration method:
     if isinf(R):        
-        y += dt*(u[0]+b)/C
-
         if quad_method == 'rect':
-            compute_y = lambda y_curr, *args: y_curr + dt*(b+args[0])/C
+            compute_y = lambda y,i: y + dt*(b+u[i])/C
+            last = nu
         elif quad_method == 'trapz':
-            compute_y = lambda y_curr, *args: y_curr + dt*(b+(args[0]+args[1])/2.0)/C
+            compute_y = lambda y,i: y + dt*(b+(u[i]+u[i+1])/2.0)/C
+            last = nu-1
         else:
             raise ValueError('unrecognized quadrature method')
     else:
@@ -143,14 +143,13 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
         # When the neuron is leaky, use the exponential Euler method to perform
         # the encoding:
         RC = R*C
-        y += dt*(u[0]+b)*exp(-dt/RC)
-        compute_y = lambda y_curr, *args: \
-            y_curr*exp(-dt/RC)+R*(1-exp(-dt/RC))*(b+args[0])
-
+        compute_y = lambda y,i: y*exp(-dt/RC)+R*(1-exp(-dt/RC))*(b+u[i])
+        last = nu
+        
     # The interval between spikes is saved between iterations rather than the
     # absolute time so as to avoid overflow problems for very long signals:
-    for i in xrange(1,nu):
-        y = compute_y(y,u[i],u[i-1])
+    for i in xrange(last):
+        y = compute_y(y,i)
         interval += dt
         if y >= d:
             s.append(interval)
