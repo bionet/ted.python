@@ -162,7 +162,7 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
     # the method chosen:
     if quad_method == 'rect':
         compute_y = lambda y,sgn,i: y + dt*(sgn*b+u[i])/k
-        last = nu-1
+        last = nu
     elif quad_method == 'trapz':
         compute_y = lambda y,sgn,i: y + dt*(sgn*b+(u[i]+u[i+1])/2.0)/k
         last = nu-1
