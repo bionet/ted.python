@@ -4,13 +4,18 @@ Installing the Time Domain Coding Tools
 1. The Time Domain Coding Tools require several 
    prerequisites in order to be installed:
 
-   Python 2.5       [http://www.python.org]
-   SetupTools 0.6c9 [http://peak.telecommunity.com/DevCenter/setuptools]
-   Numpy 1.2.0      [http://numpy.scipy.org]
-   Scipy 0.7.0      [http://www.scipy.org]
-   PyTables 2.1.1   [http://www.pytables.org]
+   Python 2.5          [http://www.python.org]
+   Numpy 1.2.0         [http://numpy.scipy.org]
+   Scipy 0.7.0         [http://www.scipy.org]
+   PyTables 2.1.1      [http://www.pytables.org]
+   Bionet Utils 0.1    [http://bionet.ee.columbia.edu/code]
 
-   Earlier versions of the above may also work.
+   To run the demo code and generate plots, the following package 
+   is also required:
+
+   Matplotlib 0.98.5.3 [http://matplotlib.sourceforge.net]
+
+   Earlier versions of the above packages may also work.
 
 2. Install the utilities by running
 

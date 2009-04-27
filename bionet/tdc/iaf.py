@@ -207,10 +207,10 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     # Compute G matrix and quanta:
     G = empty((nsh,nsh),float)
     if isinf(R):
-        for i in xrange(nsh):
-            for j in xrange(nsh):
-                G[i,j] = (sici(bw*(ts[i+1]-tsh[j]))[0]- \
-                          sici(bw*(ts[i]-tsh[j]))[0])/pi
+        for j in xrange(nsh):
+            temp = sici(bw*(ts-tsh[j]))[0]/pi
+            for i in xrange(nsh):
+                G[i,j] = temp[i+1]-temp[i]
         q = C*d-b*s[1:]
     else:
         for i in xrange(nsh):
@@ -222,9 +222,9 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
                 f = lambda t:sinc(bwpi*(t-tsh[j]))*bwpi*exp((ts[i+1]-t)/-RC)
                 G[i,j] = quad(f,ts[i],ts[i+1])[0]
         q = C*(d+b*R*(exp(-s[1:]/RC)-1))
-        
-    G_inv = pinv(G)
 
+    G_inv = pinv(G)
+    
     # Reconstruct signal by adding up the weighted sinc functions.
     u_rec = zeros(nt,float)
     c = dot(G_inv,q)
@@ -276,10 +276,10 @@ def iaf_decode_ins(s, dur, dt, bw, b, R=inf, C=1.0):
     # Compute G matrix:
     G = empty((nsh,nsh),float)
     if isinf(R):
-        for i in xrange(nsh):
-            for j in xrange(nsh):
-                G[i,j] = (sici(bw*(ts[i+1]-tsh[j]))[0]- \
-                          sici(bw*(ts[i]-tsh[j]))[0])/pi
+        for j in xrange(nsh):
+            temp = sici(bw*(ts-tsh[j]))[0]/pi
+            for i in xrange(nsh):
+                G[i,j] = temp[i+1]-temp[i]
     else:
         for i in xrange(nsh):
             for j in xrange(nsh):
@@ -290,11 +290,13 @@ def iaf_decode_ins(s, dur, dt, bw, b, R=inf, C=1.0):
                 f = lambda t:sinc(bwpi*(t-tsh[j]))*bwpi*exp((ts[i+1]-t)/-RC)
                 G[i,j] = quad(f,ts[i],ts[i+1])[0]
         
-    G_inv = pinv(G)
+    # Prepare matrix representations of compensation principle.  Note
+    # that constructing the inverse of B directly (which is easily
+    # done in this case) is faster than computing inv(B):
+    B = diag(ones(nsh-1),1)-eye(nsh)
+    B_inv = -triu(ones((nsh,nsh))) 
 
     # Apply compensation principle:
-    B = diag(ones(nsh-1),1)-eye(nsh)
-    B_inv = inv(B)
     if isinf(R):
         Bq = -b*diff(s)
     else:

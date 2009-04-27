@@ -3,9 +3,10 @@ Time Domain Coding Toolkit
 
 The Time Domain Coding Toolkit contains Python implementations of
 algorithms designed to reversibly convert finite-length, band-limited,
-digitally sampled signals to and from a time-domain
-representation. Sample code demonstrating the use of the
-implementations is included.
+digitally sampled signals to and from a time-domain representation
+consisting of a series of time intervals between fixed-amplitude
+spikes. Sample code demonstrating the use of the implementations is
+included.
 
 Authors & Acknowledgements
 ==========================
@@ -13,17 +14,32 @@ Authors & Acknowledgements
 The implementations in this package were written by Lev Givon,
 currently at the Bionet Group [1] at Columbia University. Some parts
 of the code are based (in part) on previous implementations written by
-other members of the Bionet Group:
+the following members of the Bionet Group:
 
 Eftychios Pnevmatikakis
 Yevgeniy Slutskiy
 Robert Turetsky
 
+Special thanks are due to the following Bionet Group members for 
+reviewing the code and providing useful suggestions:
+
+Robert Turetsky
+Yiyin Zhou
+
+All of the time encoding and decoding algorithms currently comprised
+by the toolkit were developed by Aurel Lazar [2], currently at
+Columbia University's Electrical Engineering Department.
+
 References
 ==========
 
 The algorithms implemented in this toolkit are described in the papers
-listed in the attached BibTeX bibliography.
+listed in the attached BibTeX bibliography. Further research on
+time domain coding and processing may be obtained from the Bionet Group
+publication server [3].
 
 [1] http://bionet.ee.columbia.edu
+[2] http://www.ee.columbia.edu/~aurel
+[3] http://bionet.ee.columbia.edu/publications.html
+
 
