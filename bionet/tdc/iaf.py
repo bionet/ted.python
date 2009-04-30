@@ -23,6 +23,9 @@ from scipy.special import sici
 
 from bionet.utils.numpy_extras import mdot
 
+# Pseudoinverse singular value cutoff:
+__pinv_rcond__ = 1e-8
+
 def iaf_recoverable(u, bw, b, d, R, C):
     """Determine whether a time-encoded signal can be perfectly
     recovered using an IAF decoder with the specified parameters.
@@ -196,10 +199,10 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     
     ts = cumsum(s) 
     tsh = (ts[0:-1]+ts[1:])/2
-
+    nsh = len(tsh)
+    
     nt = int(dur/dt)
     t = linspace(0,dur,nt)
-    nsh = len(tsh)
 
     bwpi = bw/pi
     RC = R*C
@@ -223,7 +226,7 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
                 G[i,j] = quad(f,ts[i],ts[i+1])[0]
         q = C*(d+b*R*(exp(-s[1:]/RC)-1))
 
-    G_inv = pinv(G)
+    G_inv = pinv(G,__pinv_rcond__)
     
     # Reconstruct signal by adding up the weighted sinc functions.
     u_rec = zeros(nt,float)
@@ -265,10 +268,10 @@ def iaf_decode_ins(s, dur, dt, bw, b, R=inf, C=1.0):
     
     ts = cumsum(s) 
     tsh = (ts[0:-1]+ts[1:])/2
-
+    nsh = len(tsh)
+    
     nt = int(dur/dt)
     t = linspace(0,dur,nt)
-    nsh = len(tsh)
 
     bwpi = bw/pi
     RC = R*C
@@ -309,7 +312,7 @@ def iaf_decode_ins(s, dur, dt, bw, b, R=inf, C=1.0):
     
     # Reconstruct signal by adding up the weighted sinc functions:
     u_rec = zeros(nt,float)
-    c = mdot(B_inv,pinv(mdot(B,G,B_inv)),Bq[:,newaxis])
+    c = mdot(B_inv,pinv(mdot(B,G,B_inv),__pinv_rcond__),Bq[:,newaxis])
     for i in xrange(nsh):
         u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
     return u_rec
@@ -356,10 +359,10 @@ def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
 
     ts = cumsum(s) 
     tsh = (ts[0:-1]+ts[1:])/2
-
+    nsh = len(tsh)
+    
     nt = int(dur/dt)
     t = linspace(0,dur,nt)
-    nsh = len(tsh)
 
     RC = R*C
     jbwM = 1j*bw/M
@@ -378,7 +381,7 @@ def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
     D = diag(s[1:])
     SD = dot(S,D)
     T = mdot(a,SD,conjugate(S.T))
-    dd = mdot(a,pinv(T),SD,P_inv,q[:,newaxis])
+    dd = mdot(a,pinv(T,__pinv_rcond__),SD,P_inv,q[:,newaxis])
 
     # Reconstruct signal:
     return ravel(real(jbwM*dot(m*dd.T,exp(jbwM*m[:,newaxis]*t))))
@@ -424,10 +427,10 @@ def iaf_decode_rec(s, dur, dt, bw, L, b, d, R=inf, C=1.0):
     
     ts = cumsum(s) 
     tsh = (ts[0:-1]+ts[1:])/2
-
+    nsh = len(tsh)
+    
     nt = int(dur/dt)
     t = linspace(0,dur,nt)
-    nsh = len(tsh)
 
     bwpi = bw/pi
     RC = R*C

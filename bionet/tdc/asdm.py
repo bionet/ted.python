@@ -20,6 +20,9 @@ from scipy.special import sici
 
 from bionet.utils.numpy_extras import mdot 
 
+# Pseudoinverse singular value cutoff:
+__pinv_rcond__ = 1e-8
+
 def asdm_recoverable_strict(u, bw, b, d, k):
     """Determine whether a time-encoded signal can be perfectly
     recovered using an ASDM decoder with the specified parameters.
@@ -218,10 +221,10 @@ def asdm_decode(s, dur, dt, bw, b, d, k):
     
     ts = cumsum(s)
     tsh = (ts[0:-1]+ts[1:])/2
-
+    nsh = len(tsh)
+    
     nt = int(dur/dt)
     t = linspace(0,dur,nt)
-    nsh = len(tsh)
     
     bwpi = bw/pi
     
@@ -235,7 +238,7 @@ def asdm_decode(s, dur, dt, bw, b, d, k):
         temp = sici(bw*(ts-tsh[j]))[0]/pi
         for i in xrange(nsh):
             G[i,j] = temp[i+1]-temp[i]
-    G_inv = pinv(G)
+    G_inv = pinv(G,__pinv_rcond__)
 
     # Compute quanta:
     q = array([(-1)**i for i in xrange(1,nsh+1)])*(2*k*d-b*s[1:])
@@ -286,10 +289,10 @@ def asdm_decode_ins(s, dur, dt, bw, b):
     
     ts = cumsum(s)
     tsh = (ts[0:-1]+ts[1:])/2
-
+    nsh = len(tsh)
+    
     nt = int(dur/dt)
     t = linspace(0,dur,nt)
-    nsh = len(tsh)
     
     bwpi = bw/pi
     
@@ -312,7 +315,7 @@ def asdm_decode_ins(s, dur, dt, bw, b):
     # first row of B is removed to eliminate boundary issues. The
     # weighted sinc functions are computed on the fly to save memory:
     u_rec = zeros(nt,float)
-    c = dot(pinv(dot(B[1:,:],G)),Bq[1:,newaxis])
+    c = dot(pinv(dot(B[1:,:],G),__pinv_rcond__),Bq[1:,newaxis])
     for i in xrange(nsh):
         u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
     return u_rec
@@ -348,10 +351,10 @@ def asdm_decode_ins2(s, dur, dt, bw, b):
     
     ts = cumsum(s)
     tsh = (ts[0:-1]+ts[1:])/2
-
+    nsh = len(tsh)
+    
     nt = int(dur/dt)
     t = linspace(0,dur,nt)
-    nsh = len(tsh)
     
     bwpi = bw/pi
     
@@ -378,7 +381,7 @@ def asdm_decode_ins2(s, dur, dt, bw, b):
     # Reconstruct signal by adding up the weighted sinc functions. The
     # weighted sinc functions are computed on the fly to save memory:
     u_rec = zeros(nt,float)
-    c = mdot(B_inv,pinv(mdot(B,G,B_inv)),Bq[:,newaxis])
+    c = mdot(B_inv,pinv(mdot(B,G,B_inv),__pinv_rcond__),Bq[:,newaxis])
     for i in xrange(nsh):
         u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
     return u_rec
@@ -420,10 +423,10 @@ def asdm_decode_ins3(s, dur, dt, bw, b):
     
     ts = cumsum(s)
     tsh = (ts[0:-1]+ts[1:])/2
-
+    nsh = len(tsh)-1
+    
     nt = int(dur/dt)
     t = linspace(0,dur,nt)
-    nsh = len(tsh)-1
     
     bwpi = bw/pi
     
@@ -444,7 +447,7 @@ def asdm_decode_ins3(s, dur, dt, bw, b):
     # Reconstruct signal by adding up the weighted sinc functions. The
     # weighted sinc functions are computed on the fly to save memory:
     u_rec = zeros(nt,float)
-    c = dot(pinv(G),Bq[:,newaxis])
+    c = dot(pinv(G,__pinv_rcond__),Bq[:,newaxis])
     for i in xrange(nsh):
         u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
     return u_rec
