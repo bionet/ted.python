@@ -60,21 +60,9 @@ u_rec = tu.func_timer(a.iaf_decode)(s,dur,dt,bw,b,d,R,C)
 tu.plot_compare(t,u,u_rec,fig_title,'iaf_output_%i.png' % out_count)
 
 out_count += 1
-fig_title = 'decoding using leaky threshold-insensitive IAF algorithm'
-print fig_title
-u_rec = tu.func_timer(a.iaf_decode_ins)(s,dur,dt,bw,b,R,C)
-tu.plot_compare(t,u,u_rec,fig_title,'iaf_output_%i.png' % out_count)
-
-out_count += 1
 fig_title = 'decoding using leaky fast IAF algorithm'
 print fig_title
 u_rec = tu.func_timer(a.iaf_decode_fast)(s,dur,dt,bw,M,b,d,R,C)
-tu.plot_compare(t,u,u_rec,fig_title,'iaf_output_%i.png' % out_count)
-
-out_count += 1
-fig_title = 'decoding using leaky recursive IAF algorithm'
-print fig_title
-u_rec = tu.func_timer(a.iaf_decode_rec)(s,dur,dt,bw,L,b,d,R,C)
 tu.plot_compare(t,u,u_rec,fig_title,'iaf_output_%i.png' % out_count)
 
 # Test nonleaky algorithms:
@@ -93,19 +81,8 @@ u_rec = tu.func_timer(a.iaf_decode)(s,dur,dt,bw,b,d,R,C)
 tu.plot_compare(t,u,u_rec,fig_title,'iaf_output_%i.png' % out_count)
 
 out_count += 1
-fig_title = 'decoding using nonleaky threshold-insensitive IAF algorithm'
-print fig_title
-u_rec = tu.func_timer(a.iaf_decode_ins)(s,dur,dt,bw,b,R,C)
-tu.plot_compare(t,u,u_rec,fig_title,'iaf_output_%i.png' % out_count)
-
-out_count += 1
 fig_title = 'decoding using nonleaky fast IAF algorithm'
 print fig_title
 u_rec = tu.func_timer(a.iaf_decode_fast)(s,dur,dt,bw,M,b,d,R,C)
 tu.plot_compare(t,u,u_rec,fig_title,'iaf_output_%i.png' % out_count)
 
-out_count += 1
-fig_title = 'decoding using nonleaky recursive IAF algorithm'
-print fig_title
-u_rec = tu.func_timer(a.iaf_decode_rec)(s,dur,dt,bw,L,b,d,R,C)
-tu.plot_compare(t,u,u_rec,fig_title,'iaf_output_%i.png' % out_count)

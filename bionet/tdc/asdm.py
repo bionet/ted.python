@@ -261,11 +261,6 @@ def asdm_decode_ins(s, dur, dt, bw, b):
     b: float
         Encoder bias.
 
-    Notes
-    -----
-    This implementation of the decoding algorithm has a slightly better
-    recovery error than the implementations in asdm_decode_ins2()
-    and asdm_decode_ins3().
     """
     
     ns = len(s)
@@ -301,127 +296,6 @@ def asdm_decode_ins(s, dur, dt, bw, b):
     # weighted sinc functions are computed on the fly to save memory:
     u_rec = zeros(nt,float)
     c = dot(pinv(dot(B[1:,:],G),__pinv_rcond__),Bq[1:,newaxis])
-    for i in xrange(nsh):
-        u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
-    return u_rec
-
-def asdm_decode_ins2(s, dur, dt, bw, b):    
-    """Decode a finite length signal encoded by an asynchronous sigma-delta
-    modulator using a threshold-insensitive recovery algorithm.
-
-    Parameters
-    ----------
-    s: numpy array of floats
-        Encoded signal. The values represent the time between spikes (in s).
-    dur: float
-        Duration of signal (in s).
-    dt: float
-        Sampling resolution of original signal; the sampling frequency
-        is 1/dt Hz.
-    bw: float
-        Signal bandwidth (in rad/s).
-    b: float
-        Encoder bias.
-
-    """
-    
-    ns = len(s)
-    if ns < 2:
-        raise ValueError('s must contain at least 2 elements') 
-    
-    ts = cumsum(s)
-    tsh = (ts[0:-1]+ts[1:])/2
-    nsh = len(tsh)
-    
-    nt = int(dur/dt)
-    t = linspace(0,dur,nt)
-    
-    bwpi = bw/pi
-    
-    # Compute G matrix:
-    G = empty((nsh,nsh),float)
-    for j in xrange(nsh):
-
-        # Compute the values for all of the sinc functions so that
-        # they do not need to each be recomputed when determining the
-        # integrals between spike times:
-        temp = sici(bw*(ts-tsh[j]))[0]/pi
-        for i in xrange(nsh):
-            G[i,j] = temp[i+1]-temp[i]
-
-    # Apply compensation principle:    
-    B = diag(ones(nsh-1),-1)+eye(nsh)
-    B_inv = inv(B)
-    Bq = array([(-1)**i for i in xrange(nsh)])*hstack((0,b*diff(s[1:])))
-
-    # Blank the nonzero entries in the first row of B and the last column
-    # of B_inv to eliminate boundary issues:
-    B[0,0] = B_inv[-1,-1] = 0.0
-
-    # Reconstruct signal by adding up the weighted sinc functions. The
-    # weighted sinc functions are computed on the fly to save memory:
-    u_rec = zeros(nt,float)
-    c = mdot(B_inv,pinv(mdot(B,G,B_inv),__pinv_rcond__),Bq[:,newaxis])
-    for i in xrange(nsh):
-        u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
-    return u_rec
-
-def asdm_decode_ins3(s, dur, dt, bw, b):    
-    """Decode a finite length signal encoded by an asynchronous sigma-delta
-    modulator using a threshold-insensitive recovery algorithm.
-
-    Parameters
-    ----------
-    s: numpy array of floats
-        Encoded signal. The values represent the time between spikes (in s).
-    dur: float
-        Duration of signal (in s).
-    dt: float
-        Sampling resolution of original signal; the sampling frequency
-        is 1/dt Hz.
-    bw: float
-        Signal bandwidth (in rad/s).
-    b: float
-        Encoder bias.
-
-    Notes
-    -----
-    This implementation of the decoding algorithm is slightly faster than that
-    in asdm_decode_ins() and asdm_decode_ins2(), although its recovery error is
-    not as good as that of asdm_decode_ins().
-    """
-    
-    ns = len(s)
-    if ns < 2:
-        raise ValueError('s must contain at least 2 elements') 
-    
-    ts = cumsum(s)
-    tsh = (ts[0:-1]+ts[1:])/2
-    nsh = len(tsh)-1
-    
-    nt = int(dur/dt)
-    t = linspace(0,dur,nt)
-    
-    bwpi = bw/pi
-    
-    # Compute G matrix:
-    G = empty((nsh,nsh),float)
-    for j in xrange(nsh):
-
-        # Compute the values for all of the sinc functions so that
-        # they do not need to each be recomputed when determining the
-        # integrals between spike times:
-        temp = sici(bw*(ts-tsh[j]))[0]/pi
-        for i in xrange(nsh):
-            G[i,j] = temp[i+2]-temp[i]
-    
-    # Apply compensation principle:
-    Bq = array([(-1)**i for i in xrange(1,nsh+1)])*b*(s[2:]-s[1:-1])
-
-    # Reconstruct signal by adding up the weighted sinc functions. The
-    # weighted sinc functions are computed on the fly to save memory:
-    u_rec = zeros(nt,float)
-    c = dot(pinv(G,__pinv_rcond__),Bq[:,newaxis])
     for i in xrange(nsh):
         u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
     return u_rec

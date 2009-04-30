@@ -6,7 +6,7 @@ integrate-and-fire neuron model.
 """
 
 __all__ = ['iaf_recoverable','iaf_encode','iaf_decode',
-           'iaf_decode_ins','iaf_decode_fast','iaf_decode_rec']
+           'iaf_decode_fast',']
 
 from numpy import array, abs, max, log, pi, real, imag, isreal, float,\
      isinf, exp, nonzero, diff, hstack, arange, triu, diag, dot, inf,\
@@ -229,85 +229,6 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
         u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
     return u_rec
 
-def iaf_decode_ins(s, dur, dt, bw, b, R=inf, C=1.0):
-    """Decode a finite length signal encoded by an integrate-and-fire
-    neuron using a threshold-insensitive recovery algorithm.
-
-    Parameters
-    ----------
-    s: numpy array of floats
-        Encoded signal. The values represent the time between spikes (in s).
-    dur: float
-        Duration of signal (in s).
-    dt: float
-        Sampling resolution of original signal; the sampling frequency
-        is 1/dt Hz.
-    bw: float
-        Signal bandwidth (in rad/s).
-    b: float
-        Encoder bias.
-    R: float
-        Neuron resistance.
-    C: float
-        Neuron capacitance.
-        
-    """
-
-    ns = len(s)
-    if ns < 2:
-        raise ValueError('s must contain at least 2 elements')
-    
-    ts = cumsum(s) 
-    tsh = (ts[0:-1]+ts[1:])/2
-    nsh = len(tsh)
-    
-    nt = int(dur/dt)
-    t = linspace(0,dur,nt)
-
-    bwpi = bw/pi
-    RC = R*C
-    
-    # Compute G matrix:
-    G = empty((nsh,nsh),float)
-    if isinf(R):
-        for j in xrange(nsh):
-            temp = sici(bw*(ts-tsh[j]))[0]/pi
-            for i in xrange(nsh):
-                G[i,j] = temp[i+1]-temp[i]
-    else:
-        for i in xrange(nsh):
-            for j in xrange(nsh):
-
-                # XXX: This explicit integration should replaced with
-                # a more efficient expression, e.g., possibly using
-                # the exponential integral:
-                f = lambda t:sinc(bwpi*(t-tsh[j]))*bwpi*exp((ts[i+1]-t)/-RC)
-                G[i,j] = quad(f,ts[i],ts[i+1])[0]
-        
-    # Prepare matrix representations of compensation principle.  Note
-    # that constructing the inverse of B directly (which is easily
-    # done in this case) is faster than computing inv(B):
-    B = diag(ones(nsh-1),1)-eye(nsh)
-    B_inv = -triu(ones((nsh,nsh))) 
-
-    # Apply compensation principle:
-    if isinf(R):
-        Bq = -b*diff(s)
-    else:
-        Bq = RC*b*diff(exp(-s/RC))
-
-    # Blank the last rows and columns of B and
-    # B_inv to eliminate boundary issues:
-    B[:,-1] = B[-1,:] = 0
-    B_inv[:,-1] = B_inv[-1,:] = 0
-    
-    # Reconstruct signal by adding up the weighted sinc functions:
-    u_rec = zeros(nt,float)
-    c = mdot(B_inv,pinv(mdot(B,G,B_inv),__pinv_rcond__),Bq[:,newaxis])
-    for i in xrange(nsh):
-        u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
-    return u_rec
-
 def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
     """Decode a finite length signal encoded by an integrate-and-fire
     neuron using a fast recovery algorithm.
@@ -372,84 +293,3 @@ def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
     # Reconstruct signal:
     return ravel(real(jbwM*dot(m*dd.T,exp(jbwM*m[:,newaxis]*t))))
 
-def iaf_decode_rec(s, dur, dt, bw, L, b, d, R=inf, C=1.0):
-    """Decode a finite length signal encoded by an integrate-and-fire
-    neuron using a recursive decoding operator algorithm.
-
-    Parameters
-    ----------
-    s: numpy array of floats
-        Encoded signal. The values represent the time between spikes (in s).
-    dur: float
-        Duration of signal (in s).
-    dt: float
-        Sampling resolution of original signal; the sampling frequency
-        is 1/dt Hz.
-    bw: float
-        Signal bandwidth (in rad/s).
-    L: int
-        Number of times to recursively apply the reconstruction operator.
-    b: float
-        Encoder bias.
-    d: float
-        Encoder threshold.
-    R: float
-        Neuron resistance.
-    C: float
-        Neuron capacitance.
-        
-    Notes
-    -----
-    The implementation of this algorithm can potentially be memory-intensive.
-    """
-
-    ns = len(s)
-    if ns < 2:
-        raise ValueError('s must contain at least 2 elements')
-    
-    ts = cumsum(s) 
-    tsh = (ts[0:-1]+ts[1:])/2
-    nsh = len(tsh)
-    
-    nt = int(dur/dt)
-    t = linspace(0,dur,nt)
-
-    bwpi = bw/pi
-    RC = R*C
-    
-    # Compute shifted sincs, G matrix, and quanta:
-    g = empty((nt,nsh),float)
-    G = empty((nsh,nsh),float)
-    if isinf(R):
-        for i in xrange(nsh):
-            g[:,i] = sinc(bwpi*(t-ts[i]))*bwpi
-            for j in xrange(nsh):
-                G[i,j] = (sici(bw*(ts[i+1]-tsh[j]))[0]- \
-                          sici(bw*(ts[i]-tsh[j]))[0])/pi
-        q = C*d-b*s[1:]
-    else:
-        for i in xrange(nsh):
-            g[:,i] = sinc(bwpi*(t-ts[i]))*bwpi
-            for j in xrange(nsh):
-
-                # XXX: This explicit integration should replaced with
-                # a more efficient expression, e.g., possibly using
-                # the exponential integral:
-                f = lambda t:sinc(bwpi*(t-tsh[j]))*bwpi*exp((ts[i+1]-t)/-RC)
-                G[i,j] = quad(f,ts[i],ts[i+1])[0]
-        q = C*(d+b*R*(exp(-s[1:]/RC)-1))
-
-    IG = eye(nsh)-G
-
-    # Recursively reconstruct signal:
-    u_rec = empty(nt,float)
-    IGj = eye(nsh)
-    for j in xrange(L+1):
-        u_curr = ravel(mdot(g,IGj,q[:,newaxis]))
-        if j>0:
-            u_rec += u_curr
-        else:
-            u_rec = u_curr
-        IGj = dot(IGj,IG)
-
-    return u_rec
