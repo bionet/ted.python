@@ -105,9 +105,6 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
     When trapezoidal integration is used, the value of the integral
     will not be computed for the very last entry in u.
 
-    References
-    ----------
-    Lazar, A.A. Unpublished lecture notes.
     """
 
     nu = len(u)
@@ -188,9 +185,6 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     C: float
         Neuron capacitance.
         
-    References
-    ----------
-    Lazar, A.A. Unpublished lecture notes.
     """
 
     ns = len(s)
@@ -257,9 +251,6 @@ def iaf_decode_ins(s, dur, dt, bw, b, R=inf, C=1.0):
     C: float
         Neuron capacitance.
         
-    References
-    ----------
-    Lazar, A.A. Unpublished lecture notes.
     """
 
     ns = len(s)
@@ -343,11 +334,6 @@ def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
     C: float
         Neuron capacitance.
         
-    References
-    ----------
-    Lazar, A.A, E.K. Simonyi, and L.T. Toth. Fast Recovery Algoritms
-    for Time Encoded Bandlimited Signals. IEEE Transactions on
-    Circuits and Systems-I: Regular Papers, 51:237-240, March 2005.
     """
     
     ns = len(s)
@@ -412,10 +398,6 @@ def iaf_decode_rec(s, dur, dt, bw, L, b, d, R=inf, C=1.0):
     C: float
         Neuron capacitance.
         
-    References
-    ----------
-    Lazar, A.A. Unpublished lecture notes.
-
     Notes
     -----
     The implementation of this algorithm can potentially be memory-intensive.

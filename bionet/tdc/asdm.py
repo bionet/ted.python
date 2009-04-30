@@ -130,11 +130,6 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
     When trapezoidal integration is used, the value of the integral
     will not be computed for the very last entry in u.
     
-    References
-    ----------
-    Lazar, A.A., and L.T. Toth. Perfect Recovery and Sensitivity Analysis
-    of Time Encoded Bandlimited Signals. IEEE Transactions on Circuits
-    and Systems-I: Regular Papers, 51(10):2060-2073, October 2004.
     """
     
     nu = len(u)
@@ -208,11 +203,6 @@ def asdm_decode(s, dur, dt, bw, b, d, k):
     k: float
         Encoder integrator constant.
         
-    References
-    ----------
-    Lazar, A.A., and L.T. Toth. Perfect Recovery and Sensitivity Analysis
-    of Time Encoded Bandlimited Signals. IEEE Transactions on Circuits
-    and Systems-I: Regular Papers, 51(10):2060-2073, October 2004.
     """
 
     ns = len(s)
@@ -269,12 +259,6 @@ def asdm_decode_ins(s, dur, dt, bw, b):
         Signal bandwidth (in rad/s).
     b: float
         Encoder bias.
-
-    References
-    ----------
-    Lazar, A.A., and L.T. Toth. Perfect Recovery and Sensitivity Analysis
-    of Time Encoded Bandlimited Signals. IEEE Transactions on Circuits
-    and Systems-I: Regular Papers, 51(10):2060-2073, October 2004.
 
     Notes
     -----

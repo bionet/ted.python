@@ -21,3 +21,13 @@ Installing the Time Domain Coding Tools
 
    python setup.py install
 
+3. Run the sample code in the demos/ subdirectory to make sure that
+   everything is working properly:
+
+   cd demos/
+   python *.py
+
+   These demos should generate a series of plots illustrating the
+   use of the various time encoding and decoding algorithms.
+
+   
