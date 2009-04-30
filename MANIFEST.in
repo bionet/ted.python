@@ -1,2 +1,2 @@
-include *.txt
+include README INSTALL LICENSE PAPERS
 recursive-include demos *.py
