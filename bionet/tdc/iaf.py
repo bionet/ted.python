@@ -6,7 +6,7 @@ integrate-and-fire neuron model.
 """
 
 __all__ = ['iaf_recoverable','iaf_encode','iaf_decode',
-           'iaf_decode_fast',']
+           'iaf_decode_fast']
 
 from numpy import array, abs, max, log, pi, real, imag, isreal, float,\
      isinf, exp, nonzero, diff, hstack, arange, triu, diag, dot, inf,\
