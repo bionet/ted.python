@@ -36,6 +36,8 @@ b = 3.5  # bias
 d = 0.7  # threshold
 k = 0.01 # scaling factor
 
+M = 5    # number of bins for fast decoding algorithm
+
 try:
     a.asdm_recoverable(u,bw,b,d,k)
 except ValueError('reconstruction condition not satisfied'):
@@ -60,3 +62,8 @@ print fig_title
 u_rec_ins = tu.func_timer(a.asdm_decode_ins)(s,dur,dt,bw,b)
 tu.plot_compare(t,u,u_rec_ins,fig_title,'asdm_output_%i.png' % out_count)
 
+out_count += 1
+fig_title = 'decoding using fast ASDM algorithm'
+print fig_title
+u_rec = tu.func_timer(a.asdm_decode_fast)(s,dur,dt,bw,M,b,d,k)
+tu.plot_compare(t,u,u_rec,fig_title,'asdm_output_%i.png' % out_count)

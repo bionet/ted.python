@@ -5,11 +5,12 @@ Time encoding and decoding algorithms that make use of the
 asynchronous sigma-delta modulator.
 """
 
-__all__ = ['asdm_recoverable','asdm_encode','asdm_decode','asdm_decode_ins']
+__all__ = ['asdm_recoverable','asdm_encode','asdm_decode',
+           'asdm_decode_ins','asdm_decode_fast']
            
 from numpy import max, abs, size, zeros, ones, float, pi, array,\
-     shape, dot, eye, sinc, hstack, newaxis, cumsum, linspace, empty,\
-     diag, diff, eye
+     shape, dot, sinc, hstack, newaxis, cumsum, linspace, empty,\
+     diag, diff, eye, arange, triu, exp, conjugate, ravel, real
 from numpy.linalg import inv, pinv
 from scipy.signal import resample
 
@@ -181,7 +182,7 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
     else:
         return array(s)
 
-def asdm_decode(s, dur, dt, bw, b, d, k):    
+def asdm_decode(s, dur, dt, bw, b, d, k=1.0):    
     """Decode a finite length signal encoded by an asynchronous sigma-delta
     modulator.
 
@@ -322,11 +323,6 @@ def asdm_decode_ins2(s, dur, dt, bw, b):
     b: float
         Encoder bias.
 
-    References
-    ----------
-    Lazar, A.A., and L.T. Toth. Perfect Recovery and Sensitivity Analysis
-    of Time Encoded Bandlimited Signals. IEEE Transactions on Circuits
-    and Systems-I: Regular Papers, 51(10):2060-2073, October 2004.
     """
     
     ns = len(s)
@@ -388,12 +384,6 @@ def asdm_decode_ins3(s, dur, dt, bw, b):
     b: float
         Encoder bias.
 
-    References
-    ----------
-    Lazar, A.A., and L.T. Toth. Perfect Recovery and Sensitivity Analysis
-    of Time Encoded Bandlimited Signals. IEEE Transactions on Circuits
-    and Systems-I: Regular Papers, 51(10):2060-2073, October 2004.
-
     Notes
     -----
     This implementation of the decoding algorithm is slightly faster than that
@@ -436,3 +426,60 @@ def asdm_decode_ins3(s, dur, dt, bw, b):
         u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
     return u_rec
 
+def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0):
+    """Decode a finite length signal encoded by an integrate-and-fire
+    neuron using a fast recovery algorithm.
+
+    Parameters
+    ----------
+    s: numpy array of floats
+        Encoded signal. The values represent the time between spikes (in s).
+    dur: float
+        Duration of signal (in s).
+    dt: float
+        Sampling resolution of original signal; the sampling frequency
+        is 1/dt Hz.
+    bw: float
+        Signal bandwidth (in rad/s).
+    M: int
+        Number of bins used by the fast algorithm.
+    b: float
+        Encoder bias.
+    d: float
+        Encoder threshold.
+    k: float
+        Encoder integrator constant.
+        
+    """
+    
+    ns = len(s)
+    if ns < 2:
+        raise ValueError('s must contain at least 2 elements')
+    
+    # Convert M in the event that an integer was specified:
+    M = float(M)
+
+    ts = cumsum(s) 
+    tsh = (ts[0:-1]+ts[1:])/2
+    nsh = len(tsh)
+    
+    nt = int(dur/dt)
+    t = linspace(0,dur,nt)
+
+    jbwM = 1j*bw/M
+
+    # Compute quanta:
+    q = array([(-1)**i for i in xrange(1,nsh+1)])*(2*k*d-b*s[1:])
+    
+    # Compute approximation coefficients:
+    a = bw/(pi*(2*M+1))
+    m = arange(-M,M+1)
+    P_inv = -triu(ones((nsh,nsh)))
+    S = exp(-jbwM*dot(m[:,newaxis],ts[:-1][newaxis]))
+    D = diag(s[1:])
+    SD = dot(S,D)
+    T = mdot(a,SD,conjugate(S.T))
+    dd = mdot(a,pinv(T,__pinv_rcond__),SD,P_inv,q[:,newaxis])
+
+    # Reconstruct signal:
+    return ravel(real(jbwM*dot(m*dd.T,exp(jbwM*m[:,newaxis]*t))))

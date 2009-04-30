@@ -310,7 +310,7 @@ def iaf_decode_ins(s, dur, dt, bw, b, R=inf, C=1.0):
 
 def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
     """Decode a finite length signal encoded by an integrate-and-fire
-    neuron using a threshold-insensitive recovery algorithm.
+    neuron using a fast recovery algorithm.
 
     Parameters
     ----------
