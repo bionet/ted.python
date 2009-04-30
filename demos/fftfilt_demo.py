@@ -5,6 +5,7 @@ Demo of fftfilt function.
 """
 
 import scipy.signal as si
+
 import bionet.utils.signal_extras as s
 import bionet.utils.gen_test_signal as g
 

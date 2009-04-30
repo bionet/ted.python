@@ -1,8 +1,8 @@
 Installing the Bionet Python Utilities
 ======================================
 
-1. The Bionet Python utilities require several prerequisites
-   in order to be installed:
+1. The Bionet Python utilities require several prerequisites in order
+   to be installed:
 
    Python 2.5          [http://www.python.org]
    Numpy 1.2.0         [http://numpy.scipy.org]
@@ -20,3 +20,5 @@ Installing the Bionet Python Utilities
 
    python setup.py install
 
+3. Sample code for some of the utilities is stored in the demos/
+   subdirectory. 

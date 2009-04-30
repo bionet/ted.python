@@ -1,3 +1,3 @@
-include *.txt
-recursive-include examples *.py
+include README INSTALL LICENSE
+recursive-include demos *.py
 recursive-include tests *.py

@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
 """
-Filter a signal using a Remez filter.
+Remez filter construction demo.
 """
 
 from numpy import pi
 from numpy.fft import fft
 from scipy.signal import lfilter, remez
 
-import utils.signal_extras as s
-import utils.gen_test_signal as g
+import bionet.utils.signal_extras as s
+import bionet.utils.gen_test_signal as g
 
 print 'creating test signal..'
 dur = 0.2
