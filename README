@@ -1,7 +1,7 @@
-Time Domain Coding Toolkit
+Time Domain Coding Toolbox
 ==========================
 
-The Time Domain Coding Toolkit contains Python implementations of
+The Time Domain Coding Toolbox contains Python implementations of
 algorithms designed to reversibly convert finite-length, band-limited,
 digitally sampled signals to and from a time-domain representation
 consisting of a series of time intervals between fixed-amplitude
@@ -27,13 +27,19 @@ Robert Turetsky
 Yiyin Zhou
 
 All of the time encoding and decoding algorithms currently comprised
-by the toolkit were developed by Aurel Lazar [2], currently at
+by the toolbox were developed by Aurel Lazar [2], currently at
 Columbia University's Electrical Engineering Department.
+
+Contact Information
+===================
+Please direct all questions and comments pertaining to this software to
+
+Lev Givon <lev@columbia.edu>
 
 References
 ==========
 
-The algorithms implemented in this toolkit are described in the papers
+The algorithms implemented in this toolbox are described in the papers
 listed in the attached BibTeX bibliography. Further research on
 time domain coding and processing may be obtained from the Bionet Group
 publication server [3].
