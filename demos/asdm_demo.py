@@ -11,7 +11,7 @@ import pylab as p
 
 import bionet.utils.gen_test_signal as g
 import bionet.utils.test_utils as tu
-import bionet.tdc.asdm as a
+import bionet.ted.asdm as a
 
 # Define algorithm parameters and input signal:
 dur = 0.1

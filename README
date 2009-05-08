@@ -1,12 +1,12 @@
-Time Domain Coding Toolbox
-==========================
+Time Encoding and Decoding Toolbox
+==================================
 
-The Time Domain Coding Toolbox contains Python implementations of
-algorithms designed to reversibly convert finite-length, band-limited,
-digitally sampled signals to and from a time-domain representation
-consisting of a series of time intervals between fixed-amplitude
-spikes. Sample code demonstrating the use of the implementations is
-included.
+The Time Encoding and Decoding Toolbox contains Python implementations
+of algorithms designed to reversibly convert finite-length,
+band-limited, digitally sampled signals to and from a time-domain
+representation consisting of a series of time intervals between
+fixed-amplitude spikes. Sample code demonstrating the use of the
+implementations is included.
 
 Authors & Acknowledgements
 ==========================

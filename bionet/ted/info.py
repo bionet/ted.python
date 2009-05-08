@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-Time Domain Coding Toolbox
-==========================
+Time Encoding and Decoding Toolbox
+==================================
 
 Routines for converting finite-length, band-limited, digitally sampled
 signals to and from a time domain representation.
