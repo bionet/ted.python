@@ -61,7 +61,7 @@ def gen_test_signal(dur,dt,fmax,np=None,nc=3):
             temp = randint(1,fmaxi+1)
         ci.add(temp)
     ci = array(list(ci))
-    p = -pi*rand(nc)
+    p = -2*pi*rand(nc)
     f[ci] = (n/2)*exp(1j*p)
 
     # Create the signal by transforming the constructed frequency
