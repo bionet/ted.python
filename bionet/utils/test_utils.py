@@ -50,6 +50,7 @@ def plot_signal(t, u, fig_title='', file_name=''):
 
     # Make the x axis exactly correspond to the plotted signal's time range:
     p.gca().set_xlim(min(t),max(t)) 
+    p.draw_if_interactive()
     if file_name:
         p.savefig(file_name)
 
@@ -87,6 +88,7 @@ def plot_encoded(t, u, s, fig_title='', file_name=''):
     a.set_yticklabels([])
     p.xlabel('%d spikes' % len(s))
     p.gca().set_xlim(min(t),max(t))
+    p.draw_if_interactive()
     if file_name:
         p.savefig(file_name)
 
@@ -118,6 +120,7 @@ def plot_compare(t, u, v, fig_title='', file_name=''):
     p.xlabel('t')
     p.ylabel('error (dB)')
     p.gca().set_xlim(min(t),max(t))
+    p.draw_if_interactive()
     if file_name:
         p.savefig(file_name)
 
