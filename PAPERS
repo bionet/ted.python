@@ -31,3 +31,15 @@
 	year = {2005},
 	pages = {401--407}
 },
+
+@article{lazar_information_2007,
+        title = {Information Representation with an Ensemble of
+        {Hodgkin-Huxley} Neurons},
+        volume = {70},
+        url = {http://neuron.ee.columbia.edu:3000/citation/paperfile/22/lazar_neurocomp07.pdf},
+        journal = {Neurocomputing},
+        author = {Aurel A. Lazar},
+        month = jun,
+        year = {2007},
+        pages = {1764--1771}
+},

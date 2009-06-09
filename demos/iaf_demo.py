@@ -5,9 +5,7 @@ Demos for IAF time encoding and decoding algorithms.
 """
 
 import sys
-
 import numpy as np
-import pylab as p
 
 import bionet.utils.gen_test_signal as g
 import bionet.utils.test_utils as tu
