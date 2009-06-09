@@ -8,11 +8,17 @@ representation consisting of a series of time intervals between
 fixed-amplitude spikes. Sample code demonstrating the use of the
 implementations is included.
 
+Future releases of the Toolbox (and other software written by
+members of the Bionet Group [1] at Columbia University) can be obtained 
+from
+
+http://bionet.ee.columbia.edu/code/
+
 Authors & Acknowledgements
 ==========================
 
 The implementations in this package were written by Lev Givon,
-currently at the Bionet Group [1] at Columbia University. Some parts
+currently at the Bionet Group at Columbia University. Some parts
 of the code are based (in part) on previous implementations written by
 the following members of the Bionet Group:
 
