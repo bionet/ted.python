@@ -5,17 +5,16 @@ Installation Instructions
    prerequisites in order to be installed:
 
    Python 2.5          [http://www.python.org]
+   Cython 0.11.2       [http://www.cython.org]
    Numpy 1.2.0         [http://numpy.scipy.org]
    Scipy 0.7.0         [http://www.scipy.org]
-   PyTables 2.1.1      [http://www.pytables.org]
+   PyTables 2.0.0      [http://www.pytables.org]
    Bionet Utils 0.01   [http://bionet.ee.columbia.edu/code]
 
    To run the demo code and generate plots, the following package 
    is also required:
 
-   Matplotlib 0.98.5.3 [http://matplotlib.sourceforge.net]
-
-   Earlier versions of the above packages may also work.
+   Matplotlib 0.98     [http://matplotlib.sourceforge.net]
 
 2. Install the utilities by running
 

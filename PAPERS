@@ -1,24 +1,24 @@
-@inproceedings{aurel_a_fast_2004,
+@inproceedings{lazar_fast_2004,
 	title = {Fast Recovery Algorithms of Time Encoded Bandlimited Signals},
 	volume = {4},
 	url = {http://neuron.ee.columbia.edu:3000/citation/paperfile/5/icassp05.pdf},
 	booktitle = {Proceedings of the International Conference on Acoustics, Speech and Signal Processing},
-	author = {Aurel A. Lazar and Ern\Ho K. Simonyi and L\'azl\'o T. T\'oth},
+	author = {Aurel A. Lazar and Ernő K. Simonyi and Lázló T. Tóth},
 	month = mar,
 	year = {2004},
 	pages = {237--240}
 },
 
-@article{aurel_a_perfect_2004,
-	title = {Perfect Recovery and Sensitivity Analysis of Time Encoded Bandlimited Signals},
-	volume = {51},
-	url = {http://bionet.ee.columbia.edu:3000/citation/paperfile/8/tcas04.pdf},
-	number = {10},
-	journal = {{IEEE} Transactions on Circuits and {Systems-I:} Regular Papers},
-	author = {Aurel A. Lazar and L\'azl\'o T. T\'oth},
-	month = oct,
-	year = {2004},
-	pages = {2060--2073}
+@article{lazar_information_2007,
+        title = {Information Representation with an Ensemble of
+        {Hodgkin-Huxley} Neurons},
+        volume = {70},
+        url = {http://neuron.ee.columbia.edu:3000/citation/paperfile/22/lazar_neurocomp07.pdf},
+        journal = {Neurocomputing},
+        author = {Aurel A. Lazar},
+        month = jun,
+        year = {2007},
+        pages = {1764--1771}
 },
 
 @article{lazar_multichannel_2005,
@@ -32,14 +32,26 @@
 	pages = {401--407}
 },
 
-@article{lazar_information_2007,
-        title = {Information Representation with an Ensemble of
-        {Hodgkin-Huxley} Neurons},
-        volume = {70},
-        url = {http://neuron.ee.columbia.edu:3000/citation/paperfile/22/lazar_neurocomp07.pdf},
-        journal = {Neurocomputing},
-        author = {Aurel A. Lazar},
-        month = jun,
-        year = {2007},
-        pages = {1764--1771}
+@article{lazar_overcomplete_2008,
+	title = {An Overcomplete Stitching Algorithm for Time Decoding Machines},
+	volume = {55},
+	url = {http://bionet.ee.columbia.edu:3000/citation/paperfile/29/lazar_tcasI_08.pdf},
+	number = {8},
+	journal = {{IEEE} Transactions on Circuits and Systems - I: Regular Papers},
+	author = {Aurel A. Lazar and Ernő K. Simonyi and László T. Tóth},
+	month = oct,
+	year = {2008},
+	pages = {2619--2630}
+},
+
+@article{lazar_perfect_2004,
+	title = {Perfect Recovery and Sensitivity Analysis of Time Encoded Bandlimited Signals},
+	volume = {51},
+	url = {http://bionet.ee.columbia.edu:3000/citation/paperfile/8/tcas04.pdf},
+	number = {10},
+	journal = {{IEEE} Transactions on Circuits and {Systems-I:} Regular Papers},
+	author = {Aurel A. Lazar and Lázló T. Tóth},
+	month = oct,
+	year = {2004},
+	pages = {2060--2073}
 },

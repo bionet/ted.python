@@ -4,17 +4,31 @@ import os
 import sys
 import time
 
-from numpy.distutils.core import setup
+from distutils.core import setup
+from distutils.extension import Extension
+from distutils.sysconfig import get_python_lib
+from Cython.Distutils import build_ext
 
-DISTNAME =     'bionet.ted'
-DESCRIPTION =  'Time Encoding and Decoding Toolbox'
-AUTHOR =       'Lev Givon'
-AUTHOR_EMAIL = 'lev@columbia.edu'
-URL =          'http://bionet.ee.columbia.edu/code'
-DOWNLOAD_URL = URL
-LICENSE =      'BSD'
-VERSION =      '0.02'
-IS_RELEASED =   False
+NAME =               'bionet.ted'
+VERSION =            '0.02'
+IS_RELEASED =        False
+AUTHOR =             'Lev Givon'
+AUTHOR_EMAIL =       'lev@columbia.edu'
+URL =                'http://bionet.ee.columbia.edu/code/'
+MAINTAINER =         'Lev Givon'
+MAINTAINER_EMAIL =   'lev@columbia.edu'
+DESCRIPTION =        'Time Encoding and Decoding Toolbox'
+DOWNLOAD_URL =       URL
+LICENSE =            'BSD'
+CLASSIFIERS = [
+    'Development Status :: 4 - Beta',
+    'Intended Audience :: Developers',
+    'Intended Audience :: Science/Research',
+    'License :: OSI Approved :: BSD License',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Topic :: Scientific/Engineering',
+    'Topic :: Software Development']
 
 def get_version(version, is_released=True):
 
@@ -54,33 +68,32 @@ def write_version_py(version,filename='bionet/ted/version.py'):
     f.write("__version__ = '"+version+"'\n")
     f.close()
     
-def configuration(parent_package='', top_path=None,
-                  package_name=DISTNAME):
-    if os.path.exists('MANIFEST'): os.remove('MANIFEST')
-    from numpy.distutils.misc_util import Configuration
-    config = Configuration(package_name, parent_package, top_path,
-                           version = VERSION,
-                           author = AUTHOR,
-                           author_email = AUTHOR_EMAIL,
-                           description = DESCRIPTION,
-                           license = LICENSE,
-                           url = URL,
-                           download_url = DOWNLOAD_URL)
-    return config
-                           
+if sys.platform in ['linux2','darwin']:
+    ext_name = 'bionet.ted.bpa_cython_' + sys.platform
+    bpa_cython = Extension(ext_name,
+                           ['bionet/ted/bpa_cython.pyx'],
+                           [get_python_lib() + '/numpy/core/include'])
+else:
+    bpa_cython = None
+
 if __name__=="__main__":
+    if os.path.exists('MANIFEST'):
+        os.remove('MANIFEST')
+
     write_version_py(get_version(VERSION,IS_RELEASED))
     
-    setup(configuration = configuration,
+    setup(name = NAME,
+          version = get_version(VERSION,IS_RELEASED),
+          author = AUTHOR,
+          author_email = AUTHOR_EMAIL,
+          url = URL,
+          maintainer = MAINTAINER,
+          maintainer_email = MAINTAINER_EMAIL,
+          description = DESCRIPTION,
+          license = LICENSE,
+          classifiers = CLASSIFIERS,
+
           packages = ['bionet','bionet.ted'],
           package_dir = {'bionet.ted': 'bionet/ted'},
-          install_requires = ['numpy','scipy','bionet.utils'],
-          classifiers = [
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: BSD License',
-	'Operating System :: OS Independent',
-	'Programming Language :: Python',
-        'Topic :: Scientific/Engineering',
-        'Topic :: Software Development'])
+          ext_modules = [bpa_cython],
+          cmdclass = {'build_ext':build_ext})
