@@ -6,7 +6,8 @@ asynchronous sigma-delta modulator.
 """
 
 __all__ = ['asdm_recoverable','asdm_encode','asdm_decode',
-           'asdm_decode_ins','asdm_decode_fast']
+           'asdm_decode_ins','asdm_decode_fast',
+	   'asdm_decode_pop','asdm_decode_pop_ins']
            
 from numpy import max, abs, size, zeros, ones, float, pi, array,\
      shape, dot, sinc, hstack, newaxis, cumsum, linspace, empty,\
