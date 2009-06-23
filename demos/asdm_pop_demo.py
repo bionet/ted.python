@@ -64,12 +64,12 @@ tu.plot_encoded(t,u,s2,fig_title,'asdm_output_%i.png' % out_count)
 out_count += 1
 fig_title = 'decoding using ASDM population algorithm'
 print fig_title
-u_rec = tu.func_timer(a.pop_decode)([s1,s2],dur,dt,bw,[b1,b2],[d1,d2],[k1,k2])
+u_rec = tu.func_timer(a.asdm_decode_pop)([s1,s2],dur,dt,bw,[b1,b2],[d1,d2],[k1,k2])
 tu.plot_compare(t,u,u_rec,fig_title,'asdm_output_%i.png' % out_count)
 
 out_count += 1
 fig_title = 'decoding using threshold-insensitive ASDM population algorithm'
 print fig_title
-u_rec = tu.func_timer(a.pop_decode_ins)([s1,s2],dur,dt,bw,[b1,b2])
+u_rec = tu.func_timer(a.asdm_decode_pop_ins)([s1,s2],dur,dt,bw,[b1,b2])
 tu.plot_compare(t,u,u_rec,fig_title,'asdm_output_%i.png' % out_count)
 
