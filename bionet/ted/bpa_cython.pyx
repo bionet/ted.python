@@ -1,4 +1,7 @@
 # -*- Mode: python -*- 
+
+__all__ = ['bpa']
+
 include "numpy.pxd"
 import numpy as np
 

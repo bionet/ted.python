@@ -12,14 +12,14 @@ import sys
 
 if sys.platform == 'linux2':
     try:
-        from bpa_cython_linux2 import *
+        from bionet.ted.bpa_cython_linux2 import *
     except ImportError:
-        from bpa_python import *
+        from bionet.ted.bpa_python import *
 elif sys.platform == 'darwin':
     try:
-        from bpa_cython_darwin import *
+        from bionet.ted.bpa_cython_darwin import *
     except ImportError:
-        from bpa_python import *
+        from bionet.ted.bpa_python import *
 else:
-    from bpa_python import *
+    from bionet.ted.bpa_python import *
 

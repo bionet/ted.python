@@ -5,6 +5,8 @@ Python implementation of the Bjork-Pereyra algorithm for solving Vandermonde
 systems.
 """
 
+__all__ = ['bpa']
+
 import numpy as np
 
 def isvander(V):
