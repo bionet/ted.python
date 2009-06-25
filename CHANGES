@@ -1,0 +1,10 @@
+Release 0.011 - ()
+
+* Make random phase of generated test signal uniformly distributed
+  over the range [0,2*pi].
+* Improve plotting.
+
+Release 0.01 - (May 8, 2009)
+============================
+
+* First public release.

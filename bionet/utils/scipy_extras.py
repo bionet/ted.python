@@ -14,19 +14,19 @@ scipy.
 - chi             Compute the hyperbolic cosine of a complex value.
 """
 
-__all__ = ['ei','si','ci','li','shi','chi']
+__all__ = ['ei', 'si', 'ci', 'li', 'shi', 'chi']
 
 from numpy import pi, inf, log, array, asarray, complex, iscomplexobj, real, \
-     iterable, asscalar, any, where, isnan
+     iterable, asscalar, any, where
 from scipy.special import exp1
 
 def ei(z):
     """Compute the exponential integral of a complex value."""
 
     if iterable(z):
-        zc = asarray(z,complex)
+        zc = asarray(z, complex)
     else:
-        zc = array(z,complex,ndmin=1)
+        zc = array(z, complex, ndmin=1)
     res = -exp1(-zc)+(log(zc)-log(1.0/zc))/2.0-log(-zc)
     if not iscomplexobj(z):
         res = real(res)
@@ -45,9 +45,9 @@ def si(z):
     """Compute the sine integral of a complex value."""
 
     if iterable(z):
-        zc = asarray(z,complex)
+        zc = asarray(z, complex)
     else:
-        zc = array(z,complex,ndmin=1)
+        zc = array(z, complex, ndmin=1)
     res = (1j/2)*(exp1(-1j*zc)-exp1(1j*zc)+log(-1j*zc)-log(1j*zc))
     if not iscomplexobj(z):
         res = real(res)
@@ -66,9 +66,9 @@ def ci(z):
     """Compute the cosine integral of a complex value."""
 
     if iterable(z):
-        zc = asarray(z,complex)
+        zc = asarray(z, complex)
     else:
-        zc = array(z,complex,ndmin=1)
+        zc = array(z, complex, ndmin=1)
     res = log(zc)-(exp1(-1j*zc)+exp1(1j*zc)+log(-1j*zc)+log(1j*zc))/2.0
 
     if not iscomplexobj(z):
@@ -88,9 +88,9 @@ def li(z):
     """Compute the logarithmic integral of a complex value."""
 
     if iterable(z):
-        zc = asarray(z,complex)
+        zc = asarray(z, complex)
     else:
-        zc = array(z,complex,ndmin=1)
+        zc = array(z, complex, ndmin=1)
     res = -exp1(-log(zc))+(log(log(zc))-log(1/log(zc)))/2.0-log(-log(zc))
     if not iscomplexobj(z) and not any(z < 0):
         res = real(res)
@@ -109,9 +109,9 @@ def shi(z):
     """Compute the hyperbolic sine integral of a complex value."""
 
     if iterable(z):
-        zc = asarray(z,complex)
+        zc = asarray(z, complex)
     else:
-        zc = array(z,complex,ndmin=1)
+        zc = array(z, complex, ndmin=1)
     res = (exp1(zc)-exp1(-zc)-log(-zc)+log(zc))/2.0
     if not iscomplexobj(z):
         res = real(res)
@@ -130,9 +130,9 @@ def chi(z):
     """Compute the hyperbolic cosine integral of a complex value."""
 
     if iterable(z):
-        zc = asarray(z,complex)
+        zc = asarray(z, complex)
     else:
-        zc = array(z,complex,ndmin=1)
+        zc = array(z, complex, ndmin=1)
     res = -(exp1(-zc)+exp1(zc)+log(-zc)-log(zc))/2.0
     if not iscomplexobj(z):
         res = real(res)

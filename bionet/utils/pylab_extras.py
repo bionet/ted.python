@@ -13,10 +13,10 @@ Matlab that are not in pylab.
 
 """
 
-__all__ = ['eps','realmax','realmin']
+__all__ = ['eps', 'realmax', 'realmin']
 
 from numpy import finfo, single, float, double, longdouble, \
-     ceil, floor, log2, abs, inf, NaN
+     floor, log2, abs, inf, NaN
 
 finfo_dict = {single:finfo(single),
               float:finfo(float),
@@ -59,7 +59,7 @@ def eps(x):
     xmin = finfo_dict[t].machar.xmin
     
     x = abs(x)
-    if x in (inf,NaN):
+    if x in (inf, NaN):
         return NaN
     elif x >= xmax:
         return ibeta**(maxexp+negep)

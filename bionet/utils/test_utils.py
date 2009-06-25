@@ -4,8 +4,8 @@
 Various functions for testing performance and results.
 """
 
-__all__ = ['func_timer','plot_signal','plot_encoded',
-           'plot_compare','plot_fourier']
+__all__ = ['func_timer', 'plot_signal', 'plot_encoded',
+           'plot_compare', 'plot_fourier']
 
 import time
 
@@ -16,9 +16,9 @@ def func_timer(f):
     """Time the execution of function f. If arguments are specified,
     they are passed to the function being timed."""
 
-    def wrapper(*args,**kwargs):
+    def wrapper(*args, **kwargs):
         start = time.time()
-        res = f(*args,**kwargs)
+        res = f(*args, **kwargs)
         stop = time.time()
         print 'execution time = %.3f s' % (stop-start)
         return res
@@ -43,13 +43,13 @@ def plot_signal(t, u, fig_title='', file_name=''):
 
     # Set the plot window title:
     p.gcf().canvas.set_window_title(fig_title)
-    p.plot(t,u)
+    p.plot(t, u)
     p.xlabel('t (s)')
     p.ylabel('u(t)')
     p.title(fig_title)
 
     # Make the x axis exactly correspond to the plotted signal's time range:
-    p.gca().set_xlim(min(t),max(t)) 
+    p.gca().set_xlim(min(t), max(t)) 
     p.draw_if_interactive()
     if file_name:
         p.savefig(file_name)
@@ -75,19 +75,19 @@ def plot_encoded(t, u, s, fig_title='', file_name=''):
     cs = np.cumsum(s)
     p.clf()
     p.gcf().canvas.set_window_title(fig_title)
-    p.axes([0.125,0.3,0.775,0.6])
-    p.vlines(cs,np.zeros(len(cs)),u[np.asarray(cs/dt,int)],'b')
-    p.hlines(0,0,max(t),'r')
-    p.plot(t,u,hold=True)
+    p.axes([0.125, 0.3, 0.775, 0.6])
+    p.vlines(cs, np.zeros(len(cs)), u[np.asarray(cs/dt, int)], 'b')
+    p.hlines(0, 0, max(t), 'r')
+    p.plot(t, u, hold=True)
     p.xlabel('t (s)')
     p.ylabel('u(t)')
     p.title(fig_title)
-    p.gca().set_xlim(min(t),max(t))
-    a = p.axes([0.125,0.1,0.775,0.1])
-    p.plot(cs,np.zeros(len(s)),'ro')
+    p.gca().set_xlim(min(t), max(t))
+    a = p.axes([0.125, 0.1, 0.775, 0.1])
+    p.plot(cs, np.zeros(len(s)), 'ro')
     a.set_yticklabels([])
     p.xlabel('%d spikes' % len(s))
-    p.gca().set_xlim(min(t),max(t))
+    p.gca().set_xlim(min(t), max(t))
     p.draw_if_interactive()
     if file_name:
         p.savefig(file_name)
@@ -110,16 +110,16 @@ def plot_compare(t, u, v, fig_title='', file_name=''):
     p.clf()
     p.gcf().canvas.set_window_title(fig_title)
     p.subplot(211)
-    p.plot(t,u,'b',t,v,'r')
+    p.plot(t, u, 'b', t, v, 'r')
     p.xlabel('t (s)')
     p.ylabel('u(t)')
     p.title(fig_title)
-    p.gca().set_xlim(min(t),max(t))
+    p.gca().set_xlim(min(t), max(t))
     p.subplot(212)
-    p.plot(t,20*np.log10(abs(u-v)))
+    p.plot(t, 20*np.log10(abs(u-v)))
     p.xlabel('t')
     p.ylabel('error (dB)')
-    p.gca().set_xlim(min(t),max(t))
+    p.gca().set_xlim(min(t), max(t))
     p.draw_if_interactive()
     if file_name:
         p.savefig(file_name)
@@ -158,16 +158,16 @@ def plot_fourier(u, fs, *args):
     
     n = len(u)/2
     uf = fft(u)[0:n]
-    f = (fs/2)*arange(0,n)/n
+    f = (fs/2)*arange(0, n)/n
 
     a = int(2.0*n*fmin/fs)
     b = int(2.0*n*fmax/fs)
 
     p.clf()
     p.subplot(211)
-    p.stem(f[a:b],real(uf)[a:b])
+    p.stem(f[a:b], real(uf)[a:b])
     p.ylabel('real')
     p.subplot(212)
-    p.stem(f[a:b],imag(uf)[a:b])
+    p.stem(f[a:b], imag(uf)[a:b])
     p.ylabel('imag')
     p.xlabel('f (Hz)')

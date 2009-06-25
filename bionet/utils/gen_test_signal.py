@@ -6,13 +6,12 @@ Algorithm for generating band-limited test signals.
 
 __all__ = ['gen_test_signal']
 
-from numpy import arange,size,pi,sin,zeros,float,\
-     complex,real,exp,array
-from numpy.random import rand,randn,randint
+from numpy import pi, zeros, complex, exp, array
+from numpy.random import rand, randn, randint
 from numpy.fft import irfft
-from scipy.signal import firwin,lfilter
+from scipy.signal import firwin, lfilter
 
-def gen_test_signal(dur,dt,fmax,np=None,nc=3):
+def gen_test_signal(dur, dt, fmax, np=None, nc=3):
     """Generate a uniformly sampled, band-limited signal.
 
     Parameters
@@ -47,18 +46,18 @@ def gen_test_signal(dur,dt,fmax,np=None,nc=3):
     
     # Randomly set nc distinct frequency components:    
     n = int(dur/dt)
-    f = zeros(int(n/2)+1,complex) # only one side of the spectrum is needed
+    f = zeros(int(n/2)+1, complex) # only one side of the spectrum is needed
     fmaxi = int(n*fmax/fs)
     if fmaxi < nc:
-        raise ValueError('maximum frequency %f is too low to provide %i frequency components' % (fmax,nc))
+        raise ValueError("maximum frequency %f is too low to provide %i frequency components" % (fmax, nc))
 
     # The first element in the fft corresponds to the DC component;
     # hence, it is not set:
     ci = set()
     while len(ci) < nc:
-        temp = randint(1,fmaxi+1)
+        temp = randint(1, fmaxi+1)
         while temp in ci:
-            temp = randint(1,fmaxi+1)
+            temp = randint(1, fmaxi+1)
         ci.add(temp)
     ci = array(list(ci))
     p = -2*pi*rand(nc)
@@ -75,7 +74,7 @@ def gen_test_signal(dur,dt,fmax,np=None,nc=3):
     # introduced by the noise. Since a cutoff of 1 corresponds to the
     # Nyquist frequency 1/(2*dt), the cutoff corresponding to the
     # frequency fmax must be fmax/(1/2*dt):
-    b = firwin(40,2*fmax*dt)
-    u = lfilter(b,1,u)
+    b = firwin(40, 2*fmax*dt)
+    u = lfilter(b, 1, u)
 
     return u

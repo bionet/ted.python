@@ -13,8 +13,8 @@ AUTHOR_EMAIL = 'lev@columbia.edu'
 URL =          'http://bionet.ee.columbia.edu/code'
 DOWNLOAD_URL = URL
 LICENSE =      'BSD'
-VERSION =      '0.01'
-IS_RELEASED =  True
+VERSION =      '0.011'
+IS_RELEASED =  False
 
 def get_version(version, is_released=True):
 
