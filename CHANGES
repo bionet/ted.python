@@ -1,7 +1,8 @@
-Release 0.02 - ( )
-==================
+Release 0.02 - (June 26,2009)
+=============================
 * Add real-time encoding and decoding algorithms.
 * Add ASDM population decoding algorithms.
+* Make code more readable.
 
 Release 0.011 - (May 08, 2009)
 ==============================
