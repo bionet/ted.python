@@ -11,7 +11,7 @@ from Cython.Distutils import build_ext
 
 NAME =               'bionet.ted'
 VERSION =            '0.02'
-IS_RELEASED =        False
+IS_RELEASED =        True
 AUTHOR =             'Lev Givon'
 AUTHOR_EMAIL =       'lev@columbia.edu'
 URL =                'http://bionet.ee.columbia.edu/code/'
