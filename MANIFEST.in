@@ -1,2 +1,2 @@
-include README INSTALL LICENSE PAPERS
+include CHANGES INSTALL LICENSE PAPERS README
 recursive-include demos *.py
