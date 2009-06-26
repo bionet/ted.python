@@ -1,3 +1,8 @@
+Release 0.02 - ( )
+==================
+* Add real-time encoding and decoding algorithms.
+* Add ASDM population decoding algorithms.
+
 Release 0.011 - (May 08, 2009)
 ==============================
 * Change package name to Time Encoding and Decoding Toolbox.

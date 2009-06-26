@@ -37,8 +37,8 @@ def bpa(ndarray V, ndarray b):
     cdef ndarray z_array
     cdef ndarray b_array
 
-    z_array = np.array(V[:,1],np.complex)
-    b_array = np.array(b.flatten(),np.complex)
+    z_array = np.array(V[:, 1], np.complex)
+    b_array = np.array(b.flatten(), np.complex)
 
     if b_array.shape[0] <> N:
         raise ValueError('size mismatch between V and b')
@@ -58,7 +58,7 @@ def bpa(ndarray V, ndarray b):
             b_data[m] = b_data[m]-(b_data[m+1]*z_data[n])
 
     if np.iscomplexobj(V) or np.iscomplexobj(b):
-        return np.reshape(b_array,bs)
+        return np.reshape(b_array, bs)
     else:
-        return np.reshape(np.real(b_array),bs)
+        return np.reshape(np.real(b_array), bs)
 

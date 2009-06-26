@@ -4,11 +4,11 @@
 Block-based time decoding algorithm used by real-time time decoding algorithm.
 """
 
-__all__ = ['vander_decode','vander_decode_ins']
+__all__ = ['vander_decode', 'vander_decode_ins']
 
-from numpy import asarray,vander,float,triu,ones,diag,dot,exp,fliplr,\
-     diff,newaxis,zeros,sin,nonzero,conjugate,shape,reshape,\
-     real,imag,linspace,cumsum,arange
+from numpy import asarray, vander, float, triu, ones, diag, dot, exp, \
+     fliplr, diff, newaxis, zeros, sin, nonzero, conjugate, shape, \
+     reshape, real, imag, linspace, cumsum, arange
 
 from bionet.utils.numpy_extras import mdot
 import bionet.ted.bpa as bpa
@@ -49,25 +49,25 @@ def vander_decode(s, dur, dt, bw, b, d, k, first_spike=-1):
     z = exp(1j*2*bw*ts[:-1]/n)
 
     V = fliplr(vander(z)) # pecularity of numpy's vander() function
-    P = triu(ones((ns,ns),float))
+    P = triu(ones((ns, ns), float))
     D = diag(exp(1j*bw*ts[:-1]))
 
     # Compute the quanta:
     if first_spike == -1:
-        q = asarray([(-1)**i for i in xrange(0,ns)])*(2*k*d-b*s[1:])
+        q = asarray([(-1)**i for i in xrange(0, ns)])*(2*k*d-b*s[1:])
     else:
-        q = asarray([(-1)**i for i in xrange(1,ns+1)])*(2*k*d-b*s[1:])
+        q = asarray([(-1)**i for i in xrange(1, ns+1)])*(2*k*d-b*s[1:])
         
     # Obtain the reconstruction coefficients by solving the
     # Vandermonde system using BPA:
-    d = bpa.bpa(V,mdot(D,P,q[:,newaxis]))
+    d = bpa.bpa(V, mdot(D, P, q[:, newaxis]))
 
     # Reconstruct the signal:
     #nt = int(dur/dt)
     #t = linspace(0,dur,nt)
     #u = zeros(nt,float)
-    t = arange(0,dur,dt)
-    u = zeros(len(t),float)
+    t = arange(0, dur, dt)
+    u = zeros(len(t), float)
     for i in xrange(ns):
         c = 1j*(bw-i*2*bw/n)
         u += c*d[i]*exp(-c*t)
@@ -109,38 +109,38 @@ def vander_decode_ins(s, dur, dt, bw, b, first_spike=-1):
     z = exp(1j*2*bw*ts[:-1]/n)
     V = fliplr(vander(z)) # pecularity of numpy's vander() function
     D = diag(exp(1j*bw*ts[:-1]))
-    P = triu(ones((ns,ns),float))
+    P = triu(ones((ns, ns), float))
 
-    a = zeros(ns,float)
+    a = zeros(ns, float)
     a[::-2] = 1.0
-    a = a[:,newaxis]      # column vector
+    a = a[:, newaxis]      # column vector
 
-    bh = zeros(ns,float)
+    bh = zeros(ns, float)
     bh[-1] = 1.0
     bh = bh[newaxis]      # row vector
 
-    ex = ones(ns,float)
+    ex = ones(ns, float)
     if first_spike == -1:
         ex[0::2] = -1.0
     else:
         ex[1::2] = -1.0
-    r = (ex*s[1:])[:,newaxis] 
+    r = (ex*s[1:])[:, newaxis] 
 
     # Solve the Vandermonde systems using BPA:
     ## Observation: constructing P-dot(a,bh) directly without
     ## creating P, a, and bh separately does not speed this up
-    x = bpa.bpa(V,mdot(D,P-dot(a,bh),r))
-    y = bpa.bpa(V,dot(D,a))
+    x = bpa.bpa(V, mdot(D, P-dot(a, bh), r))
+    y = bpa.bpa(V, dot(D, a))
 
     # Compute the coefficients:
-    d = b*(x-mdot(y,conjugate(y.T),x)/dot(conjugate(y.T),y))
+    d = b*(x-mdot(y, conjugate(y.T), x)/dot(conjugate(y.T), y))
     
     # Reconstruct the signal:
     #nt = int(dur/dt)
     #t = linspace(0,dur,nt)
     #u = zeros(nt,float)
-    t = arange(0,dur,dt)
-    u = zeros(len(t),float)
+    t = arange(0, dur, dt)
+    u = zeros(len(t), float)
     for i in xrange(ns):
         c = 1j*(bw-i*2*bw/n)
         u += c*d[i]*exp(-c*t)

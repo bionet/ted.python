@@ -4,11 +4,11 @@
 Real-time time encoding and decoding algorithms.
 """
 
-__all__ = ['RealTimeEncoder','RealTimeDecoder','RealTimeDecoderIns',
-           'asdm_encode_real']
+__all__ = ['RealTimeEncoder', 'RealTimeDecoder', 'RealTimeDecoderIns',
+           'asdm_encode_real','asdm_decode_real','asdm_decode_ins_real']
 
-from numpy import arange, sin, cos, pi, zeros, array, floor, ceil,\
-     float, cumsum, round, hstack, intersect1d, where, sum
+from numpy import arange, sin, cos, pi, zeros, array, floor, ceil, \
+     float, cumsum, round, hstack, intersect1d, where
 import bionet.ted.asdm as asdm
 import bionet.ted.vtdm as vtdm
 import bionet.utils.misc as misc
@@ -118,7 +118,7 @@ class RealTimeEncoder(AbstractSignalProcessor):
             dt.
         """
 
-        AbstractSignalProcessor.__init__(self,get,put,verbose)
+        AbstractSignalProcessor.__init__(self, get, put, verbose)
         self.dt = dt
         self.b = b
         self.d = d
@@ -138,12 +138,10 @@ class RealTimeEncoder(AbstractSignalProcessor):
             Block of data to encode.
         """
 
-        s,self.y,self.interval,self.sgn = \
-                                        asdm.asdm_encode(block,
-                                                         self.dt,self.b,self.d,
-                                                         self.k,self.dte,
-                                                         self.y,self.interval,
-                                                         self.sgn,'trapz',True)
+        s, self.y, self.interval, self.sgn = \
+           asdm.asdm_encode(block, self.dt, self.b, self.d,
+                            self.k, self.dte, self.y, self.interval,
+                            self.sgn, 'trapz', True)
         if not len(block):
             self.done = True
         return s
@@ -177,7 +175,7 @@ class AbstractRealTimeDecoder(AbstractSignalProcessor):
             Number of spikes in the overlap between successive blocks.   
         """
 
-        AbstractSignalProcessor.__init__(self,get,put,verbose)
+        AbstractSignalProcessor.__init__(self, get, put, verbose)
 
         if N <= 1:
             raise ValueError('N must exceed 1')
@@ -199,10 +197,10 @@ class AbstractRealTimeDecoder(AbstractSignalProcessor):
 
         # Spike intervals and spike indicies:
         self.s = []
-        self.tk = array((),float)
+        self.tk = array((), float)
 
         # Overlap:
-        self.overlap = array((),float)
+        self.overlap = array((), float)
         
         # Number of spike intervals that must be obtainable from the
         # queue. For the first block, N+2 spike intervals must be
@@ -241,7 +239,7 @@ class AbstractRealTimeDecoder(AbstractSignalProcessor):
 
         # Processing has already been completed:
         if self.done:
-            return array((),float)
+            return array((), float)
         
         # Append the data to the queue:
         self.queue.extend(block)
@@ -257,7 +255,7 @@ class AbstractRealTimeDecoder(AbstractSignalProcessor):
         # windowed on its right side:
         if len(self.queue) < self.intervals_needed:
             if len(block):
-                return array((),float)
+                return array((), float)
             else:
                 self.window_right = False
 
@@ -279,9 +277,9 @@ class AbstractRealTimeDecoder(AbstractSignalProcessor):
 
         # Find the times of the spikes in the current block:
         self.ts = cumsum(self.s)
-        self.tk = array(round(self.ts/self.dt),int)
+        self.tk = array(round(self.ts/self.dt), int)
         self.curr_dur = max(self.ts)
-        self.t = arange(0,self.curr_dur,self.dt)
+        self.t = arange(0, self.curr_dur, self.dt)
 
         # Decode the current block:
         self.u = self.decode_block(self.s)
@@ -313,7 +311,7 @@ class AbstractRealTimeDecoder(AbstractSignalProcessor):
         else:
             rl = self.t[-1]
             rr = self.t[-1]
-        self.w = self.window(self.t,ll,lr,rl,rr)
+        self.w = self.window(self.t, ll, lr, rl, rr)
         self.uw = self.u*self.w
             
         # Apart from the first block, the saved nonzero
@@ -334,8 +332,8 @@ class AbstractRealTimeDecoder(AbstractSignalProcessor):
             self.overlap = \
                 self.uw[self.tk[self.N-self.M-self.K]:self.tk[self.N-self.M]]
         else:
-            self.u_out = hstack((self.u_out,self.uw[self.tk[self.M+self.K]::]))
-            self.overlap = array((),float)
+            self.u_out = hstack((self.u_out, self.uw[self.tk[self.M+self.K]::]))
+            self.overlap = array((), float)
             
         # The first block decoded should only be windowed on its
         # right side if at all. Hence, if window_left is false and
@@ -370,15 +368,15 @@ class AbstractRealTimeDecoder(AbstractSignalProcessor):
         when rl < t <= rr.'''
     
         n = len(t)
-        w = zeros(n,float)
+        w = zeros(n, float)
         n = float(n)
         m = max(t)
 
         w[int(floor(ll*n/m)):int(ceil(lr*n/m))] = \
-              self._theta1(t[int(floor(ll*n/m)):int(ceil(lr*n/m))],ll,lr)
+              self._theta1(t[int(floor(ll*n/m)):int(ceil(lr*n/m))], ll, lr)
         w[int(ceil(lr*n/m)):int(floor(rl*n/m))] = 1.0
         w[int(floor(rl*n/m)):int(ceil(rr*n/m))] = \
-              self._theta2(t[int(floor(rl*n/m)):int(ceil(rr*n/m))],rl,rr)
+              self._theta2(t[int(floor(rl*n/m)):int(ceil(rr*n/m))], rl, rr)
         
         return w
 
@@ -389,15 +387,15 @@ class AbstractRealTimeDecoder(AbstractSignalProcessor):
         <= lr, 1 when lr < t <= rl, and 1-theta(t,rl,rr)
         when rl < t <= rr.'''
 
-        w = zeros(len(t),float)
+        w = zeros(len(t), float)
         
-        i1 = intersect1d(where(ll < t)[0],where(t <= lr)[0])
-        i2 = intersect1d(where(lr < t)[0],where(t <= rl)[0])
-        i3 = intersect1d(where(rl < t)[0],where(t <= rr)[0])
+        i1 = intersect1d(where(ll < t)[0], where(t <= lr)[0])
+        i2 = intersect1d(where(lr < t)[0], where(t <= rl)[0])
+        i3 = intersect1d(where(rl < t)[0], where(t <= rr)[0])
         
-        w[i1] = self._theta1(t[i1],ll,lr)
+        w[i1] = self._theta1(t[i1], ll, lr)
         w[i2] = 1.0
-        w[i3] = self._theta2(t[i3],rl,rr)
+        w[i3] = self._theta2(t[i3], rl, rr)
         
         return w
 
@@ -435,7 +433,8 @@ class RealTimeDecoder(AbstractRealTimeDecoder):
 
         """
 
-        AbstractRealTimeDecoder.__init__(self,get,put,dt,bw,N,M,K,verbose)
+        AbstractRealTimeDecoder.__init__(self, get, put, dt, bw, \
+                                         N, M, K, verbose)
         self.b = b
         self.d = d
         self.k = k
@@ -443,8 +442,8 @@ class RealTimeDecoder(AbstractRealTimeDecoder):
     def decode_block(self, block):
         """Decode a block of data."""
 
-        return vtdm.vander_decode(block,self.curr_dur,self.dt,self.bw,
-                                  self.b,self.d,self.k,self.first_spike)
+        return vtdm.vander_decode(block, self.curr_dur, self.dt, self.bw,
+                                  self.b, self.d, self.k, self.first_spike)
 
 class RealTimeDecoderIns(AbstractRealTimeDecoder):
     """This class implements a parameter-insensitive real-time time
@@ -476,14 +475,15 @@ class RealTimeDecoderIns(AbstractRealTimeDecoder):
             Number of spikes in the overlap between successive blocks.   
         """
 
-        AbstractRealTimeDecoder.__init__(self,get,put,dt,bw,N,M,K,verbose)
+        AbstractRealTimeDecoder.__init__(self, get, put, dt, bw, \
+                                         N, M, K, verbose)
         self.b = b
 
     def decode_block(self, block):
         """Decode a block of data."""
 
-        return vtdm.vander_decode_ins(block,self.curr_dur,self.dt,self.bw,
-                                      self.b,self.first_spike)
+        return vtdm.vander_decode_ins(block, self.curr_dur, self.dt, self.bw,
+                                      self.b, self.first_spike)
 
 def asdm_encode_real(u, dt, b, d, k=1.0, dte=0.0):
     """Encode an arbitrarily long signal using an asynchronous
@@ -519,12 +519,12 @@ def asdm_encode_real(u, dt, b, d, k=1.0, dte=0.0):
         try:
             temp = g.next()
         except StopIteration:
-            return array([],float)
+            return array([], float)
         else:
             return array(temp)
     s = []
     put = s.extend
-    tem = RealTimeEncoder(get,put,dt,b,d,k,dte)
+    tem = RealTimeEncoder(get, put, dt, b, d, k, dte)
     tem.run()
     return array(s)
 
@@ -570,12 +570,12 @@ def asdm_decode_real(s, dur, dt, bw, b, d, k=1.0, N=10, M=2, K=1):
         try:
             temp = g.next()
         except StopIteration:
-            return array([],float)
+            return array([], float)
         else:
             return array(temp)    
     u = []
     put = u.extend
-    tdm = RealTimeDecoder(get,put,dt,bw,b,d,k,N,M,K)
+    tdm = RealTimeDecoder(get, put, dt, bw, b, d, k, N, M, K)
     tdm.run()
     return array(u)
 
@@ -618,11 +618,11 @@ def asdm_decode_ins_real(s, dur, dt, bw, b, N=10, M=2, K=1):
         try:
             temp = g.next()
         except StopIteration:
-            return array([],float)
+            return array([], float)
         else:
             return array(temp)    
     u = []
     put = u.extend
-    tdm = RealTimeDecoderIns(get,put,dt,bw,b,N,M,K)
+    tdm = RealTimeDecoderIns(get, put, dt, bw, b, N, M, K)
     tdm.run()
     return array(u)

@@ -24,18 +24,18 @@ def isvander(V):
     vander() function in order to construct the matrix.    
     """
 
-    (N,C) = np.shape(V)
-    z = V[:,1]
+    (N, C) = np.shape(V)
+    z = V[:, 1]
 
     if N != C:
         raise ValueError('V must be square')
 
     for i in range(C):
-        if any(V[:,i] != z**i):
+        if any(V[:, i] != z**i):
             return False
     return True
     
-def bpa(V,b):
+def bpa(V, b):
     """Solve a Vandermonde system using the Bjork-Pereyra algorithm.
 
     Parameters
@@ -52,14 +52,14 @@ def bpa(V,b):
     vander() function in order to contruct the matrix.
     """
     
-    (N,C) = np.shape(V)
+    (N, C) = np.shape(V)
     
     if N != C:
         raise ValueError('V must be square')
     if N <= 1:
         raise ValueError('V must contain more than 1 element')
     
-    z = V[:,1].copy()
+    z = V[:, 1].copy()
     bs = np.shape(b)
     b = b.copy().flatten()
     
@@ -67,10 +67,10 @@ def bpa(V,b):
         raise ValueError('size mismatch between V and b')
     
     for n in xrange(N):
-        for m in xrange(N-1,n,-1):
+        for m in xrange(N-1, n, -1):
             b[m] = (b[m] - b[m-1])/(z[m]-z[m-n-1])
-    for n in xrange(N-1,-1,-1):
-        for m in xrange(n,N-1):
+    for n in xrange(N-1, -1, -1):
+        for m in xrange(n, N-1):
             b[m] = b[m] - b[m+1]*z[n]
 
-    return np.reshape(b,bs)
+    return np.reshape(b, bs)
