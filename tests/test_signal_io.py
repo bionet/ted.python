@@ -8,9 +8,9 @@ import unittest
 import os
 
 import numpy as np
-import utils.signalio as s
+import utils.signal_io as s
 
-filename = 'test_signalio_data.h5'
+filename = 'test_signal_io_data.h5'
 blocksize = 10000
 
 class SignalIOTestCase(unittest.TestCase):

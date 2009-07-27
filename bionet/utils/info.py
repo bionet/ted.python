@@ -14,6 +14,6 @@ Available modules
 - misc             Unclassified functions.
 - pylab_extras     Various functions not currently in pylab.
 - signal_extras    Signal processing functions not currently in scipy.
-- signalio         I/O classes for reading/writing signals from/to HDF5.
+- signal_io        I/O classes for reading/writing signals from/to HDF5.
 
 """
