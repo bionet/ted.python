@@ -15,12 +15,11 @@ __all__ = ['ReadArray', 'WriteArray',
            'ReadTimeEncodedSignal', 'WriteTimeEncodedSignal']
 
 import tables as t
-import exceptions as e
 import numpy as np
 
 import time
 
-class MissingDataError(e.AttributeError, e.LookupError):
+class MissingDataError(AttributeError, LookupError):
     """The file does not possess a data segment."""
     pass
     
@@ -127,11 +126,11 @@ class WriteArray:
         except:
             raise e.IOError('error flushing data')
         
-class MissingDescriptorError(e.AttributeError, e.LookupError):
+class MissingDescriptorError(AttributeError, LookupError):
     """The saved signal file does not possess a descriptor."""
     pass
 
-class WrongDescriptorError(e.AttributeError, e.LookupError):
+class WrongDescriptorError(AttributeError, LookupError):
     """The saved signal file contains an incorrect descriptor."""
     pass
 

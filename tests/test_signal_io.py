@@ -8,7 +8,7 @@ import unittest
 import os
 
 import numpy as np
-import utils.signal_io as s
+import bionet.utils.signal_io as s
 
 filename = 'test_signal_io_data.h5'
 blocksize = 10000
