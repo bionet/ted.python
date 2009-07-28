@@ -48,7 +48,7 @@ class ReadArray:
                 print 'capping blocksize at length of signal'
                 self.blocksize = len(self.data)
             elif blocksize < 0:
-                raise e.ValueError('blocksize may not be negative')
+                raise ValueError('blocksize may not be negative')
             else:
                 self.blocksize = blocksize
 
@@ -67,7 +67,7 @@ class ReadArray:
 
         try:
             blockdata = self.data.read(self.pos, self.pos+self.blocksize)
-        except e.IndexError:
+except IndexError:
             return array((), self.data.atom.type)
         else:
             self.pos += len(blockdata)
@@ -77,7 +77,7 @@ class ReadArray:
         """Move data pointer to new position."""
 
         if offset < 0 or offset > len(self.data):
-            raise e.ValueError('invalid offset')
+            raise ValueError('invalid offset')
         else:
             self.pos = offset
             
@@ -119,12 +119,12 @@ class WriteArray:
         try:
             self.data.append(blockdata)
         except:
-            raise e.IOError('error writing data')
+            raise IOError('error writing data')
 
         try:
             self.data.flush()
         except:
-            raise e.IOError('error flushing data')
+            raise IOError('error flushing data')
         
 class MissingDescriptorError(AttributeError, LookupError):
     """The saved signal file does not possess a descriptor."""
