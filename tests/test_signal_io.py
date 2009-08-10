@@ -11,7 +11,7 @@ import numpy as np
 import bionet.utils.signal_io as s
 
 filename = 'test_signal_io_data.h5'
-blocksize = 10000
+block_size = 10000
 
 class SignalIOTestCase(unittest.TestCase):
     def setUp(self):
@@ -40,13 +40,13 @@ class SignalIOTestCase(unittest.TestCase):
     def testReadManyBlocks(self):
         '''Test multi-block read of saved data.'''
         
-        r = s.ReadArray(filename,blocksize)
+        r = s.ReadArray(filename,block_size)
         temp = []
         while True:
-            datablock = r.read()
-            if not len(datablock):
+            data_block = r.read()
+            if not len(data_block):
                 break
-            temp += datablock.tolist()
+            temp += data_block.tolist()
         u_read = np.array(temp)
         r.close()
 
