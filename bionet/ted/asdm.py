@@ -124,8 +124,10 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
     quad_method: {'rect', 'trapz'}
         Quadrature method to use (rectangular or trapezoidal).
     full_output: boolean
-        If set, the function returns new values for y, interval, and
-        sgn.
+        If set, the function returns the encoded data block followed
+        by the given parameters (with updated values for y, interval, and
+        sgn). This is useful when the function is called repeatedly to
+        encode a long signal.
 
     Notes
     -----
@@ -137,7 +139,8 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
     nu = len(u)
     if nu == 0:        
         if full_output:
-            return array((), float), y, interval, sgn
+            return array((), float), dt, b, d, k, dte, y, interval, sgn, \
+               quad_method, full_output
         else:
             return array((), float)
 
@@ -179,7 +182,8 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
             sgn = -sgn
 
     if full_output:
-        return array(s), y, interval, sgn
+        return array(s), dt, b, d, k, dte, y, interval, sgn, \
+               quad_method, full_output
     else:
         return array(s)
 

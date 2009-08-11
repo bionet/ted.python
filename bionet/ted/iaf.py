@@ -99,6 +99,10 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
         when the neuron is leaky.
     full_output: boolean
         If set, the function returns new values for y and interval.
+        If set, the function returns the encoded data block followed
+        by the given parameters (with updated values for y and interval).
+        This is useful when the function is called repeatedly to
+        encode a long signal.
 
     Notes
     -----
@@ -110,7 +114,8 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
     nu = len(u)
     if nu == 0:
         if full_output:
-            return array((),float),array((),float)
+            return array((),float), dt, b, d, R, C, dte, y, interval, \
+                   quad_method, full_output
         else:
             return array((),float)
     
@@ -157,7 +162,8 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
             y = 0.0
 
     if full_output:
-        return array(s),y,interval
+        return array(s), dt, b, d, R, C, dte, y, interval, \
+               quad_method, full_output
     else:
         return array(s)
 

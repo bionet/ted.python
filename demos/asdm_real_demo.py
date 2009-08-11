@@ -65,5 +65,5 @@ print fig_title
 u_rec_ins = tu.func_timer(r.asdm_decode_ins_real)(s,dur,dt,bw,b,N,M,K)
 end = min(len(u),len(u_rec_ins))
 tu.plot_compare(t[:end],u[:end],u_rec_ins[:end],
-                fig_title,'asdm_output_%i.png' % out_count)
+                fig_title,'asdm_real_output_%i.png' % out_count)
 

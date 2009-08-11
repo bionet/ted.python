@@ -129,6 +129,9 @@ class RealTimeEncoder(AbstractSignalProcessor):
         self.interval = 0.0
         self.sgn = 1
 
+        self.quad_method = 'trapz'
+        self.full_output = True
+        
     def process(self, block):
         """Encode the specified block of data and return the result.
 
@@ -138,10 +141,12 @@ class RealTimeEncoder(AbstractSignalProcessor):
             Block of data to encode.
         """
 
-        s, self.y, self.interval, self.sgn = \
-           asdm.asdm_encode(block, self.dt, self.b, self.d,
-                            self.k, self.dte, self.y, self.interval,
-                            self.sgn, 'trapz', True)
+
+        s, self.dt, self.b, self.d, self.k, self.dte, self.y, \
+           self.interval, self.sgn, self.quad_method, self.full_output \
+           = asdm.asdm_encode(block, self.dt, self.b, self.d,
+                              self.k, self.dte, self.y, self.interval,
+                              self.sgn, self.quad_method, self.full_output)
         if not len(block):
             self.done = True
         return s
