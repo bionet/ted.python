@@ -36,7 +36,11 @@ class SerialBuffer:
         else:
             self.get = get
             self.data = []
-
+            self.replenish(n)
+            
+    def __len__(self):
+        return len(self.data)
+    
     def __iterable(self, y):
         """Check whether y is iterable."""
         

@@ -1,7 +1,7 @@
 Release 0.012 - ()
 ===============================
 * Add serial data buffer class.
-* ...
+* Update signal_io module to support multiple signals in one HDF5 file.
 
 Release 0.011 - (June 26, 2009)
 ===============================
