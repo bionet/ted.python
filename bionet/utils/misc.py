@@ -40,6 +40,9 @@ class SerialBuffer:
             
     def __len__(self):
         return len(self.data)
+
+    def __repr__(self):
+        return repr(self.data)
     
     def __iterable(self, y):
         """Check whether y is iterable."""
@@ -51,7 +54,9 @@ class SerialBuffer:
         return True
 
     def replenish(self, n=1):
-        """Attempt to replenish the buffer with n entries."""
+        """Attempt to replenish the buffer such that it contains at
+        least n entries (but do not throw any exception if
+        insufficient data can be obtained)."""
 
         while True:
             try:
@@ -60,7 +65,9 @@ class SerialBuffer:
                 break
             else:
 
-                # Stop retrieving new data if get() doesn't return anything:
+                # Append the new data to the buffer; stop attempting
+                # to retrieve new data if get() doesn't return
+                # anything:
                 if self.__iterable(new_data):
                     if len(new_data) == 0:
                         break
