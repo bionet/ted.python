@@ -40,10 +40,10 @@ class SignalIOTestCase(unittest.TestCase):
     def testReadManyBlocks(self):
         '''Test multi-block read of saved data.'''
         
-        r = s.ReadArray(filename,block_size)
+        r = s.ReadArray(filename)
         temp = []
         while True:
-            data_block = r.read()
+            data_block = r.read(block_size)
             if not len(data_block):
                 break
             temp += data_block.tolist()
