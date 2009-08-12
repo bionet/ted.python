@@ -77,7 +77,7 @@ class ReadArray:
                 data_node_list.append(node)
         return data_node_list
                 
-    def read(self, id=0, block_size=None):
+    def read(self, block_size=None, id=0):
         """Read a block of data from the specified data array. If no
         block size is specified, the returned block contains all data
         from the current read pointer to the end of the array. If no
