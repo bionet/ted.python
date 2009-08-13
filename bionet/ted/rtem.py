@@ -366,11 +366,11 @@ class AbstractRealTimeDecoder(AbstractSignalProcessor):
     ### NOTE: this method sometimes produces NaN entries and should
     ### therefore not be used:
     def window_bad(self, t, ll, lr, rl, rr):
-        '''Return a window defined over the vector of times t that
+        """Return a window defined over the vector of times t that
         forms a partition of unity over all time. The function is
         equal to 0 when t <= ll or t > rr, theta(t,ll,lr) when ll < t
         <= lr, 1 when lr < t <= rl, and 1-theta(t,rl,rr)
-        when rl < t <= rr.'''
+        when rl < t <= rr."""
     
         n = len(t)
         w = zeros(n, float)
@@ -386,11 +386,11 @@ class AbstractRealTimeDecoder(AbstractSignalProcessor):
         return w
 
     def window(self, t, ll, lr, rl, rr):
-        '''Return a window defined over the vector of times t that
+        """Return a window defined over the vector of times t that
         forms a partition of unity over all time. The function is
         equal to 0 when t <= ll or t > rr, theta(t,ll,lr) when ll < t
         <= lr, 1 when lr < t <= rl, and 1-theta(t,rl,rr)
-        when rl < t <= rr.'''
+        when rl < t <= rr.""" 
 
         w = zeros(len(t), float)
         
@@ -435,7 +435,6 @@ class RealTimeDecoder(AbstractRealTimeDecoder):
             block.
         K: int
             Number of spikes in the overlap between successive blocks.   
-
         """
 
         AbstractRealTimeDecoder.__init__(self, get, put, dt, bw, \
