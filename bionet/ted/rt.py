@@ -101,11 +101,6 @@ class ASDMRealTimeEncoder(RealTimeEncoder):
 
         Parameters
         ----------
-        get: function that returns a numpy array
-            Used to retrieve data to process; should return an empty array
-            when no more data is available to process.
-        put: function that accepts a numpy array
-            Used to save processed data.
         dt: float
             Sampling resolution of input signal; the sampling frequency
             is 1/dt Hz.
@@ -311,7 +306,8 @@ class RealTimeDecoder(SignalProcessor):
             if not self.window_right:
                 break
 
-    # Methods for computing the edges of the windows:
+    # Methods for computing the edges of the windows determined by the
+    # windows() method:
     def _theta1(self, t, l, r):
         return sin((pi/2)*(t-l)/(r-l))**2
 
