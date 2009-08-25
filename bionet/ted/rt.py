@@ -55,6 +55,11 @@ class SignalProcessor:
         if not callable(put):
             raise ValueError('put() must be callable')
 
+    def __repr__(self):
+        """Represent a signal processor in terms its parameters."""
+        
+        return self.__class__.__name__+repr(tuple(self.params))
+
 class RealTimeEncoder(SignalProcessor):
     """This class implements a real-time time encoding machine. It
     must be subclassed to use a specific encoding algorithm."""
@@ -88,9 +93,6 @@ class RealTimeEncoder(SignalProcessor):
             encoded_data = temp[0]
             self.params = temp[1:]
             put(encoded_data)
-
-    def __repr__(self):
-        return self.__class__.__name__+repr(tuple(self.params))
         
 class ASDMRealTimeEncoder(RealTimeEncoder):
     """This class implements a real-time time encoding machine that
@@ -353,7 +355,7 @@ class ASDMRealTimeDecoder(RealTimeDecoder):
         d: float
             Decoder threshold.
         k: float
-            Decoder integration constant.    
+            Decoder integration constant.
         N: int
             Number of spikes to process in each block less 1.
         M: int
