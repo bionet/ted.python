@@ -27,17 +27,16 @@ class SignalProcessor:
         parameters."""
 
         self.params = args
-        pass
 
     def __call__(self, x):
         """Calling a class instance is equivalent to running the
         processor on the specified sequence x."""
 
         result = []
-        i = m.chunks(x, len(x)/10)
+        iterator = m.chunks(x, len(x)/10)
         def get():
             try:
-                return i.next()
+                return iterator.next()
             except StopIteration:
                 return []
         def put(y):

@@ -1,3 +1,7 @@
+Release 0.021 - (August 19, 2009)
+=================================
+* Clean up real-time algorithm implementations.
+
 Release 0.02 - (June 26,2009)
 =============================
 * Add real-time encoding and decoding algorithms.
