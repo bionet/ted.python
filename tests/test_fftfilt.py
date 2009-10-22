@@ -7,6 +7,7 @@ Test fftfilt function.
 from numpy.testing import *
 import numpy as np
 import scipy.signal as si 
+from unittest import main
 
 import bionet.utils.signal_extras as s
 import bionet.utils.gen_test_signal as g
@@ -26,3 +27,7 @@ class TestFFTFilt(TestCase):
         u_lfilter = si.lfilter(b,1,self.u)
         u_fftfilt = s.fftfilt(b,self.u)
         assert_almost_equal(u_lfilter,u_fftfilt)
+
+if __name__ == "__main__":
+    main()
+        

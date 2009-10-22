@@ -4,8 +4,9 @@
 Test numpy extras.
 """
 
-from numpy.testing import *
 import numpy as np
+from numpy.testing import *
+from unittest import main
 
 import bionet.utils.numpy_extras as npe
 
@@ -30,3 +31,6 @@ class TestNumpyExtras(TestCase):
                                       [264.563+0.104j,325.072+0.028j,385.581-0.048j],
                                       [412.301-0.740j,506.600-0.200j,600.899+0.338j]]),
                             3)
+
+if __name__ == "__main__":
+    main()
