@@ -1,6 +1,7 @@
-Release 0.021 - (August 19, 2009)
-=================================
+Release 0.021 - (October 23, 2009)
+==================================
 * Clean up real-time algorithm implementations.
+* Make time array construction consistently use a fixed time step.
 
 Release 0.02 - (June 26,2009)
 =============================

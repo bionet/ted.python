@@ -6,9 +6,9 @@ Block-based time decoding algorithm used by real-time time decoding algorithm.
 
 __all__ = ['vander_decode', 'vander_decode_ins']
 
-from numpy import asarray, vander, float, triu, ones, diag, dot, exp, \
-     fliplr, diff, newaxis, zeros, sin, nonzero, conjugate, shape, \
-     reshape, real, imag, linspace, cumsum, arange
+from numpy import arange, asarray, conjugate, cumsum, diag, diff, dot, \
+     exp, fliplr, float, imag, newaxis, nonzero, ones, real, reshape, \
+     shape, sin, triu, vander, zeros
 
 from bionet.utils.numpy_extras import mdot
 import bionet.ted.bpa as bpa
@@ -63,9 +63,6 @@ def vander_decode(s, dur, dt, bw, b, d, k, first_spike=-1):
     d = bpa.bpa(V, mdot(D, P, q[:, newaxis]))
 
     # Reconstruct the signal:
-    #nt = int(dur/dt)
-    #t = linspace(0,dur,nt)
-    #u = zeros(nt,float)
     t = arange(0, dur, dt)
     u = zeros(len(t), float)
     for i in xrange(ns):
@@ -136,9 +133,6 @@ def vander_decode_ins(s, dur, dt, bw, b, first_spike=-1):
     d = b*(x-mdot(y, conjugate(y.T), x)/dot(conjugate(y.T), y))
     
     # Reconstruct the signal:
-    #nt = int(dur/dt)
-    #t = linspace(0,dur,nt)
-    #u = zeros(nt,float)
     t = arange(0, dur, dt)
     u = zeros(len(t), float)
     for i in xrange(ns):

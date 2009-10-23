@@ -16,7 +16,7 @@ dur = 0.1
 dt = 1e-6
 f = 32
 bw = 2*np.pi*f
-t = np.linspace(0, dur, int(dur/dt))
+t = np.arange(0, dur, dt)
 
 np.random.seed(0)
 
@@ -28,7 +28,7 @@ else:
     fig_title = 'ASDM input signal with %d dB of noise' % noise_power
 print fig_title
 u = tu.func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
-tu.plot_signal(t, u, fig_title,'asdm_input.png')
+tu.plot_signal(t, u, fig_title,'asdm_pop_input.png')
 
 b1 = 3.5  # bias
 d1 = 0.7  # threshold
@@ -53,25 +53,25 @@ out_count += 1
 fig_title = 'encoding using ASDM algorithm (encoder #1)'
 print fig_title
 s1 = tu.func_timer(a.asdm_encode)(u, dt, b1, d1, k1)
-tu.plot_encoded(t, u, s1, fig_title, 'asdm_output_%i.png' % out_count)
+tu.plot_encoded(t, u, s1, fig_title, 'asdm_pop_encoded_%i.png' % out_count)
 
 out_count += 1
 fig_title = 'encoding using ASDM algorithm (encoder #2)'
 print fig_title
 s2 = tu.func_timer(a.asdm_encode)(u, dt, b2, d2, k2)
-tu.plot_encoded(t, u, s2, fig_title, 'asdm_output_%i.png' % out_count)
+tu.plot_encoded(t, u, s2, fig_title, 'asdm_pop_encoded_%i.png' % out_count)
 
 out_count += 1
 fig_title = 'decoding using ASDM population algorithm'
 print fig_title
 u_rec = tu.func_timer(a.asdm_decode_pop)([s1, s2], dur, dt, bw,
                                          [b1, b2], [d1, d2], [k1, k2])
-tu.plot_compare(t,u,u_rec,fig_title,'asdm_output_%i.png' % out_count)
+tu.plot_compare(t, u, u_rec, fig_title, 'asdm_pop_decoded_%i.png' % out_count)
 
 out_count += 1
 fig_title = 'decoding using threshold-insensitive ASDM population algorithm'
 print fig_title
 u_rec = tu.func_timer(a.asdm_decode_pop_ins)([s1, s2], dur, dt, bw,
                                              [b1, b2])
-tu.plot_compare(t, u, u_rec, fig_title,'asdm_output_%i.png' % out_count)
+tu.plot_compare(t, u, u_rec, fig_title,'asdm_pop_decoded_%i.png' % out_count)
 

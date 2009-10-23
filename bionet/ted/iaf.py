@@ -11,7 +11,7 @@ __all__ = ['iaf_recoverable','iaf_encode','iaf_decode',
 from numpy import array, abs, max, log, pi, real, imag, isreal, float,\
      isinf, exp, nonzero, diff, hstack, arange, triu, diag, dot, inf,\
      ones, zeros, sinc, ravel, newaxis, eye, empty, shape, conjugate,\
-     linspace, cumsum
+     cumsum
 from numpy.linalg import inv, pinv
 from scipy.integrate import quad
 from scipy.signal import resample
@@ -49,6 +49,7 @@ def iaf_recoverable(u, bw, b, d, R, C):
     ------
     ValueError
         When the signal cannot be perfectly recovered.
+
     """
 
     c = max(abs(u))
@@ -200,10 +201,9 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     ts = cumsum(s) 
     tsh = (ts[0:-1]+ts[1:])/2
     nsh = len(tsh)
-    
-    nt = int(dur/dt)
-    t = linspace(0,dur,nt)
 
+    t = arange(0, dur, dt)
+    
     bwpi = bw/pi
     RC = R*C
 
@@ -229,7 +229,7 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     G_inv = pinv(G,__pinv_rcond__)
     
     # Reconstruct signal by adding up the weighted sinc functions.
-    u_rec = zeros(nt,float)
+    u_rec = zeros(len(t),float)
     c = dot(G_inv,q)
     for i in xrange(nsh):
         u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
@@ -274,9 +274,8 @@ def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
     tsh = (ts[0:-1]+ts[1:])/2
     nsh = len(tsh)
     
-    nt = int(dur/dt)
-    t = linspace(0,dur,nt)
-
+    t = arange(0, dur, dt)
+    
     RC = R*C
     jbwM = 1j*bw/M
 

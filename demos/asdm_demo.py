@@ -16,7 +16,7 @@ dur = 0.1
 dt = 1e-6
 f = 32
 bw = 2*np.pi*f
-t = np.linspace(0, dur, int(dur/dt))
+t = np.arange(0, dur, dt)
 
 np.random.seed(0)
 
@@ -46,22 +46,22 @@ out_count += 1
 fig_title = 'encoding using ASDM algorithm'
 print fig_title
 s = tu.func_timer(a.asdm_encode)(u, dt, b, d, k)
-tu.plot_encoded(t, u, s, fig_title, 'asdm_output_%i.png' % out_count)
+tu.plot_encoded(t, u, s, fig_title, 'asdm_encoded_%i.png' % out_count)
 
 out_count += 1
 fig_title = 'decoding using ASDM algorithm'
 print fig_title
 u_rec = tu.func_timer(a.asdm_decode)(s, dur, dt, bw, b, d, k)
-tu.plot_compare(t, u, u_rec, fig_title,'asdm_output_%i.png' % out_count)
+tu.plot_compare(t, u, u_rec, fig_title,'asdm_decoded_%i.png' % out_count)
 
 out_count += 1
 fig_title = 'decoding using threshold-insensitive ASDM algorithm'
 print fig_title
 u_rec_ins = tu.func_timer(a.asdm_decode_ins)(s, dur, dt, bw, b)
-tu.plot_compare(t, u, u_rec_ins, fig_title,'asdm_output_%i.png' % out_count)
+tu.plot_compare(t, u, u_rec_ins, fig_title,'asdm_decoded_%i.png' % out_count)
 
 out_count += 1
 fig_title = 'decoding using fast ASDM algorithm'
 print fig_title
 u_rec = tu.func_timer(a.asdm_decode_fast)(s, dur, dt, bw, M, b, d, k)
-tu.plot_compare(t, u, u_rec, fig_title,'asdm_output_%i.png' % out_count)
+tu.plot_compare(t, u, u_rec, fig_title,'asdm_decoded_%i.png' % out_count)

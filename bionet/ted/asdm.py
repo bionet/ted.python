@@ -9,9 +9,9 @@ __all__ = ['asdm_recoverable', 'asdm_encode', 'asdm_decode',
            'asdm_decode_ins', 'asdm_decode_fast',
 	   'asdm_decode_pop', 'asdm_decode_pop_ins']
            
-from numpy import max, abs, zeros, ones, float, pi, array, \
-     dot, sinc, newaxis, cumsum, linspace, empty, \
-     diag, eye, arange, triu, exp, conjugate, ravel, real
+from numpy import abs, arange, array, conjugate, cumsum, diag, dot, \
+        empty, eye, exp, float, max, newaxis, ones, pi, ravel, real, \
+        sinc, triu, zeros
 from numpy.linalg import pinv
 from scipy.signal import resample
 
@@ -46,6 +46,7 @@ def asdm_recoverable_strict(u, bw, b, d, k):
     ------
     ValueError
         When the signal cannot be perfectly recovered.
+
     """
     
     c = max(abs(u))
@@ -83,6 +84,7 @@ def asdm_recoverable(u, bw, b, d, k):
     ----
     The bound assumed by this check is not as strict as that described in
     most of Prof. Lazar's papers.
+
     """
     
     c = max(abs(u))
@@ -219,8 +221,7 @@ def asdm_decode(s, dur, dt, bw, b, d, k=1.0):
     tsh = (ts[0:-1]+ts[1:])/2
     nsh = len(tsh)
     
-    nt = int(dur/dt)
-    t = linspace(0, dur, nt)
+    t = arange(0, dur, dt)
     
     bwpi = bw/pi
     
@@ -242,7 +243,7 @@ def asdm_decode(s, dur, dt, bw, b, d, k=1.0):
     # Reconstruct signal by adding up the weighted sinc functions. The
     # weighted sinc functions are computed on the fly here to save
     # memory:
-    u_rec = zeros(nt, float)
+    u_rec = zeros(len(t), float)
     c = dot(G_inv, q)
     for i in xrange(nsh):
         u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
@@ -276,8 +277,7 @@ def asdm_decode_ins(s, dur, dt, bw, b):
     tsh = (ts[0:-1]+ts[1:])/2
     nsh = len(tsh)
     
-    nt = int(dur/dt)
-    t = linspace(0, dur, nt)
+    t = arange(0, dur, dt)
     
     bwpi = bw/pi
     
@@ -299,7 +299,7 @@ def asdm_decode_ins(s, dur, dt, bw, b):
     # Reconstruct signal by adding up the weighted sinc functions; the
     # first row of B is removed to eliminate boundary issues. The
     # weighted sinc functions are computed on the fly to save memory:
-    u_rec = zeros(nt, float)
+    u_rec = zeros(len(t), float)
     c = dot(pinv(dot(B[1:, :], G), __pinv_rcond__), Bq[1:, newaxis])
     for i in xrange(nsh):
         u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
@@ -342,9 +342,8 @@ def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0):
     tsh = (ts[0:-1]+ts[1:])/2
     nsh = len(tsh)
     
-    nt = int(dur/dt)
-    t = linspace(0, dur, nt)
-
+    t = arange(0, dur, dt)
+    
     jbwM = 1j*bw/M
 
     # Compute quanta:
@@ -391,6 +390,7 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list):
     -----
     The number of spikes contributed by each neuron may differ from the
     number contributed by other neurons.
+
     """
 
     M = len(s_list)
@@ -436,9 +436,8 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list):
     c = dot(pinv(G), q)
 
     # Reconstruct the signal using the coefficients:
-    Nt = int(dur/dt)
-    t = linspace(0, dur, Nt)
-    u_rec = zeros(Nt, float)
+    t = arange(0, dur, dt)
+    u_rec = zeros(len(t), float)
     for m in xrange(M):
         for k in xrange(Nsh_list[m]):
             u_rec += sinc(bwpi*(t-tsh_list[m][k]))*bwpi*c[sum(Nsh_list[:m])+k, 0]
@@ -468,6 +467,7 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list):
     -----
     The number of spikes contributed by each neuron may differ from the
     number contributed by other neurons.
+
     """
 
     M = len(s_list)
@@ -512,9 +512,8 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list):
     c = dot(pinv(G), Bq)
 
     # Reconstruct the signal using the coefficients:
-    Nt = int(dur/dt)
-    t = linspace(0, dur, Nt)
-    u_rec = zeros(Nt, float)
+    t = arange(0, dur, dt)
+    u_rec = zeros(len(t), float)
     for m in xrange(M):
         for k in xrange(Nsh_list[m]):
             u_rec += sinc(bwpi*(t-tsh_list[m][k]))*bwpi*c[sum(Nsh_list[:m])+k, 0]

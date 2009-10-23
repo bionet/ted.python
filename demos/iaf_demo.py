@@ -16,7 +16,7 @@ dur = 0.1
 dt = 1e-6
 f = 32
 bw = 2*np.pi*f
-t = np.linspace(0, dur, int(dur/dt))
+t = np.arange(0, dur, dt)
 
 np.random.seed(0)
 
@@ -49,19 +49,19 @@ out_count += 1
 fig_title = 'encoding using leaky IAF algorithm'
 print fig_title
 s = tu.func_timer(a.iaf_encode)(u, dt, b, d, R, C, quad_method='rect')
-tu.plot_encoded(t, u, s, fig_title,'iaf_output_%i.png' % out_count)
+tu.plot_encoded(t, u, s, fig_title,'iaf_encoded_%i.png' % out_count)
 
 out_count += 1
 fig_title = 'decoding using leaky IAF algorithm'
 print fig_title
 u_rec = tu.func_timer(a.iaf_decode)(s, dur, dt, bw, b, d, R, C)
-tu.plot_compare(t, u, u_rec, fig_title,'iaf_output_%i.png' % out_count)
+tu.plot_compare(t, u, u_rec, fig_title,'iaf_decoded_%i.png' % out_count)
 
 out_count += 1
 fig_title = 'decoding using leaky fast IAF algorithm'
 print fig_title
 u_rec = tu.func_timer(a.iaf_decode_fast)(s, dur, dt, bw, M, b, d, R, C)
-tu.plot_compare(t, u, u_rec, fig_title,'iaf_output_%i.png' % out_count)
+tu.plot_compare(t, u, u_rec, fig_title,'iaf_decoded_%i.png' % out_count)
 
 # Test nonleaky algorithms:
 R = np.inf
@@ -70,17 +70,17 @@ out_count += 1
 fig_title = 'encoding using nonleaky IAF algorithm'
 print fig_title
 s = tu.func_timer(a.iaf_encode)(u, dt, b, d, R, C,quad_method='rect')
-tu.plot_encoded(t, u, s, fig_title,'iaf_output_%i.png' % out_count)
+tu.plot_encoded(t, u, s, fig_title,'iaf_encoded_%i.png' % out_count)
 
 out_count += 1
 fig_title = 'decoding using nonleaky IAF algorithm'
 print fig_title
 u_rec = tu.func_timer(a.iaf_decode)(s, dur, dt, bw, b, d, R, C)
-tu.plot_compare(t, u, u_rec, fig_title,'iaf_output_%i.png' % out_count)
+tu.plot_compare(t, u, u_rec, fig_title,'iaf_decoded_%i.png' % out_count)
 
 out_count += 1
 fig_title = 'decoding using nonleaky fast IAF algorithm'
 print fig_title
 u_rec = tu.func_timer(a.iaf_decode_fast)(s, dur, dt, bw, M, b, d, R, C)
-tu.plot_compare(t, u, u_rec, fig_title,'iaf_output_%i.png' % out_count)
+tu.plot_compare(t, u, u_rec, fig_title,'iaf_decoded_%i.png' % out_count)
 
