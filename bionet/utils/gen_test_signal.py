@@ -6,8 +6,8 @@ Algorithm for generating band-limited test signals.
 
 __all__ = ['gen_test_signal']
 
-from numpy import pi, zeros, complex, exp, array
-from numpy.random import rand, randn, randint
+from numpy import array, ceil, complex, exp, pi, zeros
+from numpy.random import rand, randint, randn
 from numpy.fft import irfft
 from scipy.signal import firwin, lfilter
 
@@ -43,9 +43,12 @@ def gen_test_signal(dur, dt, fmax, np=None, nc=3):
     fs = 1.0/dt
     if fmax > fs/2:
         raise ValueError("maximum frequency may not exceed the Nyquist frequency")
+
+    # Determine number of entries in generated signal. This
+    # corresponds to the length of arange(0, dur, dt):
+    n = int(ceil(dur/dt))
     
     # Randomly set nc distinct frequency components:    
-    n = int(dur/dt)
     f = zeros(int(n/2)+1, complex) # only one side of the spectrum is needed
     fmaxi = int(n*fmax/fs)
     if fmaxi < nc:
@@ -66,7 +69,7 @@ def gen_test_signal(dur, dt, fmax, np=None, nc=3):
     # Create the signal by transforming the constructed frequency
     # representation into the time domain and adding white noise if so
     # specified:
-    u = irfft(f)
+    u = irfft(f,n)
     if np != None:
         u += randn(len(u))*10**(np/20)
 

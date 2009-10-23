@@ -14,7 +14,7 @@ dur = 1.0
 fs = 1e4
 dt = 1.0/fs
 f = 10
-t = np.linspace(0, dur, int(dur/dt))
+t = np.arange(0, dur, dt)
 
 np.random.seed(0)
 out_count = 0
