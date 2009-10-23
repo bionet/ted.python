@@ -1,7 +1,8 @@
-Release 0.012 - ()
-===============================
+Release 0.012 - (October 23, 2009)
+==================================
 * Add serial data buffer class.
 * Update signal_io module to support multiple signals in one HDF5 file.
+* Make time array construction consistently use a fixed time step.
 
 Release 0.011 - (June 26, 2009)
 ===============================

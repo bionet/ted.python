@@ -8,7 +8,7 @@ from distutils.core import setup
 
 NAME =               'bionet.utils'
 VERSION =            '0.012'
-IS_RELEASED =        False
+IS_RELEASED =        True
 AUTHOR =             'Lev Givon'
 AUTHOR_EMAIL =       'lev@columbia.edu'
 URL =                'http://bionet.ee.columbia.edu/code/'
