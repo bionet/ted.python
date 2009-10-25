@@ -29,7 +29,7 @@ else:
     fig_title = 'ASDM input signal with %d dB of noise' % noise_power
 print fig_title
 u = tu.func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
-tu.plot_signal(t, u, fig_title, 'asdm_real_input.png')
+tu.plot_signal(t, u, fig_title, 'asdm_rt_input.png')
 
 # Define encoding parameters:
 dte = dt
@@ -55,7 +55,7 @@ fig_title = 'encoding using real-time ASDM algorithm'
 print fig_title
 encoder = rt.ASDMRealTimeEncoder(dt, b, d, k)
 s = tu.func_timer(encoder)(u)
-tu.plot_encoded(t, u, s, fig_title, 'asdm_real_encoded_%i.png' % out_count)
+tu.plot_encoded(t, u, s, fig_title, 'asdm_rt_encoded_%i.png' % out_count)
 
 out_count += 1
 fig_title = 'decoding using real-time algorithm'
@@ -64,7 +64,7 @@ decoder = rt.ASDMRealTimeDecoder(dt, bw, b, d, k, N, M, K)
 u_rec = tu.func_timer(decoder)(s)
 end = min(len(u), len(u_rec))
 tu.plot_compare(t[:end], u[:end], u_rec[:end],
-                fig_title, 'asdm_real_decoded_%i.png' % out_count)
+                fig_title, 'asdm_rt_decoded_%i.png' % out_count)
 
 out_count += 1
 fig_title = 'decoding using real-time threshold-insensitive algorithm'
@@ -73,5 +73,5 @@ decoder = rt.ASDMRealTimeDecoderIns(dt, bw, b, N, M, K)
 u_rec_ins = tu.func_timer(decoder)(s)
 end = min(len(u), len(u_rec_ins))
 tu.plot_compare(t[:end], u[:end], u_rec_ins[:end],
-                fig_title, 'asdm_real_decoded_%i.png' % out_count)
+                fig_title, 'asdm_rt_decoded_%i.png' % out_count)
 
