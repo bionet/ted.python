@@ -306,8 +306,8 @@ def asdm_decode_ins(s, dur, dt, bw, b):
     return u_rec
 
 def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0):
-    """Decode a finite length signal encoded by an integrate-and-fire
-    neuron using a fast recovery algorithm.
+    """Decode a finite length signal encoded by an asynchronous sigma-delta
+    modulator using a fast recovery algorithm.
 
     Parameters
     ----------
@@ -518,3 +518,4 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list):
         for k in xrange(Nsh_list[m]):
             u_rec += sinc(bwpi*(t-tsh_list[m][k]))*bwpi*c[sum(Nsh_list[:m])+k, 0]
     return u_rec
+
