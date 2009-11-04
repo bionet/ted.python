@@ -8,10 +8,10 @@ integrate-and-fire neuron model.
 __all__ = ['iaf_recoverable','iaf_encode','iaf_decode',
            'iaf_decode_fast']
 
-from numpy import array, abs, max, log, pi, real, imag, isreal, float,\
-     isinf, exp, nonzero, diff, hstack, arange, triu, diag, dot, inf,\
-     ones, zeros, sinc, ravel, newaxis, eye, empty, shape, conjugate,\
-     cumsum
+from numpy import abs, arange, array, conjugate, cumsum, diag, diff, \
+     dot, empty, exp, eye, float, hstack, imag, inf, isinf, isreal, \
+     log, max, newaxis, nonzero, ones, pi, ravel, real, shape, sinc, \
+     triu, zeros
 from numpy.linalg import inv, pinv
 from scipy.integrate import quad
 from scipy.signal import resample
@@ -22,6 +22,7 @@ from scipy.signal import resample
 from scipy.special import sici
 
 from bionet.utils.numpy_extras import mdot
+from bionet.utils.scipy_extras import ei
 
 # Pseudoinverse singular value cutoff:
 __pinv_rcond__ = 1e-8
@@ -216,14 +217,28 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
                 G[i,j] = temp[i+1]-temp[i]
         q = C*d-b*s[1:]
     else:
-        for i in xrange(nsh):
+        for i in xrange(nsh):            
             for j in xrange(nsh):
 
-                # XXX: This explicit integration should replaced with
-                # a more efficient expression, e.g., possibly using
-                # the exponential integral:
-                f = lambda t:sinc(bwpi*(t-tsh[j]))*bwpi*exp((ts[i+1]-t)/-RC)
-                G[i,j] = quad(f,ts[i],ts[i+1])[0]
+                # The code below is functionally equivalent to (but
+                # considerably faster than) the integration below:
+                #
+                # f = lambda t:sinc(bwpi*(t-tsh[j]))*bwpi*exp((ts[i+1]-t)/-RC)
+                # G[i,j] = quad(f,ts[i],ts[i+1])[0]
+                if ts[i] < tsh[j] and tsh[j] < ts[i+1]:
+                    G[i,j] = (-1j/4)*exp((tsh[j]-ts[i+1])/RC)*(2*ei((1-1j*RC*bw)*(ts[i]-tsh[j])/RC)-
+                                                               2*ei((1-1j*RC*bw)*(ts[i+1]-tsh[j])/RC)-
+                                                               2*ei((1+1j*RC*bw)*(ts[i]-tsh[j])/RC)+
+                                                               2*ei((1+1j*RC*bw)*(ts[i+1]-tsh[j])/RC)+
+                                                               log(-1-1j*RC*bw)+log(1-1j*RC*bw)-
+                                                               log(-1+1j*RC*bw)-log(1+1j*RC*bw)+
+                                                               log(-1j/(-1j+RC*bw))-log(1j/(-1j+RC*bw))+
+                                                               log(-1j/(1j+RC*bw))-log(1j/(1j+RC*bw)))/pi
+                else:
+                    G[i,j] = (-1j/2)*exp((tsh[j]-ts[i+1])/RC)*(ei((1-1j*RC*bw)*(ts[i]-tsh[j])/RC)-
+                                                               ei((1-1j*RC*bw)*(ts[i+1]-tsh[j])/RC)-
+                                                               ei((1+1j*RC*bw)*(ts[i]-tsh[j])/RC)+
+                                                               ei((1+1j*RC*bw)*(ts[i+1]-tsh[j])/RC))/pi   
         q = C*(d+b*R*(exp(-s[1:]/RC)-1))
 
     G_inv = pinv(G,__pinv_rcond__)
