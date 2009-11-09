@@ -70,9 +70,12 @@ def write_version_py(version,filename='bionet/ted/version.py'):
     
 if sys.platform in ['linux2','darwin']:
     ext_name = 'bionet.ted.bpa_cython_' + sys.platform
+        
+    # Look for the numpy includes in the platform-specific Python
+    # directory:
     bpa_cython = Extension(ext_name,
                            ['bionet/ted/bpa_cython.pyx'],
-                           [get_python_lib() + '/numpy/core/include'])
+                           [get_python_lib(1) + '/numpy/core/include'])
 else:
     bpa_cython = None
 
