@@ -8,7 +8,7 @@ integrate-and-fire neuron model.
 __all__ = ['iaf_recoverable','iaf_encode','iaf_decode',
            'iaf_decode_fast']
 
-from numpy import abs, arange, array, conjugate, cumsum, diag, diff, \
+from numpy import abs, all, arange, array, conjugate, cumsum, diag, diff, \
      dot, empty, exp, eye, float, hstack, imag, inf, isinf, isreal, \
      log, max, newaxis, nonzero, ones, pi, ravel, real, shape, sinc, \
      triu, zeros
@@ -224,28 +224,31 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
                 # considerably faster than) the integration below:
                 #
                 # f = lambda t:sinc(bwpi*(t-tsh[j]))*bwpi*exp((ts[i+1]-t)/-RC)
-                # G[i,j] = quad(f,ts[i],ts[i+1])[0]
+                # G[i,j] = quad(f, ts[i], ts[i+1])[0]
                 if ts[i] < tsh[j] and tsh[j] < ts[i+1]:
-                    G[i,j] = (-1j/4)*exp((tsh[j]-ts[i+1])/RC)*(2*ei((1-1j*RC*bw)*(ts[i]-tsh[j])/RC)-
-                                                               2*ei((1-1j*RC*bw)*(ts[i+1]-tsh[j])/RC)-
-                                                               2*ei((1+1j*RC*bw)*(ts[i]-tsh[j])/RC)+
-                                                               2*ei((1+1j*RC*bw)*(ts[i+1]-tsh[j])/RC)+
-                                                               log(-1-1j*RC*bw)+log(1-1j*RC*bw)-
-                                                               log(-1+1j*RC*bw)-log(1+1j*RC*bw)+
-                                                               log(-1j/(-1j+RC*bw))-log(1j/(-1j+RC*bw))+
-                                                               log(-1j/(1j+RC*bw))-log(1j/(1j+RC*bw)))/pi
+                    G[i,j] = (-1j/4)*exp((tsh[j]-ts[i+1])/RC)* \
+                             (2*ei((1-1j*RC*bw)*(ts[i]-tsh[j])/RC)-
+                              2*ei((1-1j*RC*bw)*(ts[i+1]-tsh[j])/RC)-
+                              2*ei((1+1j*RC*bw)*(ts[i]-tsh[j])/RC)+
+                              2*ei((1+1j*RC*bw)*(ts[i+1]-tsh[j])/RC)+
+                              log(-1-1j*RC*bw)+log(1-1j*RC*bw)-
+                              log(-1+1j*RC*bw)-log(1+1j*RC*bw)+
+                              log(-1j/(-1j+RC*bw))-log(1j/(-1j+RC*bw))+
+                              log(-1j/(1j+RC*bw))-log(1j/(1j+RC*bw)))/pi
                 else:
-                    G[i,j] = (-1j/2)*exp((tsh[j]-ts[i+1])/RC)*(ei((1-1j*RC*bw)*(ts[i]-tsh[j])/RC)-
-                                                               ei((1-1j*RC*bw)*(ts[i+1]-tsh[j])/RC)-
-                                                               ei((1+1j*RC*bw)*(ts[i]-tsh[j])/RC)+
-                                                               ei((1+1j*RC*bw)*(ts[i+1]-tsh[j])/RC))/pi   
+                    G[i,j] = (-1j/2)*exp((tsh[j]-ts[i+1])/RC)* \
+                             (ei((1-1j*RC*bw)*(ts[i]-tsh[j])/RC)-
+                              ei((1-1j*RC*bw)*(ts[i+1]-tsh[j])/RC)-
+                              ei((1+1j*RC*bw)*(ts[i]-tsh[j])/RC)+
+                              ei((1+1j*RC*bw)*(ts[i+1]-tsh[j])/RC))/pi
+                    
         q = C*(d+b*R*(exp(-s[1:]/RC)-1))
 
-    G_inv = pinv(G,__pinv_rcond__)
+    # Compute the reconstruction coefficients:
+    c = dot(pinv(G, __pinv_rcond__), q)
     
     # Reconstruct signal by adding up the weighted sinc functions.
-    u_rec = zeros(len(t),float)
-    c = dot(G_inv,q)
+    u_rec = zeros(len(t), float)
     for i in xrange(nsh):
         u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
     return u_rec
@@ -304,12 +307,135 @@ def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
     a = bw/(pi*(2*M+1))
     m = arange(-M,M+1)
     P_inv = -triu(ones((nsh,nsh)))
-    S = exp(-jbwM*dot(m[:,newaxis],ts[:-1][newaxis]))
+    S = exp(-jbwM*dot(m[:, newaxis], ts[:-1][newaxis]))
     D = diag(s[1:])
     SD = dot(S,D)
-    T = mdot(a,SD,conjugate(S.T))
-    dd = mdot(a,pinv(T,__pinv_rcond__),SD,P_inv,q[:,newaxis])
+    T = mdot(a, SD,conjugate(S.T))
+    dd = mdot(a, pinv(T, __pinv_rcond__), SD, P_inv, q[:,newaxis])
 
     # Reconstruct signal:
-    return ravel(real(jbwM*dot(m*dd.T,exp(jbwM*m[:,newaxis]*t))))
+    return ravel(real(jbwM*dot(m*dd.T, exp(jbwM*m[:, newaxis]*t))))
 
+def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
+    """Decode a finite length signal encoded by an ensemble of integrate-and-fire
+    neurons. 
+
+    Parameters
+    ----------
+    s_list: list of numpy arrays of floats
+        Signal encoded by an ensemble of encoders. The values represent the
+        time between spikes (in s). The number of arrays in the list
+        corresponds to the number of encoders in the ensemble.
+    dur: float
+        Duration of signal (in s).
+    dt: float
+        Sampling resolution of original signal; the sampling frequency
+        is 1/dt Hz.
+    bw: float
+        Signal bandwidth (in rad/s).
+    b_list: list of floats
+        List of encoder biases.
+    d_list: list of floats
+        List of encoder thresholds.
+    R_list: list of floats
+        List of encoder neuron resistances.
+    C_list: list of floats.    
+    
+    Notes
+    -----
+    The number of spikes contributed by each neuron may differ from the
+    number contributed by other neurons.
+
+    """
+
+    M = len(s_list)
+    if not M:
+        raise ValueError('no spike data given')
+
+    bwpi = bw/pi
+    
+    # Compute the midpoints between spikes:
+    ts_list = map(cumsum, s_list)
+    tsh_list = map(lambda ts:(ts[0:-1]+ts[1:])/2, ts_list)
+
+    # Compute number of spikes in each spike list:
+    Ns_list = map(len, ts_list)
+    Nsh_list = map(len, tsh_list)
+
+    # Compute the values of the matrix that must be inverted to obtain
+    # the reconstruction coefficients:
+    Nsh_sum = sum(Nsh_list)
+    G = empty((Nsh_sum, Nsh_sum), float)
+    q = empty((Nsh_sum, 1), float)
+    if all(isinf(R_list)):
+        for l in xrange(M):
+            for m in xrange(M):
+                G_block = empty((Nsh_list[l], Nsh_list[m]), float)
+
+                # Compute the values for all of the sincs so that they
+                # do not need to each be recomputed when determining
+                # the integrals between spike times:
+                for k in xrange(Nsh_list[m]):
+                    temp = sici(bw*(ts_list[l]-tsh_list[m][k]))[0]/pi
+                    for n in xrange(Nsh_list[l]):
+                        G_block[n, k] = temp[n+1]-temp[n]
+
+                G[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]),
+                  sum(Nsh_list[:m]):sum(Nsh_list[:m+1])] = G_block
+
+            # Compute the quanta:
+            q[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]), 0] = \
+                       C_list[l]*d_list[l]-b_list[l]*s_list[l][1:]
+    else:
+        for l in xrange(M):
+            for m in xrange(M):
+                G_block = empty((Nsh_list[l], Nsh_list[m]), float)
+
+                for n in xrange(Nsh_list[l]):
+                    for k in xrange(Nsh_list[m]):
+
+                        # The code below is functionally equivalent to
+                        # (but considerably faster than) the
+                        # integration below:
+                        #
+                        # f = lambda t:sinc(bwpi*(t-tsh_list[m][k]))* \
+                        #     bwpi*exp((ts_list[l][n+1]-t)/-(R_list[l]*C_list[l]))
+                        # G_block[n, k] = quad(f, ts_list[l][n], ts_list[l][n+1])[0]
+                        RC = R_list[l]*C_list[l]
+                        tsh = tsh_list[m]
+                        ts = ts_list[l]
+                        if ts[n] < tsh[k] and tsh[k] < ts[n+1]:
+                            G_block[n, k] = (-1j/4)*exp((tsh[k]-ts[n+1])/(RC))* \
+                                            (2*ei((1-1j*RC*bw)*(ts[n]-tsh[k])/RC)-
+                                             2*ei((1-1j*RC*bw)*(ts[n+1]-tsh[k])/RC)-
+                                             2*ei((1+1j*RC*bw)*(ts[n]-tsh[k])/RC)+
+                                             2*ei((1+1j*RC*bw)*(ts[n+1]-tsh[k])/RC)+
+                                             log(-1-1j*RC*bw)+log(1-1j*RC*bw)-
+                                             log(-1+1j*RC*bw)-log(1+1j*RC*bw)+
+                                             log(-1j/(-1j+RC*bw))-log(1j/(-1j+RC*bw))+
+                                             log(-1j/(1j+RC*bw))-log(1j/(1j+RC*bw)))/pi
+                        else:
+                            G_block[n, k] = (-1j/2)*exp((tsh[k]-ts[n+1])/RC)* \
+                                            (ei((1-1j*RC*bw)*(ts[n]-tsh[k])/RC)-
+                                             ei((1-1j*RC*bw)*(ts[n+1]-tsh[k])/RC)-
+                                             ei((1+1j*RC*bw)*(ts[n]-tsh[k])/RC)+
+                                             ei((1+1j*RC*bw)*(ts[n+1]-tsh[k])/RC))/pi   
+
+                G[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]),
+                  sum(Nsh_list[:m]):sum(Nsh_list[:m+1])] = G_block
+
+            # Compute the quanta:
+            q[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]), 0] = \
+                       C_list[l]*(d_list[l]+b_list[l]*R_list[l]* \
+                                  (exp(-s_list[l][1:]/(R_list[l]*C_list[l]))-1))
+    
+    # Compute the reconstruction coefficients:
+    c = dot(pinv(G, __pinv_rcond__), q)
+
+    # Reconstruct the signal using the coefficients:
+    t = arange(0, dur, dt)
+    u_rec = zeros(len(t), float)
+    for m in xrange(M):
+        for k in xrange(Nsh_list[m]):
+            u_rec += sinc(bwpi*(t-tsh_list[m][k]))*bwpi*c[sum(Nsh_list[:m])+k, 0]
+    return u_rec
