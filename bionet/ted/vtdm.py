@@ -13,7 +13,7 @@ from numpy import arange, asarray, conjugate, cumsum, diag, diff, dot, \
 from bionet.utils.numpy_extras import mdot
 import bionet.ted.bpa as bpa
 
-def vander_decode(s, dur, dt, bw, b, d, k, first_spike=-1):
+def vander_decode(s, dur, dt, bw, b, d, k, sgn=-1):
     """Decode a finite length signal encoded by an asynchronous
     sigma-delta modulator by solving a Vandermonde system using BPA.
 
@@ -34,6 +34,8 @@ def vander_decode(s, dur, dt, bw, b, d, k, first_spike=-1):
         Encoder threshold.
     k: float
         Encoder integration constant.
+    sgn: {-1,1}
+        Sign of first spike.
 
     """
 
@@ -42,18 +44,18 @@ def vander_decode(s, dur, dt, bw, b, d, k, first_spike=-1):
     s = asarray(s)
     ts = cumsum(s)
     ns = len(s)-1
-    n = ns-1              # corresponds to N in Prof. Lazar's paper
+    n = ns-1               # corresponds to N in Prof. Lazar's paper
 
     # Create the vectors and matricies needed to obtain the
     # reconstruction coefficients:
     z = exp(1j*2*bw*ts[:-1]/n)
 
-    V = fliplr(vander(z)) # pecularity of numpy's vander() function
+    V = fliplr(vander(z))  # pecularity of numpy's vander() function
     P = triu(ones((ns, ns), float))
     D = diag(exp(1j*bw*ts[:-1]))
 
     # Compute the quanta:
-    if first_spike == -1:
+    if sgn == -1:
         q = asarray([(-1)**i for i in xrange(0, ns)])*(2*k*d-b*s[1:])
     else:
         q = asarray([(-1)**i for i in xrange(1, ns+1)])*(2*k*d-b*s[1:])
@@ -71,7 +73,7 @@ def vander_decode(s, dur, dt, bw, b, d, k, first_spike=-1):
 
     return u
 
-def vander_decode_ins(s, dur, dt, bw, b, first_spike=-1):
+def vander_decode_ins(s, dur, dt, bw, b, sgn=-1):
     """Decode a finite length signal encoded by an asynchronous sigma-delta
     modulator by solving a parameter-insensitive Vandermonde system
     using BPA.
@@ -89,7 +91,7 @@ def vander_decode_ins(s, dur, dt, bw, b, first_spike=-1):
         Signal bandwidth (in rad/s).
     b: float
         Encoder bias.
-    first_spike: {-1,1}
+    sgn: {-1,1}
         Sign of first spike.
         
     """
@@ -99,12 +101,12 @@ def vander_decode_ins(s, dur, dt, bw, b, first_spike=-1):
     s = asarray(s)
     ts = cumsum(s)
     ns = len(s)-1
-    n = ns-1              # corresponds to N in Prof. Lazar's paper
+    n = ns-1               # corresponds to N in Prof. Lazar's paper
     
     # Create the vectors and matricies needed to obtain the
     # reconstruction coefficients:
     z = exp(1j*2*bw*ts[:-1]/n)
-    V = fliplr(vander(z)) # pecularity of numpy's vander() function
+    V = fliplr(vander(z))  # pecularity of numpy's vander() function
     D = diag(exp(1j*bw*ts[:-1]))
     P = triu(ones((ns, ns), float))
 
@@ -114,10 +116,10 @@ def vander_decode_ins(s, dur, dt, bw, b, first_spike=-1):
 
     bh = zeros(ns, float)
     bh[-1] = 1.0
-    bh = bh[newaxis]      # row vector
+    bh = bh[newaxis]       # row vector
 
     ex = ones(ns, float)
-    if first_spike == -1:
+    if sgn == -1:
         ex[0::2] = -1.0
     else:
         ex[1::2] = -1.0
