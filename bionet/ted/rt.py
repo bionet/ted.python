@@ -7,14 +7,16 @@ Real-time time encoding and decoding algorithms.
 __all__ = ['SignalProcessor',
            'RealTimeEncoder', 'RealTimeDecoder',
            'ASDMRealTimeEncoder', 'ASDMRealTimeDecoder',
-           'ASDMRealTimeDecoderIns']
+           'ASDMRealTimeDecoderIns',
+           'IAFRealTimeEncoder', 'IAFRealTimeDecoder']
 
 import bionet.utils.misc as m
 import bionet.ted.asdm as asdm
+import bionet.ted.iaf as iaf
 import bionet.ted.vtdm as vtdm
 
 from numpy import arange, array, cos, cumsum, float, hstack, \
-     intersect1d, pi, round, sin, where, zeros
+     inf, intersect1d, pi, round, sin, where, zeros
 
 class SignalProcessor:
     """This class describes a signal processor that retrieves blocks
@@ -116,6 +118,7 @@ class ASDMRealTimeEncoder(RealTimeEncoder):
             dt.
         quad_method: {'rect', 'trapz'}
             Quadrature method to use (rectangular or trapezoidal).
+
         """
 
         # The values 0, 0, and 1 passed to the constructor
@@ -129,7 +132,45 @@ class ASDMRealTimeEncoder(RealTimeEncoder):
         modulator.""" 
         
         return asdm.asdm_encode(data, *self.params)
+
+class IAFRealTimeEncoder(RealTimeEncoder):
+    """This class implements a real-time time encoding machine that
+    uses an integrate-and-fire neuron to encode data."""
     
+    def __init__(self, dt, b, d, R=inf, C=1.0, dte=0.0, quad_method='trapz'):
+        """Initialize a real-time time encoder.
+
+        Parameters
+        ----------
+        dt: float
+            Sampling resolution of input signal; the sampling frequency
+            is 1/dt Hz.
+        b: float
+            Encoder bias.
+        d: float
+            Encoder threshold.
+        R: float
+            Neuron resistance.
+        C: float
+            Neuron capacitance.
+        dte: float
+            Sampling resolution assumed by the encoder. This may not exceed
+            dt.
+        quad_method: {'rect', 'trapz'}
+            Quadrature method to use (rectangular or trapezoidal).
+
+        """
+
+        # The values 0 and 0 passed to the constructor initialize the
+        # y and interval parameters of the IAF encoder function:
+        SignalProcessor.__init__(self, dt, b, d, R, C, dte, 
+                                 0.0, 0.0, quad_method, True)
+        
+    def encode(self, data):
+        """Encode a block of data using an integrate-and-fire neuron.""" 
+        
+        return iaf.iaf_encode(data, *self.params)
+
 class RealTimeDecoder(SignalProcessor):
     """This class implements a real-time time decoding machine."""
     
@@ -150,6 +191,7 @@ class RealTimeDecoder(SignalProcessor):
             block.
         K: int
             Number of spikes in the overlap between successive blocks.   
+
         """
 
         SignalProcessor.__init__(self, dt, bw, N, M, K)
@@ -170,7 +212,7 @@ class RealTimeDecoder(SignalProcessor):
 
         # Needed to adjust sign for compensation principle used in
         # decoding algorithm:
-        self.first_spike = 1
+        self.sgn = 1
 
         # Spike intervals and spike indicies:
         self.s = []
@@ -214,9 +256,10 @@ class RealTimeDecoder(SignalProcessor):
             # decoded:
             self.intervals_to_add = sb.read(self.intervals_needed)
                         
-            # If no data was obtained, the final block has been
+            # If the number of intervals actually obtained is less
+            # than that requested, then the final block has been
             # reached and hence should not be windowed on its right side:
-            if len(self.intervals_to_add) == 0:
+            if len(self.intervals_to_add) < self.intervals_needed:
                 self.window_right = False
 
             # Add the read data to the block to be decoded:
@@ -251,7 +294,7 @@ class RealTimeDecoder(SignalProcessor):
             # The sign of the spike at the beginning of the next block
             # must be the reverse of the current one if J is odd:
             if self.J % 2:
-                self.first_spike *= -1
+                self.sgn *= -1
 
             # Construct and apply shaping window to decoded signal:
             if self.window_left:
@@ -268,7 +311,7 @@ class RealTimeDecoder(SignalProcessor):
                 rr = self.t[-1]
             self.w = self.window(self.t, ll, lr, rl, rr)
             self.uw = self.u*self.w
-            
+
             # Apart from the first block, the saved nonzero
             # overlapping portion of the previous block must be
             # combined with that of the current block:
@@ -290,7 +333,7 @@ class RealTimeDecoder(SignalProcessor):
                 self.u_out = hstack((self.u_out,
                                      self.uw[self.tk[self.M+self.K]::]))
                 self.overlap = array((), float)
-            
+                
             # The first block decoded should only be windowed on its
             # right side if at all. Hence, if window_left is false and
             # window_right is true, window_left should be set to true
@@ -362,6 +405,7 @@ class ASDMRealTimeDecoder(RealTimeDecoder):
             block.
         K: int
             Number of spikes in the overlap between successive blocks.   
+
         """
 
         RealTimeDecoder.__init__(self, dt, bw, N, M, K)
@@ -374,9 +418,9 @@ class ASDMRealTimeDecoder(RealTimeDecoder):
         """Decode a block of data that was encoded using an
         asynchronous sigma-delta modulator."""
         
-        return vtdm.vander_decode(data, self.curr_dur, self.dt,
-                                  self.bw, self.b, self.d, self.k,
-                                  self.first_spike)
+        return vtdm.asdm_decode_vander(data, self.curr_dur, self.dt,
+                                       self.bw, self.b, self.d, self.k,
+                                       self.sgn)
 
 class ASDMRealTimeDecoderIns(RealTimeDecoder):
     """This class implements a parameter-insensitive real-time time
@@ -402,6 +446,7 @@ class ASDMRealTimeDecoderIns(RealTimeDecoder):
             block.
         K: int
             Number of spikes in the overlap between successive blocks.   
+
         """
 
         RealTimeDecoder.__init__(self, dt, bw, N, M, K)
@@ -412,5 +457,52 @@ class ASDMRealTimeDecoderIns(RealTimeDecoder):
         """Decode a block of data that was encoded using an
         asynchronous sigma-delta modulator."""
         
-        return vtdm.vander_decode_ins(data, self.curr_dur, self.dt,
-                                      self.bw, self.b, self.first_spike)
+        return vtdm.asdm_decode_vander_ins(data, self.curr_dur, self.dt,
+                                           self.bw, self.b, self.sgn)
+
+class IAFRealTimeDecoder(RealTimeDecoder):
+    """This class implements a real-time time decoding machine that
+    decodes data encoded using an integrate-and-fire
+    neuron."""
+
+    def __init__(self, dt, bw, b, d, R, C, N, M, K):
+        """Initialize a real-time time decoder.
+
+        Parameters
+        ----------
+        dt: float
+            Sampling resolution of input signal; the sampling frequency
+            is 1/dt Hz.
+        bw: float
+            Signal bandwidth (in rad/s).
+        b: float
+            Encoder bias.
+        d: float
+            Decoder threshold.
+        R: float
+            Neuron resistance.
+        C: float
+            Neuron capacitance.
+        N: int
+            Number of spikes to process in each block less 1.
+        M: int
+            Number of spikes between the starting time of each successive
+            block.
+        K: int
+            Number of spikes in the overlap between successive blocks.   
+
+        """
+
+        RealTimeDecoder.__init__(self, dt, bw, N, M, K)
+
+        self.b = b
+        self.d = d
+        self.R = R
+        self.C = C
+        
+    def decode(self, data):
+        """Decode a block of data that was encoded using an
+        integrate-and-fire neuron."""
+        
+        return vtdm.iaf_decode_vander(data, self.curr_dur, self.dt,
+                                      self.bw, self.b, self.d, self.R, self.C)

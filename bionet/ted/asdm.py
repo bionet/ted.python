@@ -15,11 +15,9 @@ from numpy import abs, arange, array, conjugate, cumsum, diag, dot, \
 from numpy.linalg import pinv
 from scipy.signal import resample
 
-# The sici() function is used to obtain the values in the decoding
-# matricies because it can compute the sine integral relatively
-# quickly:
+# The sici() function is used to construct the decoding matrix G
+# because it can compute the sine integral relatively quickly:
 from scipy.special import sici
-
 from bionet.utils.numpy_extras import mdot 
 
 # Pseudoinverse singular value cutoff:
@@ -189,7 +187,7 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
     else:
         return array(s)
 
-def asdm_decode(s, dur, dt, bw, b, d, k=1.0):    
+def asdm_decode(s, dur, dt, bw, b, d, k=1.0, sgn=-1):    
     """Decode a finite length signal encoded by an asynchronous sigma-delta
     modulator.
 
@@ -210,6 +208,8 @@ def asdm_decode(s, dur, dt, bw, b, d, k=1.0):
         Encoder threshold.
     k: float
         Encoder integrator constant.
+    sgn: {-1,1}
+        Sign of first spike.
         
     """
 
@@ -238,8 +238,11 @@ def asdm_decode(s, dur, dt, bw, b, d, k=1.0):
     G_inv = pinv(G, __pinv_rcond__)
 
     # Compute quanta:
-    q = array([(-1)**i for i in xrange(1, nsh+1)])*(2*k*d-b*s[1:])
-
+    if sgn == -1:
+        q = array([(-1)**i for i in xrange(1, nsh+1)])*(2*k*d-b*s[1:])
+    else:
+        q = array([(-1)**i for i in xrange(0, nsh)])*(2*k*d-b*s[1:])
+        
     # Reconstruct signal by adding up the weighted sinc functions. The
     # weighted sinc functions are computed on the fly here to save
     # memory:
@@ -249,7 +252,7 @@ def asdm_decode(s, dur, dt, bw, b, d, k=1.0):
         u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
     return u_rec
 
-def asdm_decode_ins(s, dur, dt, bw, b):    
+def asdm_decode_ins(s, dur, dt, bw, b, sgn=-1):    
     """Decode a finite length signal encoded by an asynchronous sigma-delta
     modulator using a threshold-insensitive recovery algorithm.
 
@@ -266,6 +269,8 @@ def asdm_decode_ins(s, dur, dt, bw, b):
         Signal bandwidth (in rad/s).
     b: float
         Encoder bias.
+    sgn: {-1,1}
+        Sign of first spike.
 
     """
     
@@ -294,8 +299,11 @@ def asdm_decode_ins(s, dur, dt, bw, b):
     
     # Apply compensation principle:
     B = diag(ones(nsh-1), -1)+eye(nsh)
-    Bq = array([(-1)**i for i in xrange(nsh)])*b*(s[1:]-s[:-1])
-
+    if sgn == -1:
+        Bq = array([(-1)**i for i in xrange(nsh)])*b*(s[1:]-s[:-1])
+    else:
+        Bq = array([(-1)**i for i in xrange(1, nsh+1)])*b*(s[1:]-s[:-1])
+        
     # Reconstruct signal by adding up the weighted sinc functions; the
     # first row of B is removed to eliminate boundary issues. The
     # weighted sinc functions are computed on the fly to save memory:
@@ -305,7 +313,7 @@ def asdm_decode_ins(s, dur, dt, bw, b):
         u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
     return u_rec
 
-def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0):
+def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0, sgn=-1):
     """Decode a finite length signal encoded by an asynchronous sigma-delta
     modulator using a fast recovery algorithm.
 
@@ -328,6 +336,8 @@ def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0):
         Encoder threshold.
     k: float
         Encoder integrator constant.
+    sgn: {-1,1}
+        Sign of first spike.
         
     """
     
@@ -347,8 +357,11 @@ def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0):
     jbwM = 1j*bw/M
 
     # Compute quanta:
-    q = array([(-1)**i for i in xrange(1, nsh+1)])*(2*k*d-b*s[1:])
-    
+    if sgn == -1:
+        q = array([(-1)**i for i in xrange(1, nsh+1)])*(2*k*d-b*s[1:])
+    else:
+        q = array([(-1)**i for i in xrange(0, nsh)])*(2*k*d-b*s[1:])
+        
     # Compute approximation coefficients:
     a = bw/(pi*(2*M+1))
     m = arange(-M, M+1)
@@ -362,7 +375,7 @@ def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0):
     # Reconstruct signal:
     return ravel(real(jbwM*dot(m*dd.T, exp(jbwM*m[:, newaxis]*t))))
 
-def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list):
+def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
     """Decode a finite length signal encoded by an ensemble of asynchronous
     sigma-delta modulators. 
 
@@ -384,7 +397,9 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list):
     d_list: list of floats
         List of encoder thresholds.
     k_list: list of floats
-        List of encoder integration constants.            
+        List of encoder integration constants.
+    sgn_list: list of integers {-1, 1}
+        List of signs of first spikes in trains.
     
     Notes
     -----
@@ -397,6 +412,12 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list):
     if not M:
         raise ValueError('no spike data given')
 
+    # Set sign of first spikes:
+    if sgn_list == []:
+        sgn_list = M*[-1]
+    if len(sgn_list) != M:
+        raise ValueError('incorrect number of first spike signs')
+
     bwpi = bw/pi
     
     # Compute the midpoints between spikes:
@@ -406,7 +427,7 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list):
     # Compute number of spikes in each spike list:
     Ns_list = map(len, ts_list)
     Nsh_list = map(len, tsh_list)
-
+        
     # Compute the values of the matrix that must be inverted to obtain
     # the reconstruction coefficients:
     Nsh_sum = sum(Nsh_list)
@@ -428,10 +449,15 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list):
               sum(Nsh_list[:m]):sum(Nsh_list[:m+1])] = G_block
 
         # Compute the quanta:
-        q[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]), 0] = \
-                       array([(-1)**i for i in xrange(1, Nsh_list[l]+1)])* \
-                       (2*k_list[l]*d_list[l]-b_list[l]*s_list[l][1:])
-
+        if sgn_list[l] == -1:
+            q[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]), 0] = \
+                array([(-1)**i for i in xrange(1, Nsh_list[l]+1)])* \
+                (2*k_list[l]*d_list[l]-b_list[l]*s_list[l][1:])
+        else:
+            q[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]), 0] = \
+                array([(-1)**i for i in xrange(0, Nsh_list[l])])* \
+                (2*k_list[l]*d_list[l]-b_list[l]*s_list[l][1:])
+            
     # Compute the reconstruction coefficients:
     c = dot(pinv(G), q)
 
@@ -443,7 +469,7 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list):
             u_rec += sinc(bwpi*(t-tsh_list[m][k]))*bwpi*c[sum(Nsh_list[:m])+k, 0]
     return u_rec
 
-def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list):
+def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
     """Decode a finite length signal encoded by an ensemble of asynchronous
     sigma-delta modulators using a threshold-insensitive recovery algorithm.
 
@@ -473,6 +499,12 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list):
     M = len(s_list)
     if not M:
         raise ValueError('no spike data given')
+
+    # Set sign of first spikes:
+    if sgn_list == []:
+        sgn_list = M*[-1]
+    if len(sgn_list) != M:
+        raise ValueError('incorrect number of first spike signs')
 
     bwpi = bw/pi
     
@@ -504,9 +536,14 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list):
               sum(Nsh_list[:m]):sum(Nsh_list[:m+1])] = G_block
 
         # Compute the quanta:
-        Bq[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]), 0] = \
-                       array([(-1)**i for i in xrange(1, Nsh_list[l]+1)])* \
-                       b_list[l]*(s_list[l][2:]-s_list[l][1:-1])
+        if sgn_list[l] == -1:
+            Bq[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]), 0] = \
+                array([(-1)**i for i in xrange(1, Nsh_list[l]+1)])* \
+                b_list[l]*(s_list[l][2:]-s_list[l][1:-1])
+        else:
+            Bq[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]), 0] = \
+                array([(-1)**i for i in xrange(0, Nsh_list[l])])* \
+                b_list[l]*(s_list[l][2:]-s_list[l][1:-1])
 
     # Compute the reconstruction coefficients:
     c = dot(pinv(G), Bq)

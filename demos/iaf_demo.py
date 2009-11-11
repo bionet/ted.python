@@ -11,6 +11,11 @@ import bionet.utils.gen_test_signal as g
 import bionet.utils.test_utils as tu
 import bionet.ted.iaf as a
 
+# For determining output plot file names:
+output_name = 'iaf_demo_'
+output_count = 0
+output_ext = '.png'
+
 # Define algorithm parameters and input signal:
 dur = 0.1
 dt = 1e-6
@@ -21,14 +26,14 @@ t = np.arange(0, dur, dt)
 np.random.seed(0)
 
 noise_power = None
-
 if noise_power == None:
     fig_title = 'IAF input signal with no noise';
 else:
     fig_title = 'IAF input signal with %d dB of noise' % noise_power;
 print fig_title
 u = tu.func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
-tu.plot_signal(t, u, fig_title,'iaf_input.png')
+tu.plot_signal(t, u, fig_title,
+               output_name + str(output_count) + output_ext)
 
 b = 3.5   # bias
 d = 0.7   # threshold
@@ -44,43 +49,50 @@ M = 5 # number of bins for fast decoding algorithm
 L = 5 # number of recursions for recursive decoding algorithm
 
 # Test leaky algorithms:
-out_count = 0
-out_count += 1
+
+output_count += 1
 fig_title = 'encoding using leaky IAF algorithm'
 print fig_title
-s = tu.func_timer(a.iaf_encode)(u, dt, b, d, R, C, quad_method='rect')
-tu.plot_encoded(t, u, s, fig_title,'iaf_encoded_%i.png' % out_count)
+s = tu.func_timer(a.iaf_encode)(u, dt, b, d, R, C)
+tu.plot_encoded(t, u, s, fig_title,
+                output_name + str(output_count) + output_ext)
 
-out_count += 1
+output_count += 1
 fig_title = 'decoding using leaky IAF algorithm'
 print fig_title
 u_rec = tu.func_timer(a.iaf_decode)(s, dur, dt, bw, b, d, R, C)
-tu.plot_compare(t, u, u_rec, fig_title,'iaf_decoded_%i.png' % out_count)
+tu.plot_compare(t, u, u_rec, fig_title,
+                output_name + str(output_count) + output_ext)
 
-out_count += 1
+output_count += 1
 fig_title = 'decoding using leaky fast IAF algorithm'
 print fig_title
 u_rec = tu.func_timer(a.iaf_decode_fast)(s, dur, dt, bw, M, b, d, R, C)
-tu.plot_compare(t, u, u_rec, fig_title,'iaf_decoded_%i.png' % out_count)
+tu.plot_compare(t, u, u_rec, fig_title,
+                output_name + str(output_count) + output_ext)
 
 # Test nonleaky algorithms:
+
 R = np.inf
 
-out_count += 1
+output_count += 1
 fig_title = 'encoding using nonleaky IAF algorithm'
 print fig_title
-s = tu.func_timer(a.iaf_encode)(u, dt, b, d, R, C,quad_method='rect')
-tu.plot_encoded(t, u, s, fig_title,'iaf_encoded_%i.png' % out_count)
+s = tu.func_timer(a.iaf_encode)(u, dt, b, d, R, C)
+tu.plot_encoded(t, u, s, fig_title,
+                output_name + str(output_count) + output_ext)
 
-out_count += 1
+output_count += 1
 fig_title = 'decoding using nonleaky IAF algorithm'
 print fig_title
 u_rec = tu.func_timer(a.iaf_decode)(s, dur, dt, bw, b, d, R, C)
-tu.plot_compare(t, u, u_rec, fig_title,'iaf_decoded_%i.png' % out_count)
+tu.plot_compare(t, u, u_rec, fig_title,
+                output_name + str(output_count) + output_ext)
 
-out_count += 1
+output_count += 1
 fig_title = 'decoding using nonleaky fast IAF algorithm'
 print fig_title
 u_rec = tu.func_timer(a.iaf_decode_fast)(s, dur, dt, bw, M, b, d, R, C)
-tu.plot_compare(t, u, u_rec, fig_title,'iaf_decoded_%i.png' % out_count)
+tu.plot_compare(t, u, u_rec, fig_title,
+                output_name + str(output_count) + output_ext)
 

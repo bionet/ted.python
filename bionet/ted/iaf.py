@@ -5,22 +5,21 @@ Time encoding and decoding algorithms that make use of the
 integrate-and-fire neuron model.
 """
 
-__all__ = ['iaf_recoverable','iaf_encode','iaf_decode',
-           'iaf_decode_fast']
+__all__ = ['iaf_recoverable', 'iaf_encode', 'iaf_decode',
+           'iaf_decode_fast', 'iaf_decode_pop']
 
-from numpy import abs, all, arange, array, conjugate, cumsum, diag, diff, \
-     dot, empty, exp, eye, float, hstack, imag, inf, isinf, isreal, \
-     log, max, newaxis, nonzero, ones, pi, ravel, real, shape, sinc, \
-     triu, zeros
+from numpy import abs, all, arange, array, asarray, conjugate, cumsum, \
+     diag, diff, dot, empty, exp, eye, float, hstack, imag, inf, \
+     isinf, isreal, log, max, newaxis, nonzero, ones, pi, ravel, \
+     real, shape, sinc, triu, zeros
 from numpy.linalg import inv, pinv
 from scipy.integrate import quad
 from scipy.signal import resample
 
-# The sici() function is used to obtain the values in the decoding
-# matricies because it can compute the sine integral relatively
-# quickly:
+# The sici() and ei() functions are used to construct the decoding
+# matrix G because they can respectively compute the sine and
+# exponential integrals relatively quickly:
 from scipy.special import sici
-
 from bionet.utils.numpy_extras import mdot
 from bionet.utils.scipy_extras import ei
 
@@ -195,6 +194,7 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
         
     """
 
+    s = asarray(s)
     ns = len(s)
     if ns < 2:
         raise ValueError('s must contain at least 2 elements')
@@ -280,7 +280,8 @@ def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
         Neuron capacitance.
         
     """
-    
+
+    s = asarray(s)
     ns = len(s)
     if ns < 2:
         raise ValueError('s must contain at least 2 elements')

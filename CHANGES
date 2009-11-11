@@ -1,3 +1,10 @@
+Release 0.022 - ()
+==================
+* Accelerate IAF decoder implementations.
+* Add IAF population decoding algorithm.
+* Add IAF real-time decoding algorithm.
+* Clean up demos.
+
 Release 0.021 - (October 23, 2009)
 ==================================
 * Clean up real-time algorithm implementations.
