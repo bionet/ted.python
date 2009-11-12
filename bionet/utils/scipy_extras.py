@@ -12,6 +12,7 @@ scipy.
 - ci              Compute the cosine integral of a complex value.
 - shi             Compute the hyperbolic sine of a complex value.
 - chi             Compute the hyperbolic cosine of a complex value.
+
 """
 
 __all__ = ['ei', 'si', 'ci', 'li', 'shi', 'chi']

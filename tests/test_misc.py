@@ -12,10 +12,10 @@ import bionet.utils.misc as m
 class TestMisc(TestCase):
     def testChunks(self):
         x = range(10)
-        i = m.chunks(x,5)
+        i = m.chunks(x, 5)
         x1 = i.next()
         x2 = i.next()
-        assert(x1 == range(5) and x2 == range(5,10))
+        assert(x1 == range(5) and x2 == range(5, 10))
 
     def testSerialBufferInit(self):
         x = range(100)
@@ -30,7 +30,7 @@ class TestMisc(TestCase):
         x1 = sb.read(5)
         x2 = sb.read(5)
         x3 = sb.read(5)
-        assert(x1 == range(5) and x2 == range(5,10) and x3 == [])
+        assert(x1 == range(5) and x2 == range(5, 10) and x3 == [])
 
 if __name__ == "__main__":
     main()

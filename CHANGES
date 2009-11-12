@@ -1,3 +1,8 @@
+Release 0.013 - (November 12, 2009)
+===================================
+* Facilitate installation on x86_64 Linux.
+* Tidy up code formatting.
+
 Release 0.012 - (October 23, 2009)
 ==================================
 * Add serial data buffer class.

@@ -28,11 +28,12 @@ Miscellaneous functions
 
 """
 
-__all__ = ['db','rms','snr','upsample','downsample','nextpow2','fftfilt','oddround',
-           'oddceil','remezord']
+__all__ = ['db', 'downsample', 'fftfilt', 'nextpow2', 'oddceil', 'oddround',
+           'remezord', 'rms', 'snr', 'upsample']
 
-from numpy import arange, sqrt, mean, abs, min, max, log2, log10, shape, zeros, \
-     asarray, ceil, floor, argmin, pi, arctan, int, hstack, sqrt, mod
+from numpy import abs, arange, arctan, argmin, asarray, ceil, floor, \
+     hstack, int, log10, log2, max, mean, min, mod, pi, shape, \
+     sqrt, zeros
 from numpy.fft import fft, ifft
 
 # --- Error analysis functions ---
@@ -177,8 +178,7 @@ def oddceil(x):
     return oddround(x+1)
     
 def remlplen_herrmann(fp, fs, dp, ds):
-    """
-    Determine the length of the low pass filter with passband frequency
+    """Determine the length of the low pass filter with passband frequency
     fp, stopband frequency fs, passband ripple dp, and stopband ripple ds.
     fp and fs must be normalized with respect to the sampling frequency.
     Note that the filter order is one less than the filter length.
@@ -201,8 +201,7 @@ def remlplen_herrmann(fp, fs, dp, ds):
     return int(oddround(N1))
 
 def remlplen_kaiser(fp, fs, dp, ds):
-    """
-    Determine the length of the low pass filter with passband frequency
+    """Determine the length of the low pass filter with passband frequency
     fp, stopband frequency fs, passband ripple dp, and stopband ripple ds.
     fp and fs must be normalized with respect to the sampling frequency.
     Note that the filter order is one less than the filter length.
@@ -219,8 +218,7 @@ def remlplen_kaiser(fp, fs, dp, ds):
     return int(oddceil(N2))
 
 def remlplen_ichige(fp, fs, dp, ds):
-    """
-    Determine the length of the low pass filter with passband frequency
+    """Determine the length of the low pass filter with passband frequency
     fp, stopband frequency fs, passband ripple dp, and stopband ripple ds.
     fp and fs must be normalized with respect to the sampling frequency.
     Note that the filter order is one less than the filter length.
@@ -267,6 +265,7 @@ def remezord(freqs, amps, rips, Hz=1, alg='ichige'):
     Outputs:
 
       numtaps, bands, desired, weight -- See help for the remez function.   
+
     """
 
     # Make sure the parameters are floating point numpy arrays:

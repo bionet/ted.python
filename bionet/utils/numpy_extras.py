@@ -21,8 +21,8 @@ from numpy import dot, eye, asarray, abs, shape, diag, \
 from numpy.linalg import svd, eig, inv
 
 def mdot(*args):
-    '''Compute the matrix product of several multidimensional arrays
-    evaluated left to right.'''
+    """Compute the matrix product of several multidimensional arrays
+    evaluated left to right."""
 
     ret = args[0]
     for a in args[1:]:
@@ -30,10 +30,10 @@ def mdot(*args):
     return ret
 
 def rank(x, *args):
-    '''Estimate the number of linearly independent rows or columns of the
+    """Estimate the number of linearly independent rows or columns of the
     matrix x. If the tolerance is not specified, the default tolerance
     max(svd(x)[1])*max(shape(x))*1e-13 is used. Shamelessly adapted from
-    the rank() function in pylab.'''
+    the rank() function in pylab."""
 
     x = asarray(x)
     s = svd(x, compute_uv=False)
@@ -44,8 +44,8 @@ def rank(x, *args):
     return sum(s > tol)
 
 def mpower(x, y):
-    '''Compute x raised to the power y when x is a square matrix and y
-    is a scalar. The matrix x must be non-defective.'''
+    """Compute x raised to the power y when x is a square matrix and y
+    is a scalar. The matrix x must be non-defective."""
 
     s = shape(x)
     if len(s) != 2 or s[0] != s[1]:
@@ -80,3 +80,4 @@ def hilb(n):
     for i in xrange(n):
         h[i, :] = 1.0/(i+r)
     return h
+

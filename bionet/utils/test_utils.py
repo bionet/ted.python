@@ -37,6 +37,7 @@ def plot_signal(t, u, fig_title='', file_name=''):
         Plot title.
     file_name: string
         File in which to save the plot.
+
     """
     
     p.clf()
@@ -69,6 +70,7 @@ def plot_encoded(t, u, s, fig_title='', file_name=''):
         Plot title.
     file_name: string
         File in which to save the plot.
+
     """
 
     dt = t[1]-t[0]
@@ -105,6 +107,7 @@ def plot_compare(t, u, v, fig_title='', file_name=''):
         Plot title.
     file_name: string
         File in which to save the plot.
+
     """
     
     p.clf()
@@ -140,6 +143,7 @@ def plot_fourier(u, fs, *args):
         Minimum frequency to display (Hz).
     fmax: float:
         Maximum frequency to display (Hz).
+
     """
 
     if len(args) > 0:
@@ -171,3 +175,4 @@ def plot_fourier(u, fs, *args):
     p.stem(f[a:b], imag(uf)[a:b])
     p.ylabel('imag')
     p.xlabel('f (Hz)')
+
