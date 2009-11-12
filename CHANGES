@@ -1,9 +1,10 @@
-Release 0.022 - ()
-==================
+Release 0.03 - (November 12, 2009)
+==================================
 * Accelerate IAF decoder implementations.
 * Add IAF population decoding algorithm.
 * Add IAF real-time decoding algorithm.
 * Clean up demos.
+* Facilitate installation on x86_64 Linux.
 
 Release 0.021 - (October 23, 2009)
 ==================================
