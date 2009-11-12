@@ -52,8 +52,10 @@ try:
 except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
+# Test leaky algorithm:
+
 output_count += 1
-fig_title = 'encoding using real-time IAF algorithm'
+fig_title = 'encoding using leaky real-time IAF algorithm'
 print fig_title
 encoder = rt.IAFRealTimeEncoder(dt, b, d, R, C)
 s = tu.func_timer(encoder)(u)
@@ -61,7 +63,29 @@ tu.plot_encoded(t, u, s, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
-fig_title = 'decoding using real-time IAF algorithm'
+fig_title = 'decoding using leaky real-time IAF algorithm'
+print fig_title
+decoder = rt.IAFRealTimeDecoder(dt, bw, b, d, R, C, N, M, K)
+u_rec = tu.func_timer(decoder)(s)
+end = min(len(u), len(u_rec))
+tu.plot_compare(t[:end], u[:end], u_rec[:end], fig_title,
+                output_name + str(output_count) + output_ext)
+
+
+# Test nonleaky algorithm:
+
+R = np.inf
+
+output_count += 1
+fig_title = 'encoding using nonleaky real-time IAF algorithm'
+print fig_title
+encoder = rt.IAFRealTimeEncoder(dt, b, d, R, C)
+s = tu.func_timer(encoder)(u)
+tu.plot_encoded(t, u, s, fig_title,
+                output_name + str(output_count) + output_ext)
+
+output_count += 1
+fig_title = 'decoding using nonleaky real-time IAF algorithm'
 print fig_title
 decoder = rt.IAFRealTimeDecoder(dt, bw, b, d, R, C, N, M, K)
 u_rec = tu.func_timer(decoder)(s)
