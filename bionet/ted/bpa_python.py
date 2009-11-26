@@ -9,19 +9,33 @@ __all__ = ['bpa']
 
 import numpy as np
 
-def isvander(V):
-    """Test if a matrix has a Vandermonde structure. 
-
+def isvander(V, rtol=1e-5, atol=1e-8):
+    """Test if a matrix has a Vandermonde structure by checking
+    whether its columns V[2:,:] are integer powers of column V[1, :]
+    within tolerance.
+    
     Parameters
     ----------
     V: numpy array
        Square matrix to be tested.
-
+    rtol: float
+       The relative tolerance parameter (see Notes).
+    atol: float
+       The absolute tolerance parameter (see Notes).
+       
+    See Also
+    --------
+    vander, allclose
+    
     Notes
     -----
     The matrix is assumed to be oriented such that its second column
     contains the arguments that would need to be passed to the
-    vander() function in order to construct the matrix.    
+    vander() function in order to construct the matrix.
+
+    The tolerance values are the same as those assumed by the
+    allclose() function.
+    
     """
 
     (N, C) = np.shape(V)
@@ -31,7 +45,7 @@ def isvander(V):
         raise ValueError('V must be square')
 
     for i in range(C):
-        if any(V[:, i] != z**i):
+        if not(np.allclose(V[:, i], z**i)):
             return False
     return True
     
@@ -50,6 +64,7 @@ def bpa(V, b):
     The matrix is assumed to be oriented such that its second column
     contains the arguments that would need to be passed to the
     vander() function in order to contruct the matrix.
+    
     """
     
     (N, C) = np.shape(V)
