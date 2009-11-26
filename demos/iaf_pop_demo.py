@@ -57,22 +57,21 @@ try:
 except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
-out_count = 0
-out_count += 1
+output_count += 1
 fig_title = 'encoding using leaky IAF algorithm (encoder #1)'
 print fig_title
 s1 = tu.func_timer(iaf.iaf_encode)(u, dt, b1, d1, R1, C1)
 tu.plot_encoded(t, u, s1, fig_title,
                 output_name + str(output_count) + output_ext)
 
-out_count += 1
+output_count += 1
 fig_title = 'encoding using leaky IAF algorithm (encoder #2)'
 print fig_title
 s2 = tu.func_timer(iaf.iaf_encode)(u, dt, b2, d2, R2, C1)
 tu.plot_encoded(t, u, s2, fig_title,
                 output_name + str(output_count) + output_ext)
 
-out_count += 1
+output_count += 1
 fig_title = 'decoding using leaky IAF population algorithm'
 print fig_title
 u_rec = tu.func_timer(iaf.iaf_decode_pop)([s1, s2], dur, dt, bw,
@@ -103,21 +102,21 @@ try:
 except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
-out_count += 1
+output_count += 1
 fig_title = 'encoding using nonleaky IAF algorithm (encoder #1)'
 print fig_title
 s1 = tu.func_timer(iaf.iaf_encode)(u, dt, b1, d1, R1, C1)
 tu.plot_encoded(t, u, s1, fig_title,
                 output_name + str(output_count) + output_ext)
 
-out_count += 1
+output_count += 1
 fig_title = 'encoding using nonleaky IAF algorithm (encoder #2)'
 print fig_title
 s2 = tu.func_timer(iaf.iaf_encode)(u, dt, b2, d2, R2, C1)
 tu.plot_encoded(t, u, s2, fig_title,
                 output_name + str(output_count) + output_ext)
 
-out_count += 1
+output_count += 1
 fig_title = 'decoding using nonleaky IAF population algorithm'
 print fig_title
 u_rec = tu.func_timer(iaf.iaf_decode_pop)([s1, s2], dur, dt, bw,
