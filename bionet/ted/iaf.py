@@ -32,19 +32,24 @@ def iaf_recoverable(u, bw, b, d, R, C):
 
     Parameters
     ----------
-    u: numpy array
+    u : array_like of floats
         Signal to test.
-    bw: float
+    bw : float
         Signal bandwidth (in rad/s).
-    b: float
+    b : float
         Decoder bias.
-    d: float
+    d : float
         Decoder threshold.
-    R: float
+    R : float
         Neuron resistance.
-    C: float
+    C : float
         Neuron capacitance.
 
+    Returns
+    -------
+    rec : bool
+        True if the specified signal is recoverable.
+        
     Raises
     ------
     ValueError
@@ -58,10 +63,8 @@ def iaf_recoverable(u, bw, b, d, R, C):
     r = R*C*log(1-d/(d-(b-c)*R))*bw/pi
     e = d/((b-c)*R)
     if not isreal(r):
-        #print 'r = %f + %fj' % real(r), imag(r)
         raise ValueError('reconstruction condition not satisfied')
     elif r >= (1-e)/(1+e):
-        #print 'r = %f, (1-e)/(1+e) = %f' % (r, (1-e)/(1+e))
         raise ValueError('reconstruction condition not satisfied;'+
                          'try raising b or reducing d')
     else:
@@ -74,37 +77,45 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
 
     Parameters
     ----------
-    u: numpy array of floats
+    u : array_like of floats
         Signal to encode.
-    dt: float
+    dt : float
         Sampling resolution of input signal; the sampling frequency
         is 1/dt Hz.
-    b: float
+    b : float
         Encoder bias.
-    d: float
+    d : float
         Encoder threshold.
-    R: float
+    R : float
         Neuron resistance.
-    C: float
+    C : float
         Neuron capacitance.
-    dte: float
+    dte : float
         Sampling resolution assumed by the encoder (s).
         This may not exceed dt.
-    y: float
+    y : float
         Initial value of integrator.
-    interval: float
+    interval : float
         Time since last spike (in s).
-    quad_method: {'rect', 'trapz'}
+    quad_method : {'rect', 'trapz'}
         Quadrature method to use (rectangular or trapezoidal) when the
         neuron is not leaky; exponential Euler integration is used
         when the neuron is leaky.
-    full_output: boolean
-        If set, the function returns new values for y and interval.
+    full_output : bool
         If set, the function returns the encoded data block followed
         by the given parameters (with updated values for y and interval).
         This is useful when the function is called repeatedly to
         encode a long signal.
 
+    Returns
+    -------
+    s : ndarray of floats
+        If full_output == False, returns the signal encoded as an
+        array of time intervals between spikes.
+    s, dt, b, d, R, C, dte, y, interval, quad_method, full_output : tuple
+        If full_output == True, returns the encoded signal
+        followed by updated encoder parameters.
+        
     Notes
     -----
     When trapezoidal integration is used, the value of the integral
@@ -127,7 +138,7 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
     if dte < 0:
         raise ValueError('encoding time resolution must be nonnegative')
     if dte != 0:        
-        u = resample(u,len(u)*int(dt/dte))
+        u = resample(u, len(u)*int(dt/dte))
         dt = dte
 
     # Use a list rather than an array to save the spike intervals
@@ -137,10 +148,10 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
     # Choose integration method:
     if isinf(R):        
         if quad_method == 'rect':
-            compute_y = lambda y,i: y + dt*(b+u[i])/C
+            compute_y = lambda y, i: y + dt*(b+u[i])/C
             last = nu
         elif quad_method == 'trapz':
-            compute_y = lambda y,i: y + dt*(b+(u[i]+u[i+1])/2.0)/C
+            compute_y = lambda y, i: y + dt*(b+(u[i]+u[i+1])/2.0)/C
             last = nu-1
         else:
             raise ValueError('unrecognized quadrature method')
@@ -149,13 +160,13 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
         # When the neuron is leaky, use the exponential Euler method to perform
         # the encoding:
         RC = R*C
-        compute_y = lambda y,i: y*exp(-dt/RC)+R*(1-exp(-dt/RC))*(b+u[i])
+        compute_y = lambda y, i: y*exp(-dt/RC)+R*(1-exp(-dt/RC))*(b+u[i])
         last = nu
         
     # The interval between spikes is saved between iterations rather than the
     # absolute time so as to avoid overflow problems for very long signals:
     for i in xrange(last):
-        y = compute_y(y,i)
+        y = compute_y(y, i)
         interval += dt
         if y >= d:
             s.append(interval)
@@ -174,7 +185,7 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
 
     Parameters
     ----------
-    s: numpy array of floats
+    s: ndarray of floats
         Encoded signal. The values represent the time between spikes (in s).
     dur: float
         Duration of signal (in s).
@@ -191,14 +202,21 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
         Neuron resistance.
     C: float
         Neuron capacitance.
+
+    Returns
+    -------
+    u_rec : ndarray of floats
+        Recovered signal.
         
     """
-
-    s = asarray(s)
+    
     ns = len(s)
     if ns < 2:
         raise ValueError('s must contain at least 2 elements')
-    
+
+    # Cast s to an ndarray to permit ndarray operations:
+    s = asarray(s)
+
     ts = cumsum(s) 
     tsh = (ts[0:-1]+ts[1:])/2
     nsh = len(tsh)
@@ -259,7 +277,7 @@ def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
 
     Parameters
     ----------
-    s: numpy array of floats
+    s: array_like of floats
         Encoded signal. The values represent the time between spikes (in s).
     dur: float
         Duration of signal (in s).
@@ -278,22 +296,27 @@ def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
         Neuron resistance.
     C: float
         Neuron capacitance.
+
+    Returns
+    -------
+    u_rec : ndarray of floats
+        Recovered signal.
         
     """
-
-    s = asarray(s)
+    
     ns = len(s)
     if ns < 2:
         raise ValueError('s must contain at least 2 elements')
-    
+
+    # Cast s to an ndarray to permit ndarray operations:
+    s = asarray(s)
+
     # Convert M in the event that an integer was specified:
     M = float(M)
 
     ts = cumsum(s) 
     tsh = (ts[0:-1]+ts[1:])/2
     nsh = len(tsh)
-    
-    t = arange(0, dur, dt)
     
     RC = R*C
     jbwM = 1j*bw/M
@@ -315,6 +338,7 @@ def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
     dd = mdot(a, pinv(T, __pinv_rcond__), SD, P_inv, q[:,newaxis])
 
     # Reconstruct signal:
+    t = arange(0, dur, dt)
     return ravel(real(jbwM*dot(m*dd.T, exp(jbwM*m[:, newaxis]*t))))
 
 def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
@@ -323,7 +347,7 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
 
     Parameters
     ----------
-    s_list: list of numpy arrays of floats
+    s_list: list of ndarrays of floats
         Signal encoded by an ensemble of encoders. The values represent the
         time between spikes (in s). The number of arrays in the list
         corresponds to the number of encoders in the ensemble.
@@ -341,7 +365,13 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
     R_list: list of floats
         List of encoder neuron resistances.
     C_list: list of floats.    
-    
+        List of encoder neuron capacitances.
+
+    Returns
+    -------
+    u_rec : ndarray of floats
+        Recovered signal.
+        
     Notes
     -----
     The number of spikes contributed by each neuron may differ from the

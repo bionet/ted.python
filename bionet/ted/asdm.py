@@ -9,9 +9,9 @@ __all__ = ['asdm_recoverable', 'asdm_encode', 'asdm_decode',
            'asdm_decode_ins', 'asdm_decode_fast',
 	   'asdm_decode_pop', 'asdm_decode_pop_ins']
            
-from numpy import abs, arange, array, conjugate, cumsum, diag, dot, \
-        empty, eye, exp, float, max, newaxis, ones, pi, ravel, real, \
-        sinc, triu, zeros
+from numpy import abs, arange, array, asarray, conjugate, cumsum, \
+        diag, dot, empty, eye, exp, float, max, newaxis, ones, pi, \
+        ravel, real, sinc, triu, zeros
 from numpy.linalg import pinv
 from scipy.signal import resample
 
@@ -29,17 +29,22 @@ def asdm_recoverable_strict(u, bw, b, d, k):
 
     Parameters
     ----------
-    u: numpy array
+    u : array_like of floats
         Signal to test.
-    bw: float
+    bw : float
         Signal bandwidth (in rad/s).
-    b: float
+    b : float
         Decoder bias.
-    d: float
+    d : float
         Decoder threshold.
-    k: float
+    k : float
         Decoder integration constant.
 
+    Returns
+    -------
+    rec : bool
+        True if the specified signal is recoverable.
+        
     Raises
     ------
     ValueError
@@ -62,7 +67,7 @@ def asdm_recoverable(u, bw, b, d, k):
 
     Parameters
     ----------
-    u: numpy array
+    u: array_like of floats
         Signal to test.
     bw: float
         Signal bandwidth (in rad/s).
@@ -72,6 +77,11 @@ def asdm_recoverable(u, bw, b, d, k):
         Decoder threshold.
     k: float
         Decoder integration constant.
+
+    Returns
+    -------
+    rec : bool
+        True if the specified signal is recoverable.
 
     Raises
     ------
@@ -101,7 +111,7 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
 
     Parameters
     ----------
-    u: numpy array of floats
+    u: array_like of floats
         Signal to encode.
     dt: float
         Sampling resolution of input signal; the sampling frequency
@@ -123,11 +133,20 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
         Sign of integrator.
     quad_method: {'rect', 'trapz'}
         Quadrature method to use (rectangular or trapezoidal).
-    full_output: boolean
+    full_output: bool
         If set, the function returns the encoded data block followed
         by the given parameters (with updated values for y, interval, and
         sgn). This is useful when the function is called repeatedly to
         encode a long signal.
+
+    Returns
+    -------
+    s : ndarray of floats
+        If full_output == False, returns the signal encoded as an
+        array of time intervals between spikes.
+    s, dt, b, d, k, dte, y, interval, sgn, quad_method, full_output : tuple
+        If full_output == True, returns the encoded signal
+        followed by updated encoder parameters.
 
     Notes
     -----
@@ -193,7 +212,7 @@ def asdm_decode(s, dur, dt, bw, b, d, k=1.0, sgn=-1):
 
     Parameters
     ----------
-    s: numpy array of floats
+    s: ndarray of floats
         Encoded signal. The values represent the time between spikes (in s).
     dur: float
         Duration of signal (in s).
@@ -208,20 +227,27 @@ def asdm_decode(s, dur, dt, bw, b, d, k=1.0, sgn=-1):
         Encoder threshold.
     k: float
         Encoder integrator constant.
-    sgn: {-1,1}
+    sgn: {-1, 1}
         Sign of first spike.
-        
+
+    Returns
+    -------
+    u_rec : ndarray of floats
+        Recovered signal.
+
     """
 
     ns = len(s)
     if ns < 2:
         raise ValueError('s must contain at least 2 elements')
-    
+
+    # Cast s to an ndarray to permit ndarray operations:
+    s = asarray(s)
+
+    # Compute the spike times and the midpoints between spikes:
     ts = cumsum(s)
     tsh = (ts[0:-1]+ts[1:])/2
     nsh = len(tsh)
-    
-    t = arange(0, dur, dt)
     
     bwpi = bw/pi
     
@@ -246,6 +272,7 @@ def asdm_decode(s, dur, dt, bw, b, d, k=1.0, sgn=-1):
     # Reconstruct signal by adding up the weighted sinc functions. The
     # weighted sinc functions are computed on the fly here to save
     # memory:
+    t = arange(0, dur, dt)
     u_rec = zeros(len(t), float)
     c = dot(G_inv, q)
     for i in xrange(nsh):
@@ -258,7 +285,7 @@ def asdm_decode_ins(s, dur, dt, bw, b, sgn=-1):
 
     Parameters
     ----------
-    s: numpy array of floats
+    s: ndarray of floats
         Encoded signal. The values represent the time between spikes (in s).
     dur: float
         Duration of signal (in s).
@@ -269,15 +296,24 @@ def asdm_decode_ins(s, dur, dt, bw, b, sgn=-1):
         Signal bandwidth (in rad/s).
     b: float
         Encoder bias.
-    sgn: {-1,1}
+    sgn: {-1, 1}
         Sign of first spike.
+
+    Returns
+    -------
+    u_rec : ndarray of floats
+        Recovered signal.
 
     """
     
     ns = len(s)
     if ns < 2:
         raise ValueError('s must contain at least 2 elements') 
-    
+
+    # Cast s to an ndarray to permit ndarray operations:
+    s = asarray(s)
+
+    # Compute the spike times and the midpoints between spikes:
     ts = cumsum(s)
     tsh = (ts[0:-1]+ts[1:])/2
     nsh = len(tsh)
@@ -336,24 +372,30 @@ def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0, sgn=-1):
         Encoder threshold.
     k: float
         Encoder integrator constant.
-    sgn: {-1,1}
+    sgn: {-1, 1}
         Sign of first spike.
-        
+
+    Returns
+    -------
+    u_rec : ndarray of floats
+        Recovered signal.
+
     """
     
     ns = len(s)
     if ns < 2:
         raise ValueError('s must contain at least 2 elements')
-    
-    # Convert M in the event that an integer was specified:
-    M = float(M)
 
+    # Cast s to an ndarray to permit ndarray operations:
+    s = asarray(s)
+
+    # Compute the spike times and the midpoints between spikes:
     ts = cumsum(s) 
     tsh = (ts[0:-1]+ts[1:])/2
     nsh = len(tsh)
-    
-    t = arange(0, dur, dt)
-    
+
+    # Convert M in the event that an integer was specified:
+    M = float(M)
     jbwM = 1j*bw/M
 
     # Compute quanta:
@@ -373,6 +415,7 @@ def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0, sgn=-1):
     dd = mdot(a, pinv(T, __pinv_rcond__), SD, P_inv, q[:, newaxis])
 
     # Reconstruct signal:
+    t = arange(0, dur, dt)
     return ravel(real(jbwM*dot(m*dd.T, exp(jbwM*m[:, newaxis]*t))))
 
 def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
@@ -381,7 +424,7 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
 
     Parameters
     ----------
-    s_list: list of numpy arrays of floats
+    s_list: list of ndarrays of floats
         Signal encoded by an ensemble of encoders. The values represent the
         time between spikes (in s). The number of arrays in the list
         corresponds to the number of encoders in the ensemble.
@@ -400,7 +443,12 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
         List of encoder integration constants.
     sgn_list: list of integers {-1, 1}
         List of signs of first spikes in trains.
-    
+
+    Returns
+    -------
+    u_rec : ndarray of floats
+        Recovered signal.
+
     Notes
     -----
     The number of spikes contributed by each neuron may differ from the
@@ -420,7 +468,7 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
 
     bwpi = bw/pi
     
-    # Compute the midpoints between spikes:
+    # Compute the spike times and midpoints between spikes:
     ts_list = map(cumsum, s_list)
     tsh_list = map(lambda ts:(ts[0:-1]+ts[1:])/2, ts_list)
 
@@ -475,7 +523,7 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
 
     Parameters
     ----------
-    s_list: list of numpy arrays of floats
+    s_list: list of ndarrays of floats
         Signal encoded by an ensemble of encoders. The values represent the
         time between spikes (in s). The number of arrays in the list
         corresponds to the number of encoders in the ensemble.
@@ -488,6 +536,11 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
         Signal bandwidth (in rad/s).
     b_list: list of floats
         List of encoder biases.
+
+    Returns
+    -------
+    u_rec : ndarray of floats
+        Recovered signal.
 
     Notes
     -----
@@ -508,7 +561,7 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
 
     bwpi = bw/pi
     
-    # Compute the midpoints between spikes:
+    # Compute the spike times and the midpoints between spikes:
     ts_list = map(cumsum, s_list)
     tsh_list = map(lambda ts:(ts[0:-1]+ts[1:])/2, ts_list)
 

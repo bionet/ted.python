@@ -10,16 +10,25 @@ def bpa(ndarray V, ndarray b):
 
     Parameters
     ----------
-    V: numpy array
+    V : ndarray of floats, shape (M, M)
         A Vandermonde matrix. 
-    b: numpy array
+    b : ndarray of floats, shape (M,)
         The system solved by this routine is dot(V,d) = b.
 
+    Returns
+    -------
+    d : ndarray of floats, shape (M,)
+
+    See Also
+    --------
+    numpy.linalg.solve
+    
     Notes
     -----
     The matrix is assumed to be oriented such that its second column
     contains the arguments that would need to be passed to the
     vander() function in order to contruct the matrix.
+    
     """
 
     cdef int N, C
@@ -36,20 +45,18 @@ def bpa(ndarray V, ndarray b):
     # Copy the input values to avoid modifying them:
     cdef ndarray z_array
     cdef ndarray b_array
-
     z_array = np.array(V[:, 1], np.complex)
     b_array = np.array(b.flatten(), np.complex)
 
     if b_array.shape[0] <> N:
         raise ValueError('size mismatch between V and b')
-    
-    cdef int n, m
 
     cdef double complex *z_data
     cdef double complex *b_data
     z_data = <double complex *>z_array.data
     b_data = <double complex *>b_array.data
-        
+
+    cdef int n, m
     for n from 0 <= n < N:
         for m from N-1 >= m > n:
             b_data[m] = (b_data[m]-b_data[m-1])/(z_data[m]-z_data[m-n-1])

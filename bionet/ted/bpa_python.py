@@ -16,12 +16,17 @@ def isvander(V, rtol=1e-5, atol=1e-8):
     
     Parameters
     ----------
-    V: numpy array
+    V : ndarray of floats, shape (M, M)
        Square matrix to be tested.
-    rtol: float
+    rtol : float
        The relative tolerance parameter (see Notes).
-    atol: float
+    atol : float
        The absolute tolerance parameter (see Notes).
+
+    Returns
+    -------
+    res : bool
+       True if the matrix is a Vandermonde matrix, False otherwise.
        
     See Also
     --------
@@ -54,11 +59,19 @@ def bpa(V, b):
 
     Parameters
     ----------
-    V: numpy array
+    V : ndarray of floats, shape (M, M)
         A Vandermonde matrix. 
-    b: numpy array
+    b : ndarray of floats, shape (M,)
         The system solved by this routine is dot(V,d) = b.
 
+    Returns
+    -------
+    d : ndarray of floats, shape (M,)
+
+    See Also
+    --------
+    numpy.linalg.solve
+    
     Notes
     -----
     The matrix is assumed to be oriented such that its second column
@@ -66,14 +79,13 @@ def bpa(V, b):
     vander() function in order to contruct the matrix.
     
     """
-    
-    (N, C) = np.shape(V)
-    
+
+    (N, C) = np.shape(V)    
     if N != C:
         raise ValueError('V must be square')
     if N <= 1:
         raise ValueError('V must contain more than 1 element')
-    
+
     z = V[:, 1].copy()
     bs = np.shape(b)
     b = b.copy().flatten()

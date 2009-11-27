@@ -20,7 +20,7 @@ def asdm_decode_vander(s, dur, dt, bw, b, d, k, sgn=-1):
 
     Parameters
     ----------
-    s: numpy array of floats
+    s: array_like of floats
         Encoded signal. The values represent the time between spikes (in s).
     dur: float
         Duration of signal (in s).
@@ -35,18 +35,27 @@ def asdm_decode_vander(s, dur, dt, bw, b, d, k, sgn=-1):
         Encoder threshold.
     k: float
         Encoder integration constant.
-    sgn: {-1,1}
+    sgn: {-1, 1}
         Sign of first spike.
+
+    Returns
+    -------
+    u_rec : ndarray of floats
+        Recovered signal.
 
     """
 
     # Since the compensation principle uses the differences between
     # spikes, the last spike must effectively be dropped:
-    s = asarray(s)
-    ts = cumsum(s)
     ns = len(s)-1
     n = ns-1               # corresponds to N in Prof. Lazar's paper
 
+    # Cast s to an ndarray to permit ndarray operations:
+    s = asarray(s)
+
+    # Compute the spike times:
+    ts = cumsum(s)
+    
     # Create the vectors and matricies needed to obtain the
     # reconstruction coefficients:
     z = exp(1j*2*bw*ts[:-1]/n)
@@ -67,12 +76,12 @@ def asdm_decode_vander(s, dur, dt, bw, b, d, k, sgn=-1):
 
     # Reconstruct the signal:
     t = arange(0, dur, dt)
-    u = zeros(len(t), float)
+    u_rec = zeros(len(t), float)
     for i in xrange(ns):
         c = 1j*(bw-i*2*bw/n)
-        u += c*d[i]*exp(-c*t)
+        u_rec += c*d[i]*exp(-c*t)
 
-    return u
+    return u_rec
 
 def asdm_decode_vander_ins(s, dur, dt, bw, b, sgn=-1):
     """Decode a finite length signal encoded by an asynchronous sigma-delta
@@ -81,7 +90,7 @@ def asdm_decode_vander_ins(s, dur, dt, bw, b, sgn=-1):
 
     Parameters
     ----------
-    s: numpy array of floats
+    s: array_like of floats
         Encoded signal. The values represent the time between spikes (in s).
     dur: float
         Duration of signal (in s).
@@ -92,18 +101,27 @@ def asdm_decode_vander_ins(s, dur, dt, bw, b, sgn=-1):
         Signal bandwidth (in rad/s).
     b: float
         Encoder bias.
-    sgn: {-1,1}
+    sgn: {-1, 1}
         Sign of first spike.
-        
+
+    Returns
+    -------
+    u_rec : ndarray of floats
+        Recovered signal.
+
     """
 
     # Since the compensation principle uses the differences between
     # spikes, the last spike in s must effectively be dropped:
-    s = asarray(s)
-    ts = cumsum(s)
     ns = len(s)-1
     n = ns-1               # corresponds to N in Prof. Lazar's paper
-    
+
+    # Cast s to an ndarray to permit ndarray operations:
+    s = asarray(s)
+
+    # Compute the spike times:
+    ts = cumsum(s)
+
     # Create the vectors and matricies needed to obtain the
     # reconstruction coefficients:
     z = exp(1j*2*bw*ts[:-1]/n)
@@ -137,12 +155,12 @@ def asdm_decode_vander_ins(s, dur, dt, bw, b, sgn=-1):
     
     # Reconstruct the signal:
     t = arange(0, dur, dt)
-    u = zeros(len(t), float)
+    u_rec = zeros(len(t), float)
     for i in xrange(ns):
         c = 1j*(bw-i*2*bw/n)
-        u += c*d[i]*exp(-c*t)
+        u_rec += c*d[i]*exp(-c*t)
 
-    return u
+    return u_rec
 
 def iaf_decode_vander(s, dur, dt, bw, b, d, R, C):
     """Decode a finite length signal encoded by an integrate-and-fire
@@ -150,7 +168,7 @@ def iaf_decode_vander(s, dur, dt, bw, b, d, R, C):
 
     Parameters
     ----------
-    s: numpy array of floats
+    s: array_like of floats
         Encoded signal. The values represent the time between spikes (in s).
     dur: float
         Duration of signal (in s).
@@ -168,14 +186,23 @@ def iaf_decode_vander(s, dur, dt, bw, b, d, R, C):
     C: float
         Neuron capacitance.
 
+    Returns
+    -------
+    u_rec : ndarray of floats
+        Recovered signal.
+
     """
 
     # Since the compensation principle uses the differences between
     # spikes, the last spike must effectively be dropped:
-    s = asarray(s)
-    ts = cumsum(s)
     ns = len(s)-1
     n = ns-1               # corresponds to N in Prof. Lazar's paper
+
+    # Cast s to an ndarray to permit ndarray operations:
+    s = asarray(s)
+
+    # Compute the spike times:
+    ts = cumsum(s)
 
     # Create the vectors and matricies needed to obtain the
     # reconstruction coefficients:
@@ -197,9 +224,9 @@ def iaf_decode_vander(s, dur, dt, bw, b, d, R, C):
 
     # Reconstruct the signal:
     t = arange(0, dur, dt)
-    u = zeros(len(t), float)
+    u_rec = zeros(len(t), float)
     for i in xrange(ns):
         c = 1j*(bw-i*2*bw/n)
-        u += c*d[i]*exp(-c*t)
+        u_rec += c*d[i]*exp(-c*t)
 
-    return u
+    return u_rec
