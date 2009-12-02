@@ -1,3 +1,18 @@
+@article{lazar_consistent_2009,
+        series = {Special Issue on Signal Processing for Neural Spike
+        Trains},
+        title = {Consistent Recovery of Sensory Stimuli Encoded with
+        {MIMO} Neural Circuits},
+        volume = {2009},
+        url =
+        {http://spike.ee.columbia.edu:3000/citation/paperfile/53/lazar_compineuro09.pdf},
+        doi = {10.1155/2010/469658},
+        journal = {Computational Intelligence and Neuroscience},
+        author = {Aurel A. Lazar and Eftychios A. Pnevmatikakis},
+        month = nov,
+        year = {2009}
+},
+
 @inproceedings{lazar_fast_2004,
 	title = {Fast Recovery Algorithms of Time Encoded Bandlimited Signals},
 	volume = {4},

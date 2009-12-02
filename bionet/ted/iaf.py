@@ -6,13 +6,16 @@ integrate-and-fire neuron model.
 """
 
 __all__ = ['iaf_recoverable', 'iaf_encode', 'iaf_decode',
-           'iaf_decode_fast', 'iaf_decode_pop']
+          'iaf_decode_fast', 'iaf_decode_pop', 'iaf_decode_spline'
+          'iaf_decode_spline_pop']
 
-from numpy import abs, all, arange, array, asarray, conjugate, cumsum, \
+# Import max() as amax() because the builtin max() function is needed
+# by iaf_decode_spline_pop():
+from numpy import abs, all, amax, arange, array, asarray, conjugate, cumsum, \
      diag, diff, dot, empty, exp, eye, float, hstack, imag, inf, \
-     isinf, isreal, log, max, newaxis, nonzero, ones, pi, ravel, \
-     real, shape, sinc, triu, zeros
-from numpy.linalg import inv, pinv
+     isinf, isreal, log, newaxis, nonzero, ones, pi, ravel, \
+     real, shape, sinc, triu, where, zeros
+from numpy.linalg import pinv
 from scipy.integrate import quad
 from scipy.signal import resample
 
@@ -57,7 +60,7 @@ def iaf_recoverable(u, bw, b, d, R, C):
 
     """
 
-    c = max(abs(u))
+    c = amax(abs(u))
     if c >= b:
         raise ValueError('bias too low')
     r = R*C*log(1-d/(d-(b-c)*R))*bw/pi
@@ -469,4 +472,362 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
     for m in xrange(M):
         for k in xrange(Nsh_list[m]):
             u_rec += sinc(bwpi*(t-tsh_list[m][k]))*bwpi*c[sum(Nsh_list[:m])+k, 0]
+    return u_rec
+
+def iaf_decode_spline(s, dur, dt, b, d, R=inf, C=1.0):
+    """Decode a finite length signal encoded by an integrate-and-fire
+    neuron using spline interpolation.
+
+    Parameters
+    ----------
+    s: array_like of floats
+        Encoded signal. The values represent the time between spikes (in s).
+    dur: float
+        Duration of signal (in s).
+    dt: float
+        Sampling resolution of original signal; the sampling frequency
+        is 1/dt Hz.
+    b: float
+        Encoder bias.
+    d: float
+        Encoder threshold.
+    R: float
+        Neuron resistance.
+    C: float
+        Neuron capacitance.
+
+    Returns
+    -------
+    u_rec : ndarray of floats
+        Recovered signal.
+
+    """
+    
+    s = asarray(s)
+    ns = len(s)
+    if ns < 2:
+        raise ValueError('s must contain at least 2 elements')
+
+    # Compute spike times:
+    ts = cumsum(s)
+    n = ns-1
+
+    RC = R*C
+    
+    # Define the spline polynomials:
+    f = lambda x: x**3-3*x**2+6*x-6
+    g = lambda x: x**3+6*x
+
+    # Compute the values of the matrix that must be inverted to obtain
+    # the reconstruction coefficients:
+    Gpr = zeros((n+2, n+2), float)
+    qz = zeros(n+2, float)
+    if isinf(R):
+
+        # Compute p and r:
+        Gpr[n, :n] = Gpr[:n, n] = s[1:]
+        Gpr[n+1, :n] = Gpr[:n, n+1] = (ts[1:]**2-ts[:-1]**2)/2
+
+        # Compute the quanta:
+        qz[:n] = C*d-b*s[1:]
+
+        # Compute the matrix G:
+        for k in xrange(n):
+            for l in xrange(n):
+                if k < l:
+                    Gpr[k, l] = 0.05*((ts[k+1]-ts[l+1])**5+\
+                                    (ts[k]-ts[l])**5-\
+                                    (ts[k]-ts[l+1])**5-\
+                                    (ts[k+1]-ts[l])**5)                                   
+                elif k == l:
+                    Gpr[k, l] = 0.1*(ts[k+1]-ts[k])**5    
+                else:
+                    Gpr[k, l] = 0.05*((ts[l+1]-ts[k+1])**5+\
+                                    (ts[l]-ts[k])**5-\
+                                    (ts[l]-ts[k+1])**5-\
+                                    (ts[l+1]-ts[k])**5)                                   
+                    
+    else:
+
+        # Compute p and r:
+        Gpr[n, :n] = Gpr[:n, n] = RC*(1-exp(-s[1:]/RC))
+        Gpr[n+1, :n] = Gpr[:n, n+1] = RC**2*((ts[1:]/RC-1)-(ts[:-1]/RC-1)*exp(-s[1:]/RC))
+
+        # Compute the quanta:
+        qz[:n] = C*(d-b*R*(1-exp(-s[1:]/RC)))
+
+        # Compute the matrix G:
+        for k in xrange(n):
+            for l in xrange(n):
+                if k < l:
+                    Gpr[k, l] = RC**5*(g((ts[l+1]-ts[k+1])/RC)-\
+                                     g((ts[l+1]-ts[k])/RC)*exp(-(ts[k+1]-ts[k])/RC)-\
+                                     g((ts[l]-ts[k+1])/RC)*exp(-(ts[l+1]-ts[l])/RC)+\
+                                     g((ts[l]-ts[k])/RC)*exp(-(ts[k+1]-ts[k])/RC-(ts[l+1]-ts[l])/RC))
+                elif k == l:
+                    Gpr[k, l] = RC**5*(6*(1-exp(-2*(ts[k+1]-ts[k])/RC))-\
+                                     2*g((ts[k+1]-ts[k])/RC)*exp(-(ts[k+1]-ts[k])/RC))
+                else:
+                    Gpr[k, l] = RC**5*(g((ts[k+1]-ts[l+1])/RC)-\
+                                     g((ts[k+1]-ts[l])/RC)*exp(-(ts[l+1]-ts[l])/RC)-\
+                                     g((ts[k]-ts[l+1])/RC)*exp(-(ts[k+1]-ts[k])/RC)+\
+                                     g((ts[k]-ts[l])/RC)*exp(-(ts[l+1]-ts[l])/RC-(ts[k+1]-ts[k])/RC))
+                                     
+    # Compute the reconstruction coefficients:
+    ## NOTE: setting the svd cutoff higher than 10**-15 appears to
+    ## introduce considerable recovery error:
+    cd = dot(pinv(Gpr), qz)
+
+    # Reconstruct the signal using the coefficients:
+    t = arange(0, dur, dt)
+    u_rec = cd[n] + cd[n+1]*t
+    if isinf(R):
+        psi = lambda t, k: \
+              0.25*where(t <= ts[k],
+                         ((t-ts[k+1])**4-(t-ts[k])**4),
+                         where(t <= ts[k+1],
+                               ((t-ts[k+1])**4+(t-ts[k])**4),
+                               ((t-ts[k])**4-(t-ts[k+1])**4)))
+    else:
+        psi = lambda t, k: \
+              (RC)**4*where(t <= ts[k],
+                            f((ts[k+1]-t)/RC)-f((ts[k]-t)/RC)*exp(-(ts[k+1]-ts[k])/RC),
+                            where(t <= ts[k+1],
+                                  12*exp(-(ts[k+1]-t)/RC)+f((ts[k+1]-t)/RC)+
+                                  f((ts[k]-t)/RC)*exp(-(ts[k+1]-ts[k])/RC),
+                                  f((ts[k]-t)/RC)*exp(-(ts[k+1]-ts[k])/RC)-f((ts[k+1]-t)/RC)))
+    for k in xrange(n):
+        u_rec += cd[k]*psi(t, k)
+                                     
+    return u_rec
+
+def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
+                          C_list):
+    """Decode a finite length signal encoded by an ensemble of integrate-and-fire
+    neurons using spline interpolation.
+
+    Parameters
+    ----------
+    s_list: list of ndarrays of floats
+        Signal encoded by an ensemble of encoders. The values represent the
+        time between spikes (in s). The number of arrays in the list
+        corresponds to the number of encoders in the ensemble.
+    dur: float
+        Duration of signal (in s).
+    dt: float
+        Sampling resolution of original signal; the sampling frequency
+        is 1/dt Hz.
+    b_list: list of floats
+        List of encoder biases.
+    d_list: list of floats
+        List of encoder thresholds.
+    R_list: list of floats
+        List of encoder neuron resistances.
+    C_list: list of floats.    
+
+
+    Returns
+    -------
+    u_rec : ndarray of floats
+        Recovered signal.
+
+    Notes
+    -----
+    The number of spikes contributed by each neuron may differ from the
+    number contributed by other neurons.
+
+    """
+
+    M = len(s_list)
+    if not M:
+        raise ValueError('no spike data given')
+
+    # Compute spike times:
+    ts_list = map(cumsum, s_list)
+    n_list = map(lambda ts: len(ts)-1, ts_list)
+
+    # Define the spline polynomial:
+    f = lambda x: x**3-3*x**2+6*x-6
+
+    # Compute the values of the matrix that must be inverted to obtain
+    # the reconstruction coefficients:
+    n_sum = sum(n_list)
+    Gpr = zeros((n_sum+2, n_sum+2), float)
+    qz = zeros(n_sum+2, float)    
+    if all(isinf(R_list)):
+        for i in xrange(M):
+
+            # Compute p and r:
+            ts = ts_list[i]
+            Gpr[n_sum, sum(n_list[:i]):sum(n_list[:i+1])] = \
+                       Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum] = \
+                       ts[1:]-ts[:-1]
+            Gpr[n_sum+1, sum(n_list[:i]):sum(n_list[:i+1])] = \
+                         Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum+1] = \
+                         (ts[1:]**2-ts[:-1]**2)/2
+
+            # Compute the quanta:
+            qz[sum(n_list[:i]):sum(n_list[:i+1])] = \
+                C_list[i]*d_list[i]-b_list[i]*(ts[1:]-ts[:-1])
+            
+            # Compute the G matrix:
+            for j in xrange(M):
+                Gpr_block = zeros((n_list[i], n_list[j]), float)
+                for k in xrange(n_list[i]):
+                    for l in xrange(n_list[j]):
+                        a1 = ts_list[i][k]
+                        b1 = min(ts_list[j][l], ts_list[i][k+1])
+                        a2 = max(ts_list[j][l], ts_list[i][k])
+                        b2 = min(ts_list[j][l+1], ts_list[i][k+1])
+                        a3 = max(ts_list[j][l+1], ts_list[i][k])
+                        b3 = ts_list[i][k+1]
+                        
+                        # The analytic expression for Gpr_block[k, l] is equivalent
+                        # to the integration described in the comment below:
+                        # f1 = lambda t: \
+                        #      0.25*(((t-ts_list[j][l+1])**4-(t-ts_list[j][l])**4))
+                        # f2 = lambda t: \
+                        #      0.25*(((t-ts_list[j][l+1])**4+(t-ts_list[j][l])**4))
+                        # f3 = lambda t: \
+                        #      0.25*(((t-ts_list[j][l])**4-(t-ts_list[j][l+1])**4))
+                        # if (ts_list[i][k]<ts_list[j][l]):
+                        #     Gpr_block[k, l] += quad(f1, a1, b1)[0]
+                        # if (ts_list[j][l]<ts_list[i][k+1] and
+                        #     ts_list[j][l+1]>ts_list[i][k]):
+                        #     Gpr_block[k, l] += quad(f2, a2, b2)[0]
+                        # if (ts_list[j][l+1]<ts_list[i][k+1]):
+                        #     Gpr_block[k, l] += quad(f3, a3, b3)[0]
+                        if (ts_list[i][k]<ts_list[j][l]):
+                            Gpr_block[k, l] += \
+                                         0.05*(((b1-ts_list[j][l+1])**5-(b1-ts_list[j][l])**5)\
+                                               -((a1-ts_list[j][l+1])**5-(a1-ts_list[j][l])**5))
+                        if (ts_list[j][l]<ts_list[i][k+1] and ts_list[j][l+1]>ts_list[i][k]):
+                            Gpr_block[k, l] += \
+                                         0.05*(((b2-ts_list[j][l+1])**5+(b2-ts_list[j][l])**5)\
+                                               -((a2-ts_list[j][l+1])**5+(a2-ts_list[j][l])**5))
+                        if (ts_list[j][l+1]<ts_list[i][k+1]):
+                            Gpr_block[k, l] += \
+                                         0.05*(((b3-ts_list[j][l])**5-(b3-ts_list[j][l+1])**5)\
+                                               -((a3-ts_list[j][l])**5-(a3-ts_list[j][l+1])**5))
+                            
+                Gpr[sum(n_list[:i]):sum(n_list[:i+1]),
+                    sum(n_list[:j]):sum(n_list[:j+1])] = Gpr_block
+
+    else:
+        for i in xrange(M):
+
+            # Compute p and r:
+            RCi = R_list[i]*C_list[i]
+            ts = ts_list[i]
+            Gpr[n_sum, sum(n_list[:i]):sum(n_list[:i+1])] = \
+                       Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum] = \
+                       RCi*(1-exp(-(ts[1:]-ts[:-1])/RCi))
+            Gpr[n_sum+1, sum(n_list[:i]):sum(n_list[:i+1])] = \
+                         Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum+1] = \
+                         RCi**2*((ts[1:]/RCi-1)-(ts[:-1]/RCi-1)*exp(-(ts[1:]-ts[:-1])/RCi))
+
+            # Compute the quanta:
+            qz[sum(n_list[:i]):sum(n_list[:i+1])] = \
+                C_list[i]*d_list[i]-b_list[i]*RCi*(1-exp(-(ts[1:]-ts[:-1])/RCi))
+
+            # Compute the G matrix:
+            for j in xrange(M):
+                Gpr_block = zeros((n_list[i], n_list[j]), float)
+                RCj = R_list[j]*C_list[j]
+                for k in xrange(n_list[i]):
+                    for l in xrange(n_list[j]):
+                        a1 = ts_list[i][k]
+                        b1 = min(ts_list[j][l], ts_list[i][k+1])
+                        a2 = max(ts_list[j][l], ts_list[i][k])
+                        b2 = min(ts_list[j][l+1], ts_list[i][k+1])
+                        a3 = max(ts_list[j][l+1], ts_list[i][k])
+                        b3 = ts_list[i][k+1]
+
+                        # The analytic expression for Gpr_block[k, l] is equivalent
+                        # to the integration described in the comment below:
+                        # f1 = lambda t: \
+                        #      RCj**4*exp(-(ts_list[i][k+1]-t)/RCi)* \
+                        #      (f((ts_list[j][l+1]-t)/RCj)-\
+                        #      f((ts_list[j][l]-t)/RCj)*exp(-(ts_list[j][l+1]-ts_list[j][l])/RCj))
+                        # f2 = lambda t: \
+                        #      RCj**4*exp(-(ts_list[i][k+1]-t)/RCi)* \
+                        #      (12*exp(-(ts_list[j][l+1]-t)/RCj)+ \
+                        #      f((ts_list[j][l+1]-t)/RCj)+ \
+                        #      f((ts_list[j][l]-t)/RCj)*exp(-(ts_list[j][l+1]-ts_list[j][l])/RCj))
+                        # f3 = lambda t: \
+                        #      RCj**4*exp(-(ts_list[i][k+1]-t)/RCi)* \
+                        #      (f((ts_list[j][l]-t)/RCj)*exp(-(ts_list[j][l+1]-ts_list[j][l])/RCj)- \
+                        #      f((ts_list[j][l+1]-t)/RCj))                              
+                        # if (ts_list[i][k]<ts_list[j][l]):
+                        #     Gpr_block[k, l] += quad(f1, a1, b1)[0]
+                        # if (ts_list[j][l]<ts_list[i][k+1] and ts_list[j][l+1]>ts_list[i][k]):
+                        #     Gpr_block[k, l] += quad(f2, a2, b2)[0]
+                        # if (ts_list[j][l+1]<ts_list[i][k+1]):                        
+                        #     Gpr_block[k, l] += quad(f3, a3, b3)[0]
+
+                        F = lambda t, K, L, M, N: \
+                            exp(-(M-t)/K)*(K*((N-t)/L)**3+(3*K**2/L-3*K)*((N-t)/L)**2+\
+                                           (6*K**3/L**2-6*K**2/L+6*K)*((N-t)/L)+\
+                                           (6*K**4/L**3-6*K**3/L**2+6*K**2/L-6*K))
+                        F2 = lambda t, K, L, M, N: \
+                             ((K*L)/(K+L))*exp(-(L*M+K*N-(K+L)*t)/(K*L))
+
+                        if (ts_list[i][k]<ts_list[j][l]):
+                            Gpr_block[k, l] += RCj**4*\
+                                               ((F(b1, RCi, RCj, ts_list[i][k+1], ts_list[j][l+1])-\
+                                                F(a1, RCi, RCj, ts_list[i][k+1], ts_list[j][l+1]))+\
+                                                exp(-(ts_list[j][l+1]-ts_list[j][l])/RCj)*\
+                                                (-F(b1, RCi, RCj, ts_list[i][k+1], ts_list[j][l])+\
+                                                 F(a1, RCi, RCj, ts_list[i][k+1], ts_list[j][l])))
+                        if (ts_list[j][l]<ts_list[i][k+1] and
+                            ts_list[j][l+1]>ts_list[i][k]):
+                            Gpr_block[k, l] += RCj**4*\
+                                               (12*(F2(b2, RCi, RCj, ts_list[i][k+1], ts_list[j][l+1])-\
+                                                    F2(a2, RCi, RCj, ts_list[i][k+1], ts_list[j][l+1]))+\
+                                                F(b2, RCi, RCj, ts_list[i][k+1], ts_list[j][l+1])-\
+                                                F(a2, RCi, RCj, ts_list[i][k+1], ts_list[j][l+1])+\
+                                                exp(-(ts_list[j][l+1]-ts_list[j][l])/RCj)*\
+                                                (F(b2, RCi, RCj, ts_list[i][k+1], ts_list[j][l])-\
+                                                 F(a2, RCi, RCj, ts_list[i][k+1], ts_list[j][l])))
+                        if (ts_list[j][l+1]<ts_list[i][k+1]):
+                            Gpr_block[k, l] += RCj**4*\
+                                               (exp(-(ts_list[j][l+1]-ts_list[j][l])/RCj)*\
+                                                (F(b3, RCi, RCj, ts_list[i][k+1], ts_list[j][l])-\
+                                                 F(a3, RCi, RCj, ts_list[i][k+1], ts_list[j][l]))-\
+                                                F(b3, RCi, RCj, ts_list[i][k+1], ts_list[j][l+1])+\
+                                                F(a3, RCi, RCj, ts_list[i][k+1], ts_list[j][l+1]))
+
+                Gpr[sum(n_list[:i]):sum(n_list[:i+1]),
+                    sum(n_list[:j]):sum(n_list[:j+1])] = Gpr_block
+                
+    # Compute the reconstruction coefficients:
+    cd = dot(pinv(Gpr), qz)
+
+    # Reconstruct the signal using the coefficients:
+    t = arange(0, dur, dt)
+    u_rec = cd[n_sum] + cd[n_sum+1]*t
+    if all(isinf(R_list)):
+        for j in xrange(M):
+            ts = ts_list[j]
+            psi = lambda t, k: \
+                  0.25*where(t <= ts[k], ((t-ts[k+1])**4-(t-ts[k])**4),
+                             where(t <= ts[k+1],
+                                   ((t-ts[k+1])**4+(t-ts[k])**4),
+                                   ((t-ts[k])**4-(t-ts[k+1])**4)))
+            for k in xrange(n_list[j]):
+                u_rec += cd[sum(n_list[:j])+k]*psi(t, k)                
+    else:
+        for j in xrange(M):
+            RC = R_list[j]*C_list[j]
+            ts = ts_list[j]
+            psi = lambda t, k: \
+                  (RC)**4*where(t <= ts[k],
+                                f((ts[k+1]-t)/RC)-f((ts[k]-t)/RC)*exp(-(ts[k+1]-ts[k])/RC),
+                                where(t <= ts[k+1],
+                                      12*exp(-(ts[k+1]-t)/RC)+f((ts[k+1]-t)/RC)+
+                                      f((ts[k]-t)/RC)*exp(-(ts[k+1]-ts[k])/RC),
+                                      f((ts[k]-t)/RC)*exp(-(ts[k+1]-ts[k])/RC)-f((ts[k+1]-t)/RC)))
+            for k in xrange(n_list[j]):
+                u_rec += cd[sum(n_list[:j])+k]*psi(t, k)                
+
     return u_rec
