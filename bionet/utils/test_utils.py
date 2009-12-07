@@ -29,13 +29,13 @@ def plot_signal(t, u, fig_title='', file_name=''):
 
     Parameters
     ----------
-    t: ndarray of floats
+    t : ndarray of floats
         Times (s) at which the signal is defined.
-    u: ndarray of floats
+    u : ndarray of floats
         Signal samples.
-    fig_title: string
+    fig_title : string
         Plot title.
-    file_name: string
+    file_name : string
         File in which to save the plot.
 
     """
@@ -60,15 +60,15 @@ def plot_encoded(t, u, s, fig_title='', file_name=''):
 
     Parameters
     ----------
-    t: ndarray of floats
+    t : ndarray of floats
         Times (s) at which the original signal was sampled.
-    u: ndarray of floats
+    u : ndarray of floats
         Signal samples.
-    s: ndarray of floats
+    s : ndarray of floats
         Intervals between encoded signal spikes.
-    fig_title: string
+    fig_title : string
         Plot title.
-    file_name: string
+    file_name : string
         File in which to save the plot.
 
     """
@@ -99,13 +99,13 @@ def plot_compare(t, u, v, fig_title='', file_name=''):
 
     Parameters
     ----------
-    t: ndarray of floats
+    t : ndarray of floats
         Times (s) at which the signal is defined.
-    u,v: ndarrays of floats
+    u,v : ndarrays of floats
         Signal samples.
-    fig_title: string
+    fig_title : string
         Plot title.
-    file_name: string
+    file_name : string
         File in which to save the plot.
 
     """
@@ -132,16 +132,16 @@ def plot_fourier(u, fs, *args):
 
     Parameters
     ----------
-    u: ndarray of floats
+    u : ndarray of floats
         Sampled signal.
-    fs: float
+    fs : float
         Sampling rate (Hz).
 
     Optional Parameters
     -------------------
-    fmin: float
+    fmin : float
         Minimum frequency to display (Hz).
-    fmax: float:
+    fmax : float:
         Maximum frequency to display (Hz).
 
     """
@@ -176,3 +176,40 @@ def plot_fourier(u, fs, *args):
     p.ylabel('imag')
     p.xlabel('f (Hz)')
 
+def plot_raster(ts_list, plot_stems=True, fig_title='', file_name=''):
+    """Plot several time sequences as a raster.
+
+    Parameters
+    ----------
+    ts_list : list of ndarrays
+        Time sequences to plot.
+    plot_stems : bool
+        Show stems for all events.
+    fig_title : string
+        Plot title.
+    file_name : string
+        File in which to save the plot.
+
+    """
+
+    M = len(ts_list)
+    p.clf()
+    p.gcf().canvas.set_window_title(fig_title)
+    max_ts = max([max(ts) for ts in ts_list])
+    ax = p.gca()
+    ax.axis([0, max_ts, -0.5, M-0.5])
+    p.yticks(xrange(M))
+    for (ts,y) in zip(ts_list,xrange(M)):
+        p.axhline(y, 0, 1, color='b', hold=True)
+        p.plot(ts, y*np.ones(len(ts)), '|b', hold=True,
+               markersize=20,
+               scalex=False, scaley=False)
+        if plot_stems:
+            for t in ts:
+                ax.add_line(mp.lines.Line2D([t,t], [-0.5, y], color='r', linestyle=':'))
+    ax.xaxis.set_major_locator(mp.ticker.MultipleLocator(10.0**np.ceil(np.log10(max_ts/10))))
+    p.xlabel('t (s)')
+    p.title(fig_title)
+    p.draw_if_interactive()
+    if file_name:
+        p.savefig(file_name)
