@@ -126,8 +126,8 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
 
     """
 
-    nu = len(u)
-    if nu == 0:
+    Nu = len(u)
+    if Nu == 0:
         if full_output:
             return array((),float), dt, b, d, R, C, dte, y, interval, \
                    quad_method, full_output
@@ -152,10 +152,10 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
     if isinf(R):        
         if quad_method == 'rect':
             compute_y = lambda y, i: y + dt*(b+u[i])/C
-            last = nu
+            last = Nu
         elif quad_method == 'trapz':
             compute_y = lambda y, i: y + dt*(b+(u[i]+u[i+1])/2.0)/C
-            last = nu-1
+            last = Nu-1
         else:
             raise ValueError('unrecognized quadrature method')
     else:
@@ -164,7 +164,7 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
         # the encoding:
         RC = R*C
         compute_y = lambda y, i: y*exp(-dt/RC)+R*(1-exp(-dt/RC))*(b+u[i])
-        last = nu
+        last = Nu
         
     # The interval between spikes is saved between iterations rather than the
     # absolute time so as to avoid overflow problems for very long signals:
@@ -213,16 +213,19 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
         
     """
     
-    ns = len(s)
-    if ns < 2:
+    Ns = len(s)
+    if Ns < 2:
         raise ValueError('s must contain at least 2 elements')
 
     # Cast s to an ndarray to permit ndarray operations:
     s = asarray(s)
 
-    ts = cumsum(s) 
+    # Compute the spike times:
+    ts = cumsum(s)
+
+    # Compute the midpoints between spike times:
     tsh = (ts[0:-1]+ts[1:])/2
-    nsh = len(tsh)
+    Nsh = len(tsh)
 
     t = arange(0, dur, dt)
     
@@ -230,16 +233,16 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     RC = R*C
 
     # Compute G matrix and quanta:
-    G = empty((nsh,nsh),float)
+    G = empty((Nsh,Nsh),float)
     if isinf(R):
-        for j in xrange(nsh):
+        for j in xrange(Nsh):
             temp = sici(bw*(ts-tsh[j]))[0]/pi
-            for i in xrange(nsh):
+            for i in xrange(Nsh):
                 G[i,j] = temp[i+1]-temp[i]
         q = C*d-b*s[1:]
     else:
-        for i in xrange(nsh):            
-            for j in xrange(nsh):
+        for i in xrange(Nsh):            
+            for j in xrange(Nsh):
 
                 # The code below is functionally equivalent to (but
                 # considerably faster than) the integration below:
@@ -270,7 +273,7 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     
     # Reconstruct signal by adding up the weighted sinc functions.
     u_rec = zeros(len(t), float)
-    for i in xrange(nsh):
+    for i in xrange(Nsh):
         u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
     return u_rec
 
@@ -307,20 +310,23 @@ def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
         
     """
     
-    ns = len(s)
-    if ns < 2:
+    Ns = len(s)
+    if Ns < 2:
         raise ValueError('s must contain at least 2 elements')
 
     # Cast s to an ndarray to permit ndarray operations:
     s = asarray(s)
 
-    # Convert M in the event that an integer was specified:
+    # Compute the spike times:
+    ts = cumsum(s)
+
+    # Compute the midpoints between spike times:
+    tsh = (ts[0:-1]+ts[1:])/2
+    Nsh = len(tsh)
+
+    # Convert M to a float in the event that an integer was specified:
     M = float(M)
 
-    ts = cumsum(s) 
-    tsh = (ts[0:-1]+ts[1:])/2
-    nsh = len(tsh)
-    
     RC = R*C
     jbwM = 1j*bw/M
 
@@ -333,7 +339,7 @@ def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
     # Compute approximation coefficients:
     a = bw/(pi*(2*M+1))
     m = arange(-M,M+1)
-    P_inv = -triu(ones((nsh,nsh)))
+    P_inv = -triu(ones((Nsh,Nsh)))
     S = exp(-jbwM*dot(m[:, newaxis], ts[:-1][newaxis]))
     D = diag(s[1:])
     SD = dot(S,D)
@@ -387,9 +393,11 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
         raise ValueError('no spike data given')
 
     bwpi = bw/pi
-    
-    # Compute the midpoints between spikes:
+
+    # Compute the spike times:
     ts_list = map(cumsum, s_list)
+
+    # Compute the midpoints between spike times:
     tsh_list = map(lambda ts:(ts[0:-1]+ts[1:])/2, ts_list)
 
     # Compute number of spikes in each spike list:
@@ -503,12 +511,14 @@ def iaf_decode_spline(s, dur, dt, b, d, R=inf, C=1.0):
 
     """
     
-    s = asarray(s)
     ns = len(s)
     if ns < 2:
         raise ValueError('s must contain at least 2 elements')
 
-    # Compute spike times:
+    # Cast s to an ndarray to permit ndarray operations:
+    s = asarray(s)
+
+    # Compute the spike times:
     ts = cumsum(s)
     n = ns-1
 
@@ -642,7 +652,7 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
     if not M:
         raise ValueError('no spike data given')
 
-    # Compute spike times:
+    # Compute the spike times:
     ts_list = map(cumsum, s_list)
     n_list = map(lambda ts: len(ts)-1, ts_list)
 
