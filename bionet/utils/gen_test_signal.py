@@ -16,19 +16,24 @@ def gen_test_signal(dur, dt, fmax, np=None, nc=3):
 
     Parameters
     ----------
-    dur: float
+    dur : float
         Duration of signal (s).
-    dt: float
+    dt : float
         Sampling resolution; the sampling frequency is 1/dt Hz.
-    fmax: float
+    fmax : float
         Maximum frequency (Hz).
-    
+
+    Returns
+    -------
+    u : ndarray of floats
+        Generated signal.
+        
     Optional Parameters
     -------------------
-    np: float
+    np : float
         Noise power (dB). If np != None, Gaussian white noise
 	is added to the generated signal before the latter is filtered.
-    nc: int
+    nc : int
         Number of discrete frequency components in generated signal.
 
     """
