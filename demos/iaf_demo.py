@@ -9,7 +9,7 @@ import numpy as np
 
 import bionet.utils.gen_test_signal as g
 import bionet.utils.test_utils as tu
-import bionet.ted.iaf as a
+import bionet.ted.iaf as iaf
 
 # For determining output plot file names:
 output_name = 'iaf_demo_'
@@ -41,7 +41,7 @@ R = 10.0  # resistance
 C = 0.01  # capacitance
 
 try:
-    a.iaf_recoverable(u, bw, b, d, R, C)
+    iaf.iaf_recoverable(u, bw, b, d, R, C)
 except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
@@ -53,21 +53,21 @@ L = 5 # number of recursions for recursive decoding algorithm
 output_count += 1
 fig_title = 'encoding using leaky IAF algorithm'
 print fig_title
-s = tu.func_timer(a.iaf_encode)(u, dt, b, d, R, C)
+s = tu.func_timer(iaf.iaf_encode)(u, dt, b, d, R, C)
 tu.plot_encoded(t, u, s, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'decoding using leaky IAF algorithm'
 print fig_title
-u_rec = tu.func_timer(a.iaf_decode)(s, dur, dt, bw, b, d, R, C)
+u_rec = tu.func_timer(iaf.iaf_decode)(s, dur, dt, bw, b, d, R, C)
 tu.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'decoding using leaky fast IAF algorithm'
 print fig_title
-u_rec = tu.func_timer(a.iaf_decode_fast)(s, dur, dt, bw, M, b, d, R, C)
+u_rec = tu.func_timer(iaf.iaf_decode_fast)(s, dur, dt, bw, M, b, d, R, C)
 tu.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 
@@ -78,21 +78,21 @@ R = np.inf
 output_count += 1
 fig_title = 'encoding using nonleaky IAF algorithm'
 print fig_title
-s = tu.func_timer(a.iaf_encode)(u, dt, b, d, R, C)
+s = tu.func_timer(iaf.iaf_encode)(u, dt, b, d, R, C)
 tu.plot_encoded(t, u, s, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'decoding using nonleaky IAF algorithm'
 print fig_title
-u_rec = tu.func_timer(a.iaf_decode)(s, dur, dt, bw, b, d, R, C)
+u_rec = tu.func_timer(iaf.iaf_decode)(s, dur, dt, bw, b, d, R, C)
 tu.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'decoding using nonleaky fast IAF algorithm'
 print fig_title
-u_rec = tu.func_timer(a.iaf_decode_fast)(s, dur, dt, bw, M, b, d, R, C)
+u_rec = tu.func_timer(iaf.iaf_decode_fast)(s, dur, dt, bw, M, b, d, R, C)
 tu.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 

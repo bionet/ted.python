@@ -6,15 +6,16 @@ integrate-and-fire neuron model.
 """
 
 __all__ = ['iaf_recoverable', 'iaf_encode', 'iaf_decode',
-          'iaf_decode_fast', 'iaf_decode_pop', 'iaf_decode_spline'
-          'iaf_decode_spline_pop']
+           'iaf_decode_fast', 'iaf_decode_pop',
+           'iaf_decode_spline', 'iaf_decode_spline_pop',
+           'iaf_encode_coupled', 'iaf_decode_coupled']
 
 # Import max() as amax() because the builtin max() function is needed
 # by iaf_decode_spline_pop():
 from numpy import abs, all, amax, arange, array, asarray, conjugate, cumsum, \
      diag, diff, dot, empty, exp, eye, float, hstack, imag, inf, \
      isinf, isreal, log, newaxis, nonzero, ones, pi, ravel, \
-     real, shape, sinc, triu, where, zeros
+     real, shape, sinc, sum, triu, where, zeros
 from numpy.linalg import pinv
 from scipy.integrate import quad
 from scipy.signal import resample
@@ -839,5 +840,195 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
                                       f((ts[k]-t)/RC)*exp(-(ts[k+1]-ts[k])/RC)-f((ts[k+1]-t)/RC)))
             for k in xrange(n_list[j]):
                 u_rec += cd[sum(n_list[:j])+k]*psi(t, k)                
+
+    return u_rec
+
+def iaf_encode_coupled(u, dt, b_list, d_list, k_list, h_list, type_list):
+    """Encode a finite length signal using an ensemble of coupled
+    ideal integrate-and-fire neurons.
+
+    Parameters
+    ----------
+    u : array_like of floats
+        Signal to encode.
+    dt : float
+        Sampling resolution of input signal; the sampling frequency
+        is 1/dt Hz.
+    b_list : list of floats
+        List of encoder biases.
+    d_list : list of floats
+        List of encoder thresholds.
+    k_list : list of floats
+        List of encoder integration constants.
+    h_list : M x M array_like of functions
+        Coupling functions. Function h_list[i][j] describes the
+        coupling from the integrator output of neuron i to the input
+        of neuron j.
+    type_list : list of integers {-1, 1}
+        Neuron types. A value of -1 indicates that a neuron is an OFF-type
+        neuron, while a value of 1 indicates that it is an ON-type
+        neuron.
+
+    Returns
+    -------
+    s_list : list of ndarrays of floats
+        Encoded signal.
+        
+    """
+
+    M = len(b_list)
+    N = len(u)
+    
+    s_list = [[] for i in xrange(M)]
+    ts_list = [[0.0] for i in xrange(M)]
+
+    interval_list = [0.0 for i in xrange(M)]
+    y_list = [0.0 for i in xrange(M)]
+    for n in xrange(N):
+        for i in xrange(M):
+
+            # Rectangular quadrature is used to reduce the computational cost
+            # of the integration:
+            temp = u[n]+b_list[i]
+            for j in xrange(M):
+                ts = asarray(ts_list[j])
+                temp += sum(h_list[j][i](n*dt-ts[ts<=ts_list[i][-1]]))
+            y_list[i] += temp*dt/k_list[i]
+            interval_list[i] += dt
+
+            # Check whether the threshold was exceeded depending on
+            # whether the neuron is an ON-type or OFF-type neuron:
+            if (type_list[i] == 1 and y_list[i] >= d_list[i]) or \
+                   (type_list[i] == -1 and y_list[i] <= d_list[i]):        
+                s_list[i].append(interval_list[i])
+
+                ## NOTE: computing and saving the spike time may
+                ## potentially cause an overflow for very long signals:
+                ts_list[i].append(interval_list[i]+ts_list[i][-1])
+                interval_list[i] = 0.0
+                y_list[i] = 0.0
+
+    return [asarray(s) for s in s_list]
+
+def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
+    """Decode a finite length signal encoded by an ensemble of coupled
+    ideal integrate-and-fire neurons.
+
+    Parameters
+    ----------
+    s_list: list of ndarrays of floats
+        Signal encoded by an ensemble of coupled encoders. The values
+        represent the time between spikes (in s). The number of arrays
+        in the list corresponds to the number of encoders in the ensemble.
+    dur: float
+        Duration of signal (in s).
+    dt: float
+        Sampling resolution of original signal; the sampling frequency
+        is 1/dt Hz.
+    b_list: list of floats
+        List of encoder biases.
+    d_list: list of floats
+        List of encoder thresholds.
+    k_list: list of floats
+        List of encoder integration constants.
+    h_list: M x M array_like of functions
+        Coupling functions. Function h_list[i][j] describes the
+        coupling from the integrator output of neuron i to the input
+        of neuron j.
+        
+    Returns
+    -------
+    u_rec : ndarray of floats
+        Recovered signal.
+
+    Notes
+    -----
+    The number of spikes contributed by each neuron may differ from the
+    number contributed by other neurons.
+
+    """
+
+    M = len(s_list)
+    if not M:
+        raise ValueError('no spike data given')
+
+    # Compute the spike times:
+    ts_list = map(cumsum, s_list)
+    n_list = map(lambda ts: len(ts)-1, ts_list)
+
+    # Define the spline polynomial:
+    f = lambda x: x**3-3*x**2+6*x-6
+
+    # Compute the values of the matrix that must be inverted to obtain
+    # the reconstruction coefficients:
+    n_sum = sum(n_list)
+    Gpr = zeros((n_sum+2, n_sum+2), float)
+    qz = zeros(n_sum+2, float)    
+
+    for i in xrange(M):
+
+        # Compute p and r:
+        ts = ts_list[i]
+        s = s_list[i][1:]
+        Gpr[n_sum, sum(n_list[:i]):sum(n_list[:i+1])] = \
+                   Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum] = \
+                   ts[1:]-ts[:-1]
+        Gpr[n_sum+1, sum(n_list[:i]):sum(n_list[:i+1])] = \
+                     Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum+1] = \
+                     (ts[1:]**2-ts[:-1]**2)/2
+
+        # Compute the quanta:
+        for k in xrange(n_list[i]):
+            temp = k_list[i]*d_list[i]-b_list[i]*s[k]
+            for j in xrange(M):
+                for l in xrange(n_list[j]):
+                    if ts_list[j][l] > ts[k]:
+                        break
+                    temp -= quad(lambda t: h_list[j][i](t-ts_list[j][l]), ts[k], ts[k+1])[0]
+
+            qz[sum(n_list[:i])+k] = temp
+        
+        # Compute the G matrix:
+        for j in xrange(M):
+            Gpr_block = zeros((n_list[i], n_list[j]), float)
+            for k in xrange(n_list[i]):
+                for l in xrange(n_list[j]):
+                    a1 = ts_list[i][k]
+                    b1 = min(ts_list[j][l], ts_list[i][k+1])
+                    a2 = max(ts_list[j][l], ts_list[i][k])
+                    b2 = min(ts_list[j][l+1], ts_list[i][k+1])
+                    a3 = max(ts_list[j][l+1], ts_list[i][k])
+                    b3 = ts_list[i][k+1]
+                        
+                    if (ts_list[i][k]<ts_list[j][l]):
+                        Gpr_block[k, l] += \
+                                     0.05*(((b1-ts_list[j][l+1])**5-(b1-ts_list[j][l])**5)\
+                                           -((a1-ts_list[j][l+1])**5-(a1-ts_list[j][l])**5))
+                    if (ts_list[j][l]<ts_list[i][k+1] and ts_list[j][l+1]>ts_list[i][k]):
+                        Gpr_block[k, l] += \
+                                     0.05*(((b2-ts_list[j][l+1])**5+(b2-ts_list[j][l])**5)\
+                                           -((a2-ts_list[j][l+1])**5+(a2-ts_list[j][l])**5))
+                    if (ts_list[j][l+1]<ts_list[i][k+1]):
+                        Gpr_block[k, l] += \
+                                     0.05*(((b3-ts_list[j][l])**5-(b3-ts_list[j][l+1])**5)\
+                                           -((a3-ts_list[j][l])**5-(a3-ts_list[j][l+1])**5))
+                            
+            Gpr[sum(n_list[:i]):sum(n_list[:i+1]),
+                sum(n_list[:j]):sum(n_list[:j+1])] = Gpr_block
+
+    cd = dot(pinv(Gpr), qz)
+
+    # Reconstruct the signal using the coefficients:
+    t = arange(0, dur, dt)
+    u_rec = cd[n_sum] + cd[n_sum+1]*t
+    for j in xrange(M):
+        ts = ts_list[j]
+        psi = lambda t, k: \
+              0.25*where(t <= ts[k], ((t-ts[k+1])**4-(t-ts[k])**4),
+                         where(t <= ts[k+1],
+                               ((t-ts[k+1])**4+(t-ts[k])**4),
+                               ((t-ts[k])**4-(t-ts[k+1])**4)))
+        for k in xrange(n_list[j]):
+            u_rec += cd[sum(n_list[:j])+k]*psi(t, k)                
 
     return u_rec

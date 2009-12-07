@@ -10,7 +10,7 @@ import numpy as np
 
 import bionet.utils.gen_test_signal as g
 import bionet.utils.test_utils as tu
-import bionet.ted.iaf as a
+import bionet.ted.iaf as iaf
 
 # For determining output plot file names:
 output_name = 'iaf_pop_spline_demo_'
@@ -44,7 +44,7 @@ R1 = 10.0  # resistance
 C1 = 0.01  # capacitance
 
 try:
-    a.iaf_recoverable(u, bw, b1, d1, R1, C1)
+    iaf.iaf_recoverable(u, bw, b1, d1, R1, C1)
 except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
@@ -54,30 +54,30 @@ R2 = 9.0   # resistance
 C2 = 0.01  # capacitance
 
 try:
-    a.iaf_recoverable(u, bw, b2, d2, R2, C2)
+    iaf.iaf_recoverable(u, bw, b2, d2, R2, C2)
 except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
 output_count += 1
 fig_title = 'encoding using leaky IAF algorithm (encoder #1)'
 print fig_title
-s1 = tu.func_timer(a.iaf_encode)(u, dt, b1, d1, R1, C1)
+s1 = tu.func_timer(iaf.iaf_encode)(u, dt, b1, d1, R1, C1)
 tu.plot_encoded(t, u, s1, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'encoding using leaky IAF algorithm (encoder #2)'
 print fig_title
-s2 = tu.func_timer(a.iaf_encode)(u, dt, b2, d2, R2, C2)
+s2 = tu.func_timer(iaf.iaf_encode)(u, dt, b2, d2, R2, C2)
 tu.plot_encoded(t, u, s2, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'decoding using leaky spline-interpolation IAF population algorithm'
 print fig_title
-u_rec = tu.func_timer(a.iaf_decode_spline_pop)([s1, s2], dur, dt,
-                                               [b1, b2], [d1, d2], [R1, R2],
-                                               [C1, C2])
+u_rec = tu.func_timer(iaf.iaf_decode_spline_pop)([s1, s2], dur, dt,
+                                                 [b1, b2], [d1, d2], [R1, R2],
+                                                 [C1, C2])
 tu.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 
@@ -89,7 +89,7 @@ R1 = np.inf  # resistance
 C1 = 0.01    # capacitance
 
 try:
-    a.iaf_recoverable(u, bw, b1, d1, R1, C1)
+    iaf.iaf_recoverable(u, bw, b1, d1, R1, C1)
 except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
@@ -99,28 +99,28 @@ R2 = np.inf  # resistance
 C2 = 0.01    # capacitance
 
 try:
-    a.iaf_recoverable(u, bw, b2, d2, R2, C2)
+    iaf.iaf_recoverable(u, bw, b2, d2, R2, C2)
 except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
 output_count += 1
 fig_title = 'encoding using nonleaky IAF algorithm (encoder #1)'
 print fig_title
-s1 = tu.func_timer(a.iaf_encode)(u, dt, b1, d1, R1, C1)
+s1 = tu.func_timer(iaf.iaf_encode)(u, dt, b1, d1, R1, C1)
 tu.plot_encoded(t, u, s1, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'encoding using nonleaky IAF algorithm (encoder #2)'
 print fig_title
-s2 = tu.func_timer(a.iaf_encode)(u, dt, b2, d2, R2, C2)
+s2 = tu.func_timer(iaf.iaf_encode)(u, dt, b2, d2, R2, C2)
 tu.plot_encoded(t, u, s2, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'decoding using nonleaky spline-interpolation IAF population algorithm'
 print fig_title
-u_rec = tu.func_timer(a.iaf_decode_spline_pop)([s1, s2], dur, dt,
+u_rec = tu.func_timer(iaf.iaf_decode_spline_pop)([s1, s2], dur, dt,
                                                [b1, b2], [d1, d2], [R1, R2],
                                                [C1, C2])
 tu.plot_compare(t, u, u_rec, fig_title,
