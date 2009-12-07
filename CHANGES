@@ -2,6 +2,7 @@ Release 0.04 - ()
 =================
 * Clean up docstrings.
 * Add IAF interpolation spline decoding algorithms.
+* Add coupled IAF encoding and decoding algorithms.
 
 Release 0.03 - (November 12, 2009)
 ==================================
