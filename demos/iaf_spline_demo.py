@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Demos for IAF time encoding and spline-based decoding algorithms.
+Demos for IAF spline interpolation time encoding and decoding algorithms.
 """
 
 import sys

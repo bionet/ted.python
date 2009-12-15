@@ -669,17 +669,17 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
         for i in xrange(M):
 
             # Compute p and r:
+            s = s_list[i]
             ts = ts_list[i]
             Gpr[n_sum, sum(n_list[:i]):sum(n_list[:i+1])] = \
-                       Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum] = \
-                       ts[1:]-ts[:-1]
+                       Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum] = s[1:]
             Gpr[n_sum+1, sum(n_list[:i]):sum(n_list[:i+1])] = \
                          Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum+1] = \
                          (ts[1:]**2-ts[:-1]**2)/2
 
             # Compute the quanta:
             qz[sum(n_list[:i]):sum(n_list[:i+1])] = \
-                C_list[i]*d_list[i]-b_list[i]*(ts[1:]-ts[:-1])
+                C_list[i]*d_list[i]-b_list[i]*s[1:]
             
             # Compute the G matrix:
             for j in xrange(M):
@@ -729,17 +729,18 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
 
             # Compute p and r:
             RCi = R_list[i]*C_list[i]
+            s = s_list[i]
             ts = ts_list[i]
             Gpr[n_sum, sum(n_list[:i]):sum(n_list[:i+1])] = \
                        Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum] = \
-                       RCi*(1-exp(-(ts[1:]-ts[:-1])/RCi))
+                       RCi*(1-exp(-s[1:]/RCi))
             Gpr[n_sum+1, sum(n_list[:i]):sum(n_list[:i+1])] = \
                          Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum+1] = \
-                         RCi**2*((ts[1:]/RCi-1)-(ts[:-1]/RCi-1)*exp(-(ts[1:]-ts[:-1])/RCi))
+                         RCi**2*((ts[1:]/RCi-1)-(ts[:-1]/RCi-1)*exp(-s[1:]/RCi))
 
             # Compute the quanta:
             qz[sum(n_list[:i]):sum(n_list[:i+1])] = \
-                C_list[i]*d_list[i]-b_list[i]*RCi*(1-exp(-(ts[1:]-ts[:-1])/RCi))
+                C_list[i]*d_list[i]-b_list[i]*RCi*(1-exp(-s[1:]/RCi))
 
             # Compute the G matrix:
             for j in xrange(M):
@@ -955,9 +956,6 @@ def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
     # Compute the spike times:
     ts_list = map(cumsum, s_list)
     n_list = map(lambda ts: len(ts)-1, ts_list)
-
-    # Define the spline polynomial:
-    f = lambda x: x**3-3*x**2+6*x-6
 
     # Compute the values of the matrix that must be inverted to obtain
     # the reconstruction coefficients:
