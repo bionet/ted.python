@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+"""
+Demos of time encoding and decoding algorithms that use
+coupled ON-OFF IAF neurons.
+"""
+
 import sys
 import numpy as np
 

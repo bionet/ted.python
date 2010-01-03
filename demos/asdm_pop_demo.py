@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 """
-Demos for ASDM population time encoding and decoding algorithms.
+Demos of time encoding and decoding algorithms that use populations of
+asynchronous sigma-delta modulators.
 """
 
 import sys

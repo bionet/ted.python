@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 """
-Demos for IAF time encoding and decoding algorithms.
+Demos for basic time encoding and decoding algorithms that use
+IAF neurons.
 """
 
 import sys

@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 """
-Demos for IAF spline interpolation time encoding and decoding algorithms.
+Demos of time encoding and decoding algorithms that use spline
+interpolation with IAF neurons.
 """
 
 import sys

@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 """
-Demos for ASDM time encoding and decoding algorithms.
+Demos of basic time encoding and decoding algorithms that use
+asynchronous sigma-delta modulators.
 """
 
 import sys

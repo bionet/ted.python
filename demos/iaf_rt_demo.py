@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 """
-Demos for real-time IAF time encoding and decoding algorithms.
+Demos of real-time time encoding and decoding algorithms that use
+IAF neurons.
 """
 
 import sys
