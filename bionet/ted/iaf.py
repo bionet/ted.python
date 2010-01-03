@@ -8,7 +8,8 @@ integrate-and-fire neuron model.
 __all__ = ['iaf_recoverable', 'iaf_encode', 'iaf_decode',
            'iaf_decode_fast', 'iaf_decode_pop',
            'iaf_decode_spline', 'iaf_decode_spline_pop',
-           'iaf_encode_coupled', 'iaf_decode_coupled']
+           'iaf_encode_coupled', 'iaf_decode_coupled',
+           'iaf_encode_delay', 'iaf_decode_delay']
 
 # Import max() as amax() because the builtin max() function is needed
 # by iaf_decode_spline_pop():
@@ -1030,3 +1031,245 @@ def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
             u_rec += cd[sum(n_list[:j])+k]*psi(t, k)                
 
     return u_rec
+
+def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list, w_list):
+    """Encode several finite length signals using an ensemble of ideal
+    integrate-and-fire neurons with delays.
+
+    Parameters
+    ----------
+    u_list : list of ndarrays of floats
+        Signals to encode. Each of the ndarrays must be of the same
+        length.
+    T : float
+        Temporal support of signals (in s). 
+    dt : float
+        Sampling resolution of input signals; the sampling frequency
+        is 1/dt Hz.
+    b_list : list of floats
+        List of encoder biases.
+    d_list : list of floats
+        List of encoder thresholds.
+    k_list : list of floats
+        List of encoder integration constants.
+    a_list : N x M array_like of floats.
+        Neuron delays (in s).
+    w_list : N x M array_like of floats.
+        Scaling factors.
+
+    Returns
+    -------
+    s_list : list of ndarrays of floats
+        Encoded signal.
+
+    Notes
+    -----
+    The specified signal length, i.e., len(u_list[0])*dt, must exceed the
+    support T over which the signal is encoded by the length of the
+    longest delay. The portion of the signal encoded is u_list[0][-int(T/dt):].
+    
+    """
+
+    M = len(u_list) # number of input signals
+    if not M:
+        raise ValueError('no spike data given')
+    if len(set(map(len, u_list))) > 1:
+        raise ValueError('all input signals must be of the same length')
+    N = len(b_list) # number of neurons
+    if shape(a_list) != (N, M):
+        raise ValueError('incorrect number of delay parameters')
+    if shape(w_list) != (N, M):
+        raise ValueError('incorrect number of scaling factors')
+    
+    a_max = amax(a_list)
+    if len(u_list[0])*dt < T+a_max:
+        raise ValueError('signals insufficiently long')
+
+    s_list = [[] for i in xrange(N)]
+    interval_list = [0.0 for i in xrange(N)]
+    y_list = [0.0 for i in xrange(N)]
+    for j in xrange(N):
+
+        # Rectangular quadrature is used to reduce the computational
+        # cost of the integration:
+        for k in xrange(int(T/dt)):
+            v = 0.0
+
+            # The portion of the signal encoded begins at time
+            # len(u_list[0])*dt-T; delaying the signal by A 
+            for i in xrange(M):
+                u_delayed = u_list[i][int(a_list[j][i]/dt):int((T+a_list[j][i])/dt)]
+                v += w_list[j][i]*u_delayed[k]
+            y_list[j] += dt*(v+b_list[j])/k_list[j]
+            interval_list[j] += dt
+
+            # Generate a spike when the threshold is exceeded:
+            if y_list[j] >= d_list[j]:
+                s_list[j].append(interval_list[j])
+                interval_list[j] = 0.0
+                y_list[j] = 0.0
+
+    return [asarray(s) for s in s_list]
+
+def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
+    """Decode several finite length signals encoded by an ensemble of ideal
+    integrate-and-fire neurons and a filtering kernel.
+
+    Parameters
+    ----------
+    s_list : list of ndarrays of floats
+        Signals encoded by an ensemble of encoders. The values
+        represent the time between spikes (in s). The number of arrays
+        in the list corresponds to the number of encoders in the ensemble.
+    T : float
+        Temporal support of signals (in s). 
+    dt : float
+        Sampling resolution of input signals; the sampling frequency
+        is 1/dt Hz.
+    b_list : list of floats
+        List of encoder biases.
+    d_list : list of floats
+        List of encoder thresholds.
+    k_list : list of floats
+        List of encoder integration constants.
+    a_list : N x M array_like of floats.
+        Delays (in s).
+    w_list : N x M array_like of floats.
+        Scaling factors.
+
+    Returns
+    -------
+    u_list : list of ndarrays of floats
+        Decoded signals.
+
+    Notes
+    -----
+    The specified signal length must exceed the support T over which
+    the signal is decoded by the length of the longest delay.
+    
+    """
+
+    N = len(s_list)      # number of neurons
+    M = shape(a_list)[1] # number of decoded signals
+    
+    # Compute the spike times:
+    ts_list = map(cumsum, s_list)
+    n_list = map(lambda ts: len(ts)-1, ts_list)
+
+    # Compute the values of the matrix that must be inverted to obtain
+    # the reconstruction coefficients:
+    n_sum = sum(n_list)
+    Gpr = zeros((n_sum+2*M, n_sum+2*M), float)
+    qz = zeros(n_sum+2*M, float)
+    for j in xrange(N):
+
+        # Compute the quanta:
+        qz[sum(n_list[:j]):sum(n_list[:j+1])] = \
+            k_list[j]*d_list[j]-b_list[j]*s_list[j][1:]
+
+        # Compute p and r:
+        for i in xrange(M):
+            tau = ts_list[j] + a_list[j][i]
+            w = w_list[j][i]
+            p = zeros(n_list[j], float)
+            r = zeros(n_list[j], float)
+            for k in xrange(n_list[j]):
+                if tau[k+1] < T:
+                     p[k] = w*(tau[k+1]-tau[k])
+                     r[k] = 0.5*w*(tau[k+1]**2-tau[k]**2)
+                elif tau[k] < T:
+                     p[k] = w*(T-tau[k])
+                     r[k] = 0.5*w*(T**2-tau[k]**2)
+                else:
+                     p[k] = 0.0
+                     r[k] = 0.0
+            Gpr[sum(n_list[:j]):sum(n_list[:j+1]), n_sum+i] = \
+                Gpr[n_sum+i, sum(n_list[:j]):sum(n_list[:j+1])] = p
+            Gpr[sum(n_list[:j]):sum(n_list[:j+1]), n_sum+i+M] = \
+                Gpr[n_sum+i+M, sum(n_list[:j]):sum(n_list[:j+1])] = r
+
+    for i in xrange(N):                
+        for j in xrange(N):
+
+            # Compute the G matrix:
+            Gpr_block = zeros((n_list[i], n_list[j]), float)
+            for k in xrange(n_list[i]):
+                for l in xrange(n_list[j]):
+                    for m in xrange(M):
+                        tau_im = ts_list[i]+a_list[i][m]
+                        tau_jm = ts_list[j]+a_list[j][m]
+
+                        # The analytic expression for Gpr_block[k, l]
+                        # is equivalent to the integration described
+                        # in the comment below.
+                        # def psi(t):
+                        #     if t <= tau_jm[l]:
+                        #         result = (t-tau_jm[l+1])**4-(t-tau_jm[l])**4
+                        #     elif t <= tau_jm[l+1]:
+                        #         result = (t-tau_jm[l+1])**4+(t-tau_jm[l])**4
+                        #     else:
+                        #         result = (t-tau_jm[l])**4-(t-tau_jm[l+1])**4
+                        #     return w_list[j][m]*0.25*result
+                        # Gpr_block[k, l] += \
+                        #              w_list[i][m]*quad(psi, tau_im[k],
+                        #                                tau_im[k+1])[0]
+                        
+                        temp = 0.0
+                        if tau_jm[l+1] <= tau_im[k]:
+                            temp += \
+                                 (tau_im[k+1]-tau_jm[l])**5+(tau_im[k]-tau_jm[l+1])**5-\
+                                 (tau_im[k]-tau_jm[l])**5-(tau_im[k+1]-tau_jm[l+1])**5
+                        if (tau_jm[l] <= tau_im[k]) and (tau_im[k] <= tau_jm[l+1]) and \
+                               (tau_jm[l+1] <= tau_im[k+1]):
+                            temp += \
+                                 (tau_im[k+1]-tau_jm[l])**5-(tau_im[k]-tau_jm[l+1])**5-\
+                                 (tau_im[k]-tau_jm[l])**5-(tau_im[k+1]-tau_jm[l+1])**5
+                        if (tau_jm[l] <= tau_im[k]) and (tau_im[k] <= tau_im[k+1]) and \
+                               (tau_im[k+1] <= tau_jm[l+1]):
+                            temp += \
+                                 (tau_im[k+1]-tau_jm[l])**5-(tau_im[k]-tau_jm[l+1])**5-\
+                                 (tau_im[k]-tau_jm[l])**5+(tau_im[k+1]-tau_jm[l+1])**5        
+                        if (tau_im[k] <= tau_jm[l]) and (tau_jm[l] <= tau_jm[l+1]) and \
+                               (tau_jm[l+1] <= tau_im[k+1]):
+                            temp += \
+                                 (tau_im[k+1]-tau_jm[l])**5-(tau_im[k]-tau_jm[l+1])**5+\
+                                 (tau_im[k]-tau_jm[l])**5-(tau_im[k+1]-tau_jm[l+1])**5
+                        if (tau_im[k] <= tau_jm[l]) and (tau_jm[l] <= tau_im[k+1]) and \
+                               (tau_im[k+1] <= tau_jm[l+1]):
+                            temp += \
+                                 (tau_im[k+1]-tau_jm[l])**5-(tau_im[k]-tau_jm[l+1])**5+\
+                                 (tau_im[k]-tau_jm[l])**5+(tau_im[k+1]-tau_jm[l+1])**5
+                        if tau_im[k+1] <= tau_jm[l]:
+                            temp += \
+                                 -(tau_im[k+1]-tau_jm[l])**5-(tau_im[k]-tau_jm[l+1])**5+\
+                                 (tau_im[k]-tau_jm[l])**5+(tau_im[k+1]-tau_jm[l+1])**5
+                        Gpr_block[k, l] += temp*w_list[i][m]*w_list[j][m]/20.0
+            
+            Gpr[sum(n_list[:i]):sum(n_list[:i+1]),
+                sum(n_list[:j]):sum(n_list[:j+1])] = Gpr_block
+
+    # Compute the reconstruction coefficients:
+    cd = dot(pinv(Gpr), qz)
+
+    # Reconstruct the signal over the specified support using the
+    # coefficients:
+    t = arange(0, T, dt)
+    u_rec_list = []
+    for i in xrange(M):
+        u_rec_list.append(cd[n_sum+i]+cd[n_sum+i+M]*t)
+        for j in xrange(N):
+            tau = ts_list[j]+a_list[j][i]
+            psi = lambda t, k: \
+                  0.25*w_list[j][i]*where(t <= tau[k],
+                                          ((t-tau[k+1])**4-(t-tau[k])**4),
+                                          where(t <= tau[k+1],
+                                                ((t-tau[k+1])**4+(t-tau[k])**4),
+                                                ((t-tau[k])**4-(t-tau[k+1])**4)))
+
+            # Compute offset before loop to save time:
+            nj = sum(n_list[:j])
+            for k in xrange(n_list[j]):
+                u_rec_list[i] += cd[nj+k]*psi(t, k)
+            
+    return u_rec_list 
+
