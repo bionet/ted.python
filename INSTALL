@@ -1,24 +1,31 @@
-Installing the Bionet Python Utilities
-======================================
+.. -*- rst -*-
 
-1. The Bionet Python utilities require several prerequisites in order
-   to be installed:
+Installation Instructions
+=========================
 
-   Python 2.5          [http://www.python.org]
-   Numpy 1.2.0         [http://numpy.scipy.org]
-   Scipy 0.7.0         [http://www.scipy.org]
-   PyTables 2.1.1      [http://www.pytables.org]
+Prerequisites
+-------------
 
-   To run the demo code and generate plots, the following package
-   is also required:
+The Bionet Python utilities require several software packages to be
+present in order to be built and installed (newer versions of these
+packages may also work).
 
-   Matplotlib 0.98.5.3 [http://matplotlib.sourceforge.net]
+* `Python 2.5 <http://www.python.org>`_
+* `Numpy 1.2.0 <http://numpy.scipy.org>`_
+* `Scipy 0.7.0 <http://www.scipy.org`_
+* `PyTables 2.1.1 <http://www.pytables.org>`_
+* `Matplotlib 0.98 <http://matplotlib.sourceforge.net>`_
 
-   Earlier versions of the above may also work.
+This software has been tested on Linux and MacOSX. Although not tested
+on Windows, it should work on that platform given that all of the
+above prerequisites are available for Windows.
 
-2. Install the utilities by running
+Building and Installation
+-------------------------
+
+Build and install the utilities by running::
 
    python setup.py install
 
-3. Sample code for some of the utilities is stored in the demos/
-   subdirectory. 
+Sample code demonstrating how to use some of the utilities is located
+in the ``demos/`` subdirectory.

@@ -1,16 +1,36 @@
+.. -*- rst -*-
+
 Bionet Python Utilities
 =======================
 
-This package contains a variety of useful Python routines written by
-Lev Givon [1] for use in projects released by the Bionet Group [2].
+Package Description
+-------------------
+
+This package contains a variety of useful Python routines written for
+use in projects released by the Bionet Group.
+
+Future releases of this package (and other software written by members
+of the Bionet Group at Columbia University) can be obtained from
+
+http://bionet.ee.columbia.edu/code/
+
+Authors 
+-------
+The software in this package was written by Lev Givon [1]_, currently at
+the Bionet Group at Columbia University.
+
+License
+-------
+This software is licensed under the
+`BSD License <http://www.opensource.org/licenses/bsd-license.php>`_.
+See the included LICENSE file for more information.
 
 Contact Information
-===================
+-------------------
 
 Please direct all questions and comments pertaining to this software to
 
 Lev Givon <lev@columbia.edu>
 
-[1] http://www.columbia.edu/~lev
-[2] http://bionet.ee.columbia.edu
+.. [1] http://www.columbia.edu/~lev
 

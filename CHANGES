@@ -1,21 +1,29 @@
+.. -*- rst -*-
+
+Change Log
+==========
+
 Release 0.013 - (November 12, 2009)
-===================================
+-----------------------------------
+
 * Facilitate installation on x86_64 Linux.
 * Tidy up code formatting.
 
 Release 0.012 - (October 23, 2009)
-==================================
+----------------------------------
+
 * Add serial data buffer class.
 * Update signal_io module to support multiple signals in one HDF5 file.
 * Make time array construction consistently use a fixed time step.
 
 Release 0.011 - (June 26, 2009)
-===============================
+-------------------------------
+
 * Make random phase of generated test signal uniformly distributed
   over the range [0,2*pi].
 * Improve plotting.
 * Add sequence chunk generator.
 
 Release 0.01 - (May 8, 2009)
-============================
+----------------------------
 * First public release.
