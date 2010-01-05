@@ -1,5 +1,10 @@
+.. -*- rst -*-
+
 Time Encoding and Decoding Toolbox
 ==================================
+
+Package Description
+-------------------
 
 The Time Encoding and Decoding Toolbox contains Python implementations of
 algorithms designed to reversibly convert band-limited, digitally sampled
@@ -7,50 +12,57 @@ signals to and from a time-domain representation consisting of a series of time
 intervals between fixed-amplitude spikes. Sample code demonstrating the use of
 the implementations is included.
 
-Future releases of the Toolbox (and other software written by
-members of the Bionet Group [1] at Columbia University) can be obtained 
-from
+Future releases of this package (and other software written by members
+of the Bionet Group at Columbia University) can be obtained from
 
 http://bionet.ee.columbia.edu/code/
 
-Authors & Acknowledgements
-==========================
+Authors & Acknowledgments
+--------------------------
 
-The implementations in this package were written by Lev Givon,
+The implementations in this package were written by Lev Givon [1]_,
 currently at the Bionet Group at Columbia University. Some parts
 of the code are based (in part) on previous implementations written by
 the following members of the Bionet Group:
 
-Eftychios Pnevmatikakis
-Yevgeniy Slutskiy
-Robert Turetsky
+* Eftychios Pnevmatikakis
+* Yevgeniy Slutskiy
+* Robert Turetsky
 
 Special thanks are due to the following Bionet Group members for 
 reviewing the code and providing useful suggestions:
 
-Robert Turetsky
-Yiyin Zhou
+* Robert Turetsky
+* Yiyin Zhou
 
 All of the time encoding and decoding algorithms currently comprised
-by the toolbox were developed by Aurel Lazar [2], currently at
+by the toolbox were developed by Aurel Lazar [2]_, currently at
 Columbia University's Electrical Engineering Department.
 
+License
+-------
+
+This software is licensed under the 
+`BSD License <http://www.opensource.org/licenses/bsd-license.php>`_.
+See the included LICENSE file for more information.
+
 Contact Information
-===================
+-------------------
+
 Please direct all questions and comments pertaining to this software to
 
 Lev Givon <lev@columbia.edu>
 
 References
-==========
+----------
 
 The algorithms implemented in this toolbox are described in the papers
 listed in the attached BibTeX bibliography. Further research on
 time domain coding and processing may be obtained from the Bionet Group
-publication server [3].
+publication server [3]_.
 
-[1] http://bionet.ee.columbia.edu
-[2] http://www.ee.columbia.edu/~aurel
-[3] http://bionet.ee.columbia.edu/publications.html
+.. [1] http://www.columbia.edu/~lev
+.. [2] http://www.ee.columbia.edu/~aurel
+.. [3] http://bionet.ee.columbia.edu/publications.html
 
 

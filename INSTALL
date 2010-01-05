@@ -1,32 +1,37 @@
+.. -*- rst -*-
+
 Installation Instructions
 =========================
 
-1. The Time Encoding and Decoding Toolbox require several 
-   prerequisites in order to be installed:
+Prerequisites
+-------------
 
-   Python 2.5          [http://www.python.org]
-   Cython 0.11.2       [http://www.cython.org]
-   Numpy 1.2.0         [http://numpy.scipy.org]
-   Scipy 0.7.0         [http://www.scipy.org]
-   PyTables 2.0.0      [http://www.pytables.org]
-   Bionet Utils 0.013  [http://bionet.ee.columbia.edu/code]
+The Time Encoding and Decoding Toolbox requires several software
+packages to be present in order to be built and installed (newer
+versions of these packages may also work). 
 
-   To run the demo code and generate plots, the following package 
-   is also required:
+* `Python 2.5 <http://www.python.org>`_
+* `Cython 0.11.2 <http://www.cython.org>`_
+* `Numpy 1.2.0 <http://numpy.scipy.org>`_
+* `Scipy 0.7.0 <http://www.scipy.org>`_
+* `PyTables 2.0.0 <http://www.pytables.org>`_
+* `Bionet Utils 0.013 <http://bionet.ee.columbia.edu/code>`_
 
-   Matplotlib 0.98     [http://matplotlib.sourceforge.net]
+To run the demo code and generate plots, the following package 
+is also required:
 
-2. Install the utilities by running
+* `Matplotlib 0.98 <http://matplotlib.sourceforge.net>`_
+
+This software has been tested on Linux and MacOSX. Although not tested
+on Windows, it should work on that platform given that all of the
+above prerequisites are available for Windows.
+
+Building and Installation
+-------------------------
+
+Build and install the toolbox by running::
 
    python setup.py install
 
-3. Run the sample code in the demos/ subdirectory to make sure that
-   everything is working properly:
-
-   cd demos/
-   python *.py
-
-   These demos should generate a series of plots illustrating the
-   use of the various time encoding and decoding algorithms.
-
-   
+Sample code demonstrating how to use the toolbox is located in the
+``demos/`` subdirectory.

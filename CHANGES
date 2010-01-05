@@ -1,12 +1,19 @@
+.. -*- rst -*-
+
+Change Log
+==========
+
 Release 0.04 - ()
-=================
+-----------------
+
 * Clean up docstrings.
 * Add IAF interpolation spline decoding algorithms.
 * Add coupled IAF encoding and decoding algorithms.
 * Add MIMO delayed IAF encoding and decoding algorithms.
 
 Release 0.03 - (November 12, 2009)
-==================================
+----------------------------------
+
 * Accelerate IAF decoder implementations.
 * Add IAF population decoding algorithm.
 * Add IAF real-time decoding algorithm.
@@ -14,20 +21,24 @@ Release 0.03 - (November 12, 2009)
 * Facilitate installation on x86_64 Linux.
 
 Release 0.021 - (October 23, 2009)
-==================================
+----------------------------------
+
 * Clean up real-time algorithm implementations.
 * Make time array construction consistently use a fixed time step.
 
 Release 0.02 - (June 26,2009)
-=============================
+-----------------------------
+
 * Add real-time encoding and decoding algorithms.
 * Add ASDM population decoding algorithms.
 * Make code more readable.
 
 Release 0.011 - (May 08, 2009)
-==============================
+------------------------------
+
 * Change package name to Time Encoding and Decoding Toolbox.
 
 Release 0.01 - (May 08, 2009)
-=============================
+-----------------------------
+
 * First public release.
