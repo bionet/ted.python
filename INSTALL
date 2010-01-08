@@ -15,7 +15,7 @@ versions of these packages may also work).
 * `Numpy 1.2.0 <http://numpy.scipy.org>`_
 * `Scipy 0.7.0 <http://www.scipy.org>`_
 * `PyTables 2.0.0 <http://www.pytables.org>`_
-* `Bionet Utils 0.013 <http://bionet.ee.columbia.edu/code>`_
+* `Bionet Python Utilities 0.013 <http://bionet.ee.columbia.edu/code>`_
 
 To run the demo code and generate plots, the following package 
 is also required:
