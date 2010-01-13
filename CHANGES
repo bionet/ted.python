@@ -6,7 +6,7 @@ Change Log
 Release 0.04 - ()
 -----------------
 
-* Clean up docstrings.
+* Improve docstrings, use numpy docstring conventions.
 * Add IAF interpolation spline decoding algorithms.
 * Add coupled IAF encoding and decoding algorithms.
 * Add MIMO delayed IAF encoding and decoding algorithms.

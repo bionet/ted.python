@@ -24,9 +24,10 @@ from bionet.utils.numpy_extras import mdot
 __pinv_rcond__ = 1e-8
 
 def asdm_recoverable_strict(u, bw, b, d, k):
-    """Determine whether a time-encoded signal can be perfectly
-    recovered using an ASDM decoder with the specified parameters.
-
+    """
+    Determine whether a signal can be perfectly recovered with an ASDM
+    decoder with the specified parameters.
+    
     Parameters
     ----------
     u : array_like of floats
@@ -62,8 +63,9 @@ def asdm_recoverable_strict(u, bw, b, d, k):
         return True
 
 def asdm_recoverable(u, bw, b, d, k):
-    """Determine whether a time-encoded signal can be perfectly
-    recovered using an ASDM decoder with the specified parameters.
+    """
+    Determine whether a signal can be perfectly recovered with an ASDM
+    decoder with the specified parameters.
 
     Parameters
     ----------
@@ -106,52 +108,52 @@ def asdm_recoverable(u, bw, b, d, k):
 
 def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
                 sgn=1, quad_method='trapz', full_output=False):
-    """Encode a finite length signal using an asynchronous sigma-delta
-    modulator.
+    """
+    Encode a finite length signal with an ASDM encoder.
 
     Parameters
     ----------
-    u: array_like of floats
+    u : array_like of floats
         Signal to encode.
-    dt: float
+    dt : float
         Sampling resolution of input signal; the sampling frequency
         is 1/dt Hz.
-    b: float
+    b : float
         Encoder bias.
-    d: float
+    d : float
         Encoder threshold.
-    k: float
+    k : float
         Encoder integration constant.
-    dte: float
+    dte : float
         Sampling resolution assumed by the encoder (s).
-        This may not exceed dt.
-    y: float 
+        This may not exceed `dt`.
+    y : float 
         Initial value of integrator.
-    interval: float
+    interval : float
         Time since last spike (in s).
-    sgn: {+1, -1}
+    sgn : {+1, -1}
         Sign of integrator.
-    quad_method: {'rect', 'trapz'}
+    quad_method : {'rect', 'trapz'}
         Quadrature method to use (rectangular or trapezoidal).
-    full_output: bool
+    full_output : bool
         If set, the function returns the encoded data block followed
-        by the given parameters (with updated values for y, interval, and
-        sgn). This is useful when the function is called repeatedly to
+        by the given parameters (with updated values for `y`, `interval`, and
+        `sgn`). This is useful when the function is called repeatedly to
         encode a long signal.
 
     Returns
     -------
     s : ndarray of floats
-        If full_output == False, returns the signal encoded as an
+        If `full_output` == False, returns the signal encoded as an
         array of time intervals between spikes.
     s, dt, b, d, k, dte, y, interval, sgn, quad_method, full_output : tuple
-        If full_output == True, returns the encoded signal
+        If `full_output` == True, returns the encoded signal
         followed by updated encoder parameters.
 
     Notes
     -----
     When trapezoidal integration is used, the value of the integral
-    will not be computed for the very last entry in u.
+    will not be computed for the very last entry in `u`.
     
     """
     
@@ -207,27 +209,27 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
         return array(s)
 
 def asdm_decode(s, dur, dt, bw, b, d, k=1.0, sgn=-1):    
-    """Decode a finite length signal encoded by an asynchronous sigma-delta
-    modulator.
+    """
+    Decode a signal encoded with an ASDM encoder.
 
     Parameters
     ----------
-    s: ndarray of floats
+    s : ndarray of floats
         Encoded signal. The values represent the time between spikes (in s).
-    dur: float
+    dur : float
         Duration of signal (in s).
-    dt: float
+    dt : float
         Sampling resolution of original signal; the sampling frequency
         is 1/dt Hz.
-    bw: float
+    bw : float
         Signal bandwidth (in rad/s).
-    b: float
+    b : float
         Encoder bias.
-    d: float
+    d : float
         Encoder threshold.
-    k: float
+    k : float
         Encoder integrator constant.
-    sgn: {-1, 1}
+    sgn : {-1, 1}
         Sign of first spike.
 
     Returns
@@ -282,23 +284,24 @@ def asdm_decode(s, dur, dt, bw, b, d, k=1.0, sgn=-1):
     return u_rec
 
 def asdm_decode_ins(s, dur, dt, bw, b, sgn=-1):    
-    """Decode a finite length signal encoded by an asynchronous sigma-delta
-    modulator using a threshold-insensitive recovery algorithm.
+    """
+    Decode a signal encoded with an ASDM encoder using a
+    threshold-insensitive recovery algorithm.
 
     Parameters
     ----------
-    s: ndarray of floats
+    s : ndarray of floats
         Encoded signal. The values represent the time between spikes (in s).
-    dur: float
+    dur : float
         Duration of signal (in s).
-    dt: float
+    dt : float
         Sampling resolution of original signal; the sampling frequency
         is 1/dt Hz.
-    bw: float
+    bw : float
         Signal bandwidth (in rad/s).
-    b: float
+    b : float
         Encoder bias.
-    sgn: {-1, 1}
+    sgn : {-1, 1}
         Sign of first spike.
 
     Returns
@@ -354,29 +357,30 @@ def asdm_decode_ins(s, dur, dt, bw, b, sgn=-1):
     return u_rec
 
 def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0, sgn=-1):
-    """Decode a finite length signal encoded by an asynchronous sigma-delta
-    modulator using a fast recovery algorithm.
+    """
+    Decode a signal encoded by an ASDM encoder using a fast recovery
+    algorithm.
 
     Parameters
     ----------
-    s: numpy array of floats
+    s : numpy array of floats
         Encoded signal. The values represent the time between spikes (in s).
-    dur: float
+    dur : float
         Duration of signal (in s).
-    dt: float
+    dt : float
         Sampling resolution of original signal; the sampling frequency
         is 1/dt Hz.
-    bw: float
+    bw : float
         Signal bandwidth (in rad/s).
-    M: int
+    M : int
         Number of bins used by the fast algorithm.
-    b: float
+    b : float
         Encoder bias.
-    d: float
+    d : float
         Encoder threshold.
-    k: float
+    k : float
         Encoder integrator constant.
-    sgn: {-1, 1}
+    sgn : {-1, 1}
         Sign of first spike.
 
     Returns
@@ -425,8 +429,8 @@ def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0, sgn=-1):
     return ravel(real(jbwM*dot(m*dd.T, exp(jbwM*m[:, newaxis]*t))))
 
 def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
-    """Decode a finite length signal encoded by an ensemble of asynchronous
-    sigma-delta modulators. 
+    """
+    Decode a signal encoded by an ensemble of ASDM encoders.
 
     Parameters
     ----------
@@ -526,12 +530,13 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
     return u_rec
 
 def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
-    """Decode a finite length signal encoded by an ensemble of asynchronous
-    sigma-delta modulators using a threshold-insensitive recovery algorithm.
+    """
+    Decode a signal encoded by an ensemble of ASDM encoders using a
+    threshold-insensitive recovery algorithm.
 
     Parameters
     ----------
-    s_list: list of ndarrays of floats
+    s_list : list of ndarrays of floats
         Signal encoded by an ensemble of encoders. The values represent the
         time between spikes (in s). The number of arrays in the list
         corresponds to the number of encoders in the ensemble.

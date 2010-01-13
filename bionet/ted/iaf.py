@@ -32,8 +32,9 @@ from bionet.utils.scipy_extras import ei
 __pinv_rcond__ = 1e-8
 
 def iaf_recoverable(u, bw, b, d, R, C):
-    """Determine whether a time-encoded signal can be perfectly
-    recovered using an IAF decoder with the specified parameters.
+    """
+    Determine whether a signal can be perfectly recovered using an IAF
+    decoder with the specified parameters.
 
     Parameters
     ----------
@@ -77,8 +78,8 @@ def iaf_recoverable(u, bw, b, d, R, C):
 
 def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
                quad_method='trapz', full_output=False):
-    """Encode a finite length signal using an integrate-and-fire
-    neuron.
+    """
+    Encode a signal with an IAF neuron.
 
     Parameters
     ----------
@@ -97,7 +98,7 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
         Neuron capacitance.
     dte : float
         Sampling resolution assumed by the encoder (s).
-        This may not exceed dt.
+        This may not exceed `dt`.
     y : float
         Initial value of integrator.
     interval : float
@@ -108,23 +109,23 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
         when the neuron is leaky.
     full_output : bool
         If set, the function returns the encoded data block followed
-        by the given parameters (with updated values for y and interval).
+        by the given parameters (with updated values for `y` and `interval`).
         This is useful when the function is called repeatedly to
         encode a long signal.
 
     Returns
     -------
     s : ndarray of floats
-        If full_output == False, returns the signal encoded as an
+        If `full_output` == False, returns the signal encoded as an
         array of time intervals between spikes.
     s, dt, b, d, R, C, dte, y, interval, quad_method, full_output : tuple
-        If full_output == True, returns the encoded signal
+        If `full_output` == True, returns the encoded signal
         followed by updated encoder parameters.
         
     Notes
     -----
     When trapezoidal integration is used, the value of the integral
-    will not be computed for the very last entry in u.
+    will not be computed for the very last entry in `u`.
 
     """
 
@@ -185,27 +186,27 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
         return array(s)
 
 def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
-    """Decode a finite length signal encoded by an integrate-and-fire
-    neuron.
+    """
+    Decode a signal encoded with an IAF neuron.
 
     Parameters
     ----------
-    s: ndarray of floats
+    s : ndarray of floats
         Encoded signal. The values represent the time between spikes (in s).
-    dur: float
+    dur : float
         Duration of signal (in s).
-    dt: float
+    dt : float
         Sampling resolution of original signal; the sampling frequency
         is 1/dt Hz.
-    bw: float
+    bw : float
         Signal bandwidth (in rad/s).
-    b: float
+    b : float
         Encoder bias.
-    d: float
+    d : float
         Encoder threshold.
-    R: float
+    R : float
         Neuron resistance.
-    C: float
+    C : float
         Neuron capacitance.
 
     Returns
@@ -280,29 +281,30 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     return u_rec
 
 def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
-    """Decode a finite length signal encoded by an integrate-and-fire
-    neuron using a fast recovery algorithm.
+    """
+    Decode a signal encoded with an IAF neuron using a fast recovery
+    algorithm.
 
     Parameters
     ----------
-    s: array_like of floats
+    s : array_like of floats
         Encoded signal. The values represent the time between spikes (in s).
-    dur: float
+    dur : float
         Duration of signal (in s).
-    dt: float
+    dt : float
         Sampling resolution of original signal; the sampling frequency
         is 1/dt Hz.
-    bw: float
+    bw : float
         Signal bandwidth (in rad/s).
-    M: int
+    M : int
         Number of bins used by the fast algorithm.
-    b: float
+    b : float
         Encoder bias.
-    d: float
+    d : float
         Encoder threshold.
-    R: float
+    R : float
         Neuron resistance.
-    C: float
+    C : float
         Neuron capacitance.
 
     Returns
@@ -353,29 +355,29 @@ def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
     return ravel(real(jbwM*dot(m*dd.T, exp(jbwM*m[:, newaxis]*t))))
 
 def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
-    """Decode a finite length signal encoded by an ensemble of integrate-and-fire
-    neurons. 
+    """
+    Decode a signal encoded with an ensemble of IAF neurons.
 
     Parameters
     ----------
-    s_list: list of ndarrays of floats
+    s_list : list of ndarrays of floats
         Signal encoded by an ensemble of encoders. The values represent the
         time between spikes (in s). The number of arrays in the list
         corresponds to the number of encoders in the ensemble.
-    dur: float
+    dur : float
         Duration of signal (in s).
-    dt: float
+    dt : float
         Sampling resolution of original signal; the sampling frequency
         is 1/dt Hz.
-    bw: float
+    bw : float
         Signal bandwidth (in rad/s).
-    b_list: list of floats
+    b_list : list of floats
         List of encoder biases.
-    d_list: list of floats
+    d_list : list of floats
         List of encoder thresholds.
-    R_list: list of floats
+    R_list : list of floats
         List of encoder neuron resistances.
-    C_list: list of floats.    
+    C_list : list of floats.    
         List of encoder neuron capacitances.
 
     Returns
@@ -485,25 +487,26 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
     return u_rec
 
 def iaf_decode_spline(s, dur, dt, b, d, R=inf, C=1.0):
-    """Decode a finite length signal encoded by an integrate-and-fire
-    neuron using spline interpolation.
+    """
+    Decode a signal encoded with an IAF neuron using spline
+    interpolation.
 
     Parameters
     ----------
-    s: array_like of floats
+    s : array_like of floats
         Encoded signal. The values represent the time between spikes (in s).
-    dur: float
+    dur : float
         Duration of signal (in s).
-    dt: float
+    dt : float
         Sampling resolution of original signal; the sampling frequency
         is 1/dt Hz.
-    b: float
+    b : float
         Encoder bias.
-    d: float
+    d : float
         Encoder threshold.
-    R: float
+    R : float
         Neuron resistance.
-    C: float
+    C : float
         Neuron capacitance.
 
     Returns
@@ -615,8 +618,9 @@ def iaf_decode_spline(s, dur, dt, b, d, R=inf, C=1.0):
 
 def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
                           C_list):
-    """Decode a finite length signal encoded by an ensemble of integrate-and-fire
-    neurons using spline interpolation.
+    """
+    Decode a signal encoded with an ensemble of IAF neurons using
+    spline interpolation.
 
     Parameters
     ----------
@@ -636,7 +640,6 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
     R_list: list of floats
         List of encoder neuron resistances.
     C_list: list of floats.    
-
 
     Returns
     -------
@@ -846,8 +849,9 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
     return u_rec
 
 def iaf_encode_coupled(u, dt, b_list, d_list, k_list, h_list, type_list):
-    """Encode a finite length signal using an ensemble of coupled
-    ideal integrate-and-fire neurons.
+    """
+    Encode a signal with an ensemble of coupled ideal ON-OFF IAF
+    neurons.
 
     Parameters
     ----------
@@ -863,9 +867,9 @@ def iaf_encode_coupled(u, dt, b_list, d_list, k_list, h_list, type_list):
     k_list : list of floats
         List of encoder integration constants.
     h_list : M x M array_like of functions
-        Coupling functions. Function h_list[i][j] describes the
-        coupling from the integrator output of neuron i to the input
-        of neuron j.
+        Coupling functions. Function `h_list[i][j]` describes the
+        coupling from the integrator output of neuron `i` to the input
+        of neuron `j`.
     type_list : list of integers {-1, 1}
         Neuron types. A value of -1 indicates that a neuron is an OFF-type
         neuron, while a value of 1 indicates that it is an ON-type
@@ -913,30 +917,31 @@ def iaf_encode_coupled(u, dt, b_list, d_list, k_list, h_list, type_list):
     return [asarray(s) for s in s_list]
 
 def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
-    """Decode a finite length signal encoded by an ensemble of coupled
-    ideal integrate-and-fire neurons.
+    """
+    Decode a signal encoded with an ensemble of coupled IAF ON-OFF
+    neurons.
 
     Parameters
     ----------
-    s_list: list of ndarrays of floats
+    s_list : list of ndarrays of floats
         Signal encoded by an ensemble of coupled encoders. The values
         represent the time between spikes (in s). The number of arrays
         in the list corresponds to the number of encoders in the ensemble.
-    dur: float
+    dur : float
         Duration of signal (in s).
-    dt: float
+    dt : float
         Sampling resolution of original signal; the sampling frequency
         is 1/dt Hz.
-    b_list: list of floats
+    b_list : list of floats
         List of encoder biases.
-    d_list: list of floats
+    d_list : list of floats
         List of encoder thresholds.
-    k_list: list of floats
+    k_list : list of floats
         List of encoder integration constants.
-    h_list: M x M array_like of functions
-        Coupling functions. Function h_list[i][j] describes the
-        coupling from the integrator output of neuron i to the input
-        of neuron j.
+    h_list : M x M array_like of functions
+        Coupling functions. Function `h_list[i][j]` describes the
+        coupling from the integrator output of neuron `i` to the input
+        of neuron `j`.
         
     Returns
     -------
@@ -1033,8 +1038,9 @@ def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
     return u_rec
 
 def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list, w_list):
-    """Encode several finite length signals using an ensemble of ideal
-    integrate-and-fire neurons with delays.
+    """
+    Encode several signals with an ensemble of ideal IAF neurons with
+    delays.
 
     Parameters
     ----------
@@ -1064,9 +1070,10 @@ def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list, w_list):
 
     Notes
     -----
-    The specified signal length, i.e., len(u_list[0])*dt, must exceed the
-    support T over which the signal is encoded by the length of the
-    longest delay. The portion of the signal encoded is u_list[0][-int(T/dt):].
+    The specified signal length, i.e., `len(u_list[0])*dt`, must
+    exceed the support `T` over which the signal is encoded by the
+    length of the longest delay. The portion of the signal encoded is
+    `u_list[0][-int(T/dt):]`.
     
     """
 
@@ -1112,8 +1119,9 @@ def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list, w_list):
     return [asarray(s) for s in s_list]
 
 def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
-    """Decode several finite length signals encoded by an ensemble of ideal
-    integrate-and-fire neurons and a filtering kernel.
+    """
+    Decode several signals encoded with an ensemble of ideal IAF
+    neurons with delays.
 
     Parameters
     ----------
@@ -1144,7 +1152,7 @@ def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
 
     Notes
     -----
-    The specified signal length must exceed the support T over which
+    The specified signal length must exceed the support `T` over which
     the signal is decoded by the length of the longest delay.
     
     """

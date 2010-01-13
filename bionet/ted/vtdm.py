@@ -15,7 +15,8 @@ from bionet.utils.numpy_extras import mdot
 import bionet.ted.bpa as bpa
 
 def asdm_decode_vander(s, dur, dt, bw, b, d, k, sgn=-1):
-    """Decode a finite length signal encoded by an asynchronous
+    """
+    Decode a finite length signal encoded by an asynchronous
     sigma-delta modulator by solving a Vandermonde system using BPA.
 
     Parameters
@@ -84,9 +85,10 @@ def asdm_decode_vander(s, dur, dt, bw, b, d, k, sgn=-1):
     return u_rec
 
 def asdm_decode_vander_ins(s, dur, dt, bw, b, sgn=-1):
-    """Decode a finite length signal encoded by an asynchronous sigma-delta
-    modulator by solving a parameter-insensitive Vandermonde system
-    using BPA.
+    """
+    Decode a finite length signal encoded by an asynchronous
+    sigma-delta modulator by solving a parameter-insensitive
+    Vandermonde system using BPA.
 
     Parameters
     ----------
@@ -163,7 +165,8 @@ def asdm_decode_vander_ins(s, dur, dt, bw, b, sgn=-1):
     return u_rec
 
 def iaf_decode_vander(s, dur, dt, bw, b, d, R, C):
-    """Decode a finite length signal encoded by an integrate-and-fire
+    """
+    Decode a finite length signal encoded by an integrate-and-fire
     neuron by solving a Vandermonde system using BPA.
 
     Parameters

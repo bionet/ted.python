@@ -10,9 +10,10 @@ __all__ = ['bpa']
 import numpy as np
 
 def isvander(V, rtol=1e-5, atol=1e-8):
-    """Test if a matrix has a Vandermonde structure by checking
-    whether its columns V[2:,:] are integer powers of column V[1, :]
-    within tolerance.
+    """
+    Test if a matrix has a Vandermonde structure by checking whether
+    its columns `V[2:,:]` are integer powers of column `V[1, :]` within
+    tolerance.
     
     Parameters
     ----------
@@ -36,10 +37,10 @@ def isvander(V, rtol=1e-5, atol=1e-8):
     -----
     The matrix is assumed to be oriented such that its second column
     contains the arguments that would need to be passed to the
-    vander() function in order to construct the matrix.
+    `vander()` function in order to construct the matrix.
 
     The tolerance values are the same as those assumed by the
-    allclose() function.
+    `allclose()` function.
     
     """
 
@@ -55,19 +56,21 @@ def isvander(V, rtol=1e-5, atol=1e-8):
     return True
     
 def bpa(V, b):
-    """Solve a Vandermonde system using the Bjork-Pereyra algorithm.
+    """
+    Solve a Vandermonde system using the Bjork-Pereyra algorithm.
 
     Parameters
     ----------
     V : ndarray of floats, shape (M, M)
         A Vandermonde matrix. 
     b : ndarray of floats, shape (M,)
-        The system solved by this routine is dot(V,d) = b.
+        The system solved by this routine is `dot(V, d) == b`.
 
     Returns
     -------
     d : ndarray of floats, shape (M,)
-
+        System solution.
+        
     See Also
     --------
     numpy.linalg.solve
@@ -76,7 +79,7 @@ def bpa(V, b):
     -----
     The matrix is assumed to be oriented such that its second column
     contains the arguments that would need to be passed to the
-    vander() function in order to contruct the matrix.
+    `vander()` function in order to contruct the matrix.
     
     """
 

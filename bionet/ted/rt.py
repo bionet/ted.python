@@ -23,7 +23,7 @@ class SignalProcessor:
     of signal data from a source, applies some processing algorithm to
     it, and saves the processed blocks. It must be subclassed in order
     to be made functional."""
-
+    
     def __init__(self, *args):
         """Initialize a signal processor with the specified
         parameters."""
@@ -32,7 +32,7 @@ class SignalProcessor:
 
     def __call__(self, x):
         """Calling a class instance is equivalent to running the
-        processor on the specified sequence x."""
+        processor on the specified sequence `x`."""
 
         result = []
         iterator = m.chunks(x, len(x)/10)
@@ -48,8 +48,8 @@ class SignalProcessor:
         return result
     
     def process(self, get, put):
-        """Process data obtained in blocks from the function get()
-        and write them out using the function put()."""
+        """Process data obtained in blocks from the function `get()`
+        and write them out using the function `put()`."""
 
         if not callable(get):
             raise ValueError('get() must be callable')
@@ -77,8 +77,8 @@ class RealTimeEncoder(SignalProcessor):
         pass
     
     def process(self, get, put):
-        """Time encode data returned in blocks by function get() and
-        write it to some destination using the function put()."""
+        """Encode data returned in blocks by function `get()` and
+        write it to some destination using the function `put()`."""
 
         SignalProcessor.process(self, get, put)
 
@@ -94,105 +94,29 @@ class RealTimeEncoder(SignalProcessor):
             encoded_data = temp[0]
             self.params = temp[1:]
             put(encoded_data)
-        
-class ASDMRealTimeEncoder(RealTimeEncoder):
-    """This class implements a real-time time encoding machine that
-    uses an asynchronous sigma-delta modulator to encode data."""
-    
-    def __init__(self, dt, b, d, k=1.0, dte=0.0, quad_method='trapz'):
-        """Initialize a real-time time encoder.
-
-        Parameters
-        ----------
-        dt: float
-            Sampling resolution of input signal; the sampling frequency
-            is 1/dt Hz.
-        b: float
-            Encoder bias.
-        d: float
-            Encoder threshold.
-        k: float
-            Encoder integration constant.
-        dte: float
-            Sampling resolution assumed by the encoder. This may not exceed
-            dt.
-        quad_method: {'rect', 'trapz'}
-            Quadrature method to use (rectangular or trapezoidal).
-
-        """
-
-        # The values 0, 0, and 1 passed to the constructor
-        # initialize the y, interval, and sgn parameters of the ASDM
-        # encoder function:
-        SignalProcessor.__init__(self, dt, b, d, k, dte, 
-                                 0.0, 0.0, 1, quad_method, True)
-        
-    def encode(self, data):
-        """Encode a block of data using an asynchronous sigma-delta
-        modulator.""" 
-        
-        return asdm.asdm_encode(data, *self.params)
-
-class IAFRealTimeEncoder(RealTimeEncoder):
-    """This class implements a real-time time encoding machine that
-    uses an integrate-and-fire neuron to encode data."""
-    
-    def __init__(self, dt, b, d, R=inf, C=1.0, dte=0.0, quad_method='trapz'):
-        """Initialize a real-time time encoder.
-
-        Parameters
-        ----------
-        dt: float
-            Sampling resolution of input signal; the sampling frequency
-            is 1/dt Hz.
-        b: float
-            Encoder bias.
-        d: float
-            Encoder threshold.
-        R: float
-            Neuron resistance.
-        C: float
-            Neuron capacitance.
-        dte: float
-            Sampling resolution assumed by the encoder. This may not exceed
-            dt.
-        quad_method: {'rect', 'trapz'}
-            Quadrature method to use (rectangular or trapezoidal).
-
-        """
-
-        # The values 0 and 0 passed to the constructor initialize the
-        # y and interval parameters of the IAF encoder function:
-        SignalProcessor.__init__(self, dt, b, d, R, C, dte, 
-                                 0.0, 0.0, quad_method, True)
-        
-    def encode(self, data):
-        """Encode a block of data using an integrate-and-fire neuron.""" 
-        
-        return iaf.iaf_encode(data, *self.params)
 
 class RealTimeDecoder(SignalProcessor):
-    """This class implements a real-time time decoding machine."""
+    """This class implements a real-time time decoding machine. It
+    must be subclassed to use a specific decoding algorithm.
+
+    Parameters
+    ----------
+    dt : float
+        Sampling resolution of input signal; the sampling frequency
+        is `1/dt` Hz.
+    bw : float
+        Signal bandwidth (in rad/s).
+    N : int
+        Number of spikes to process in each block less 1.
+    M : int
+        Number of spikes between the starting time of each successive
+        block.
+    K : int
+        Number of spikes in the overlap between successive blocks.   
+
+    """
     
     def __init__(self, dt, bw, N, M, K):
-        """Initialize a real-time time decoder.
-
-        Parameters
-        ----------
-        dt: float
-            Sampling resolution of input signal; the sampling frequency
-            is 1/dt Hz.
-        bw: float
-            Signal bandwidth (in rad/s).
-        N: int
-            Number of spikes to process in each block less 1.
-        M: int
-            Number of spikes between the starting time of each successive
-            block.
-        K: int
-            Number of spikes in the overlap between successive blocks.   
-
-        """
 
         SignalProcessor.__init__(self, dt, bw, N, M, K)
 
@@ -241,8 +165,8 @@ class RealTimeDecoder(SignalProcessor):
         pass
 
     def process(self, get, put):
-        """Time decode data returned in blocks by function get() and
-        write it to some destination using the function put()."""
+        """Decode data returned in blocks by function `get()` and
+        write it to some destination using the function `put()`."""
 
         SignalProcessor.process(self, get, put)
 
@@ -377,36 +301,71 @@ class RealTimeDecoder(SignalProcessor):
         
         return w
 
+class ASDMRealTimeEncoder(RealTimeEncoder):
+    """
+    This class implements a real-time time encoding machine that uses
+    an ASDM encoder to encode data.
+
+    Parameters
+    ----------
+    dt : float
+        Sampling resolution of input signal; the sampling frequency
+        is `1/dt` Hz.
+    b : float
+        Encoder bias.
+    d : float
+        Encoder threshold.
+    k : float
+        Encoder integration constant.
+    dte : float
+        Sampling resolution assumed by the encoder. This may not exceed
+        `dt`.
+    quad_method : {'rect', 'trapz'}
+        Quadrature method to use (rectangular or trapezoidal).
+
+    """
+    
+    def __init__(self, dt, b, d, k=1.0, dte=0.0, quad_method='trapz'):
+
+        # The values 0, 0, and 1 passed to the constructor
+        # initialize the y, interval, and sgn parameters of the ASDM
+        # encoder function:
+        SignalProcessor.__init__(self, dt, b, d, k, dte, 
+                                 0.0, 0.0, 1, quad_method, True)
+        
+    def encode(self, data):
+        """Encode a block of data with an ASDM encoder.""" 
+        
+        return asdm.asdm_encode(data, *self.params)
+
 class ASDMRealTimeDecoder(RealTimeDecoder):
     """This class implements a real-time time decoding machine that
-    decodes data encoded using an asynchronous sigma-delta
-    modulator."""
+    decodes data encoded using an ASDM decoder.
+
+    Parameters
+    ----------
+    dt : float
+        Sampling resolution of input signal; the sampling frequency
+        is 1/dt Hz.
+    bw : float
+        Signal bandwidth (in rad/s).
+    b : float
+        Encoder bias.
+    d : float
+        Decoder threshold.
+    k : float
+        Decoder integration constant.
+    N : int
+        Number of spikes to process in each block less 1.
+    M : int
+        Number of spikes between the starting time of each successive
+        block.
+    K : int
+        Number of spikes in the overlap between successive blocks.   
+
+    """
 
     def __init__(self, dt, bw, b, d, k, N, M, K):
-        """Initialize a real-time time decoder.
-
-        Parameters
-        ----------
-        dt: float
-            Sampling resolution of input signal; the sampling frequency
-            is 1/dt Hz.
-        bw: float
-            Signal bandwidth (in rad/s).
-        b: float
-            Encoder bias.
-        d: float
-            Decoder threshold.
-        k: float
-            Decoder integration constant.
-        N: int
-            Number of spikes to process in each block less 1.
-        M: int
-            Number of spikes between the starting time of each successive
-            block.
-        K: int
-            Number of spikes in the overlap between successive blocks.   
-
-        """
 
         RealTimeDecoder.__init__(self, dt, bw, N, M, K)
 
@@ -415,8 +374,8 @@ class ASDMRealTimeDecoder(RealTimeDecoder):
         self.k = k
 
     def decode(self, data):
-        """Decode a block of data that was encoded using an
-        asynchronous sigma-delta modulator."""
+        """Decode a block of data that was encoded with an ASDM
+        encoder."""
         
         return vtdm.asdm_decode_vander(data, self.curr_dur, self.dt,
                                        self.bw, self.b, self.d, self.k,
@@ -424,74 +383,108 @@ class ASDMRealTimeDecoder(RealTimeDecoder):
 
 class ASDMRealTimeDecoderIns(RealTimeDecoder):
     """This class implements a parameter-insensitive real-time time
-    decoding machine that decodes data encoded using an asynchronous
-    sigma-delta modulator."""
+    decoding machine that decodes data encoded using an ASDM encoder.
+
+    Parameters
+    ----------
+    dt : float
+        Sampling resolution of input signal; the sampling frequency
+        is `1/dt` Hz.
+    bw : float
+        Signal bandwidth (in rad/s).
+    b : float
+        Encoder bias.
+    N : int
+        Number of spikes to process in each block less 1.
+    M : int
+        Number of spikes between the starting time of each successive
+        block.
+    K : int
+        Number of spikes in the overlap between successive blocks.   
+
+    """
 
     def __init__(self, dt, bw, b, N, M, K):
-        """Initialize a real-time time decoder.
-
-        Parameters
-        ----------
-        dt: float
-            Sampling resolution of input signal; the sampling frequency
-            is 1/dt Hz.
-        bw: float
-            Signal bandwidth (in rad/s).
-        b: float
-            Encoder bias.
-        N: int
-            Number of spikes to process in each block less 1.
-        M: int
-            Number of spikes between the starting time of each successive
-            block.
-        K: int
-            Number of spikes in the overlap between successive blocks.   
-
-        """
 
         RealTimeDecoder.__init__(self, dt, bw, N, M, K)
 
         self.b = b
 
     def decode(self, data):
-        """Decode a block of data that was encoded using an
-        asynchronous sigma-delta modulator."""
+        """Decode a block of data that was encoded with an ASDM
+        encoder."""
         
         return vtdm.asdm_decode_vander_ins(data, self.curr_dur, self.dt,
                                            self.bw, self.b, self.sgn)
 
+class IAFRealTimeEncoder(RealTimeEncoder):
+    """
+    This class implements a real-time time encoding machine that uses
+    an IAF neuron to encode data.
+
+    Parameters
+    ----------
+    dt : float
+        Sampling resolution of input signal; the sampling frequency
+        is `1/dt` Hz.
+    b : float
+        Encoder bias.
+    d : float
+        Encoder threshold.
+    R : float
+        Neuron resistance.
+    C : float
+        Neuron capacitance.
+    dte : float
+        Sampling resolution assumed by the encoder. This may not exceed
+        `dt`.
+    quad_method : {'rect', 'trapz'}
+        Quadrature method to use (rectangular or trapezoidal).
+
+    """
+    
+    def __init__(self, dt, b, d, R=inf, C=1.0, dte=0.0, quad_method='trapz'):
+
+        # The values 0 and 0 passed to the constructor initialize the
+        # y and interval parameters of the IAF encoder function:
+        SignalProcessor.__init__(self, dt, b, d, R, C, dte, 
+                                 0.0, 0.0, quad_method, True)
+        
+    def encode(self, data):
+        """Encode a block of data with an IAF neuron.""" 
+        
+        return iaf.iaf_encode(data, *self.params)
+
 class IAFRealTimeDecoder(RealTimeDecoder):
     """This class implements a real-time time decoding machine that
-    decodes data encoded using an integrate-and-fire
-    neuron."""
+    decodes data encoded using an IAF neuron.
+
+    Parameters
+    ----------
+    dt : float
+        Sampling resolution of input signal; the sampling frequency
+        is `1/dt` Hz.
+    bw : float
+        Signal bandwidth (in rad/s).
+    b : float
+        Encoder bias.
+    d : float
+        Decoder threshold.
+    R : float
+        Neuron resistance.
+    C : float
+        Neuron capacitance.
+    N : int
+        Number of spikes to process in each block less 1.
+    M : int
+        Number of spikes between the starting time of each successive
+        block.
+    K : int
+        Number of spikes in the overlap between successive blocks.   
+
+    """
 
     def __init__(self, dt, bw, b, d, R, C, N, M, K):
-        """Initialize a real-time time decoder.
-
-        Parameters
-        ----------
-        dt: float
-            Sampling resolution of input signal; the sampling frequency
-            is 1/dt Hz.
-        bw: float
-            Signal bandwidth (in rad/s).
-        b: float
-            Encoder bias.
-        d: float
-            Decoder threshold.
-        R: float
-            Neuron resistance.
-        C: float
-            Neuron capacitance.
-        N: int
-            Number of spikes to process in each block less 1.
-        M: int
-            Number of spikes between the starting time of each successive
-            block.
-        K: int
-            Number of spikes in the overlap between successive blocks.   
-
-        """
 
         RealTimeDecoder.__init__(self, dt, bw, N, M, K)
 
@@ -501,8 +494,8 @@ class IAFRealTimeDecoder(RealTimeDecoder):
         self.C = C
         
     def decode(self, data):
-        """Decode a block of data that was encoded using an
-        integrate-and-fire neuron."""
+        """Decode a block of data that was encoded with an
+        IAF neuron."""
         
         return vtdm.iaf_decode_vander(data, self.curr_dur, self.dt,
                                       self.bw, self.b, self.d, self.R, self.C)

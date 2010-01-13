@@ -6,19 +6,21 @@ include "numpy.pxd"
 import numpy as np
 
 def bpa(ndarray V, ndarray b):
-    """Solve a Vandermonde system using the Bjork-Pereyra algorithm.
+    """
+    Solve a Vandermonde system using the Bjork-Pereyra algorithm.
 
     Parameters
     ----------
     V : ndarray of floats, shape (M, M)
         A Vandermonde matrix. 
     b : ndarray of floats, shape (M,)
-        The system solved by this routine is dot(V,d) = b.
+        The system solved by this routine is `dot(V,d) == b`.
 
     Returns
     -------
     d : ndarray of floats, shape (M,)
-
+        System solution.
+        
     See Also
     --------
     numpy.linalg.solve
@@ -27,7 +29,7 @@ def bpa(ndarray V, ndarray b):
     -----
     The matrix is assumed to be oriented such that its second column
     contains the arguments that would need to be passed to the
-    vander() function in order to contruct the matrix.
+    `vander()` function in order to construct the matrix.
     
     """
 
