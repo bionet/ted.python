@@ -65,10 +65,10 @@ print fig_title
 s_list = tu.func_timer(iaf.iaf_encode_coupled)(u, dt, [b1, b2], [d1, d2],
                                            [k1, k2], h_list, [type1, type2])
 output_count += 1
-tu.plot_encoded(t, u, s_list[0], fig_title + ' (neuron #1)',
+tu.plot_encoded(t, u, s_list[0], fig_title + ' (encoder #1)',
                 output_name + str(output_count) + output_ext)
 output_count += 1
-tu.plot_encoded(t, u, s_list[1], fig_title + ' (neuron #2)',
+tu.plot_encoded(t, u, s_list[1], fig_title + ' (encoder #2)',
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
