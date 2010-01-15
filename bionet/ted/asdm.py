@@ -20,6 +20,11 @@ from scipy.signal import resample
 from scipy.special import sici
 from bionet.utils.numpy_extras import mdot 
 
+from bionet.ted.vtdm import asdm_decode_vander, \
+     asdm_decode_vander_ins
+
+__all__ += ['asdm_decode_vander', 'asdm_decode_vander_ins']
+
 # Pseudoinverse singular value cutoff:
 __pinv_rcond__ = 1e-8
 

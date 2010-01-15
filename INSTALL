@@ -6,9 +6,9 @@ Installation Instructions
 Prerequisites
 -------------
 
-The Time Encoding and Decoding Toolbox requires that several software
-packages be present in order to be built and installed (newer versions
-of these packages may also work).
+The Python implementation of the Time Encoding and Decoding Toolbox
+requires that several software packages be present in order to be
+built and installed (newer versions of these packages may also work).
 
 * `Python 2.5 <http://www.python.org>`_
 * `Cython 0.11.2 <http://www.cython.org>`_
@@ -35,3 +35,4 @@ Build and install the toolbox by running::
 
 Sample code demonstrating how to use the toolbox is located in the
 ``demos/`` subdirectory.
+
