@@ -28,6 +28,10 @@ from scipy.special import sici
 from bionet.utils.numpy_extras import mdot
 from bionet.utils.scipy_extras import ei
 
+from bionet.ted.vtdm import iaf_decode_vander
+
+__all__ += ['iaf_decode_vander']
+
 # Pseudoinverse singular value cutoff:
 __pinv_rcond__ = 1e-8
 
