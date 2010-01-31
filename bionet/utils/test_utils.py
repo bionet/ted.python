@@ -8,9 +8,16 @@ __all__ = ['func_timer', 'plot_signal', 'plot_encoded',
            'plot_compare', 'plot_fourier']
 
 import time
-
+    
 import numpy as np
 import pylab as p
+
+# Since the fft function in scipy is faster than that in numpy, try to
+# import the former before falling back to the latter:
+try:
+    from scipy.fftpack import fft
+except ImportError:
+    from numpy.fft import fft
 
 def func_timer(f):
     """Time the execution of function f. If arguments are specified,
@@ -162,17 +169,17 @@ def plot_fourier(u, fs, *args):
     
     n = len(u)/2
     uf = fft(u)[0:n]
-    f = (fs/2)*arange(0, n)/n
+    f = (fs/2)*np.arange(0, n)/n
 
     a = int(2.0*n*fmin/fs)
     b = int(2.0*n*fmax/fs)
 
     p.clf()
     p.subplot(211)
-    p.stem(f[a:b], real(uf)[a:b])
+    p.stem(f[a:b], np.real(uf)[a:b])
     p.ylabel('real')
     p.subplot(212)
-    p.stem(f[a:b], imag(uf)[a:b])
+    p.stem(f[a:b], np.imag(uf)[a:b])
     p.ylabel('imag')
     p.xlabel('f (Hz)')
 
