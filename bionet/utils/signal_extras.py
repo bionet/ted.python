@@ -34,7 +34,13 @@ __all__ = ['db', 'downsample', 'fftfilt', 'nextpow2', 'oddceil', 'oddround',
 from numpy import abs, arange, arctan, argmin, asarray, ceil, floor, \
      hstack, int, log10, log2, max, mean, min, mod, pi, shape, \
      sqrt, zeros
-from numpy.fft import fft, ifft
+
+# Since the fft function in scipy is faster than that in numpy, try to
+# import the former before falling back to the latter:
+try:
+    from scipy.fftpack import fft, ifft
+except ImportError:
+    from numpy.fft import fft, ifft
 
 # --- Error analysis functions ---
 
@@ -55,14 +61,14 @@ def snr(u, u_rec, *args):
 
     Parameters
     ----------
-    u: numpy array of floats
+    u : numpy array of floats
         Original signal.
-    u_rec: numpy array of floats
+    u_rec : numpy array of floats
         Reconstructed signal.
 
     Optional Parameters
     -------------------
-    k_min, k_max: int
+    k_min, k_max : int
         Lower and upper indicies into the signals over which to compute
         the SNR.
     """
