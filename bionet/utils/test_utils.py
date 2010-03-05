@@ -127,7 +127,7 @@ def plot_compare(t, u, v, fig_title='', file_name=''):
     p.gca().set_xlim(min(t), max(t))
     p.subplot(212)
     p.plot(t, 20*np.log10(abs(u-v)))
-    p.xlabel('t')
+    p.xlabel('t (s)')
     p.ylabel('error (dB)')
     p.gca().set_xlim(min(t), max(t))
     p.draw_if_interactive()
