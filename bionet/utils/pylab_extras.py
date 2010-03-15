@@ -8,6 +8,7 @@ This module contains various functions similar to those in
 Matlab that are not in pylab.
 
 - eps             Compute spacing of floating point numbers.
+- minmax          Return range of array.
 - realmax         Return largest representable positive floating point number.
 - realmin         Return smallest representable positive floating point number.
 
@@ -15,8 +16,8 @@ Matlab that are not in pylab.
 
 __all__ = ['eps', 'realmax', 'realmin']
 
-from numpy import finfo, single, float, double, longdouble, \
-     floor, log2, abs, inf, NaN
+from numpy import array, finfo, single, float, double, longdouble, \
+     floor, log2, abs, inf, NaN, min, max, shape, vstack
 
 finfo_dict = {single:finfo(single),
               float:finfo(float),
@@ -71,3 +72,15 @@ def eps(x):
     else:
         return ibeta**(minexp+negep+1)
     
+def minmax(x):
+    """Return the range of the given array. If the array has 2
+    dimensions, return an array containing the minima and maxima of
+    each of the rows."""
+
+    dims = len(shape(x))
+    if dims == 1:
+        return array((min(x), max(x)))
+    elif dims == 2:
+        return vstack((min(x,1), max(x,1))).T
+    else:
+        raise ValueError('undefined for arrays with more than 2 dimensions')
