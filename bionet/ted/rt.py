@@ -10,6 +10,21 @@ __all__ = ['SignalProcessor',
            'ASDMRealTimeDecoderIns',
            'IAFRealTimeEncoder', 'IAFRealTimeDecoder']
 
+# Setting this flag enables the silent generation of a debug plot
+# depicting the progress of the stitching algorithm employed in the
+# real-time decoders.
+debug = False
+if debug:
+    try:
+        from matplotlib.figure import Figure
+        from matplotlib.backends.backend_agg import FigureCanvasAgg
+    except ImportError:
+        debug = False
+    else:
+        debug_plot_filename = 'rt_debug.png'
+        debug_plot_figsize = (7,5)
+        debug_plot_dpi = 100
+        
 import bionet.utils.misc as m
 import bionet.ted.asdm as asdm
 import bionet.ted.iaf as iaf
@@ -158,6 +173,13 @@ class RealTimeDecoder(SignalProcessor):
         self.window_left = False
         self.window_right = True
 
+        if debug:
+            self.fig = Figure(figsize=debug_plot_figsize)
+            self.ax = self.fig.add_subplot(111)
+            self.ax.set_xlabel('t (s)')
+            self.ax.set_ylabel('y(t)')
+            self.offset = 0.0
+
     def decode(self, *args):
         """Decode a block of data. This method must be reimplemented
         to use a specific decoding algorithm implementation."""
@@ -167,7 +189,7 @@ class RealTimeDecoder(SignalProcessor):
     def process(self, get, put):
         """Decode data returned in blocks by function `get()` and
         write it to some destination using the function `put()`."""
-
+        
         SignalProcessor.process(self, get, put)
 
         # Set up a buffer to queue input data from the source:
@@ -236,6 +258,9 @@ class RealTimeDecoder(SignalProcessor):
             self.w = self.window(self.t, ll, lr, rl, rr)
             self.uw = self.u*self.w
 
+            if debug:
+                self.ax.plot(self.offset+self.t, self.uw)
+
             # Apart from the first block, the saved nonzero
             # overlapping portion of the previous block must be
             # combined with that of the current block:
@@ -253,10 +278,14 @@ class RealTimeDecoder(SignalProcessor):
                     self.uw[self.tk[self.M+self.K]:self.tk[self.N-self.M-self.K]]))
                 self.overlap = \
                     self.uw[self.tk[self.N-self.M-self.K]:self.tk[self.N-self.M]]
+                if debug:
+                    self.offset += self.t[self.tk[self.J-1]]
             else:
                 self.u_out = hstack((self.u_out,
                                      self.uw[self.tk[self.M+self.K]::]))
                 self.overlap = array((), float)
+                if debug:
+                    self.offset += 0
                 
             # The first block decoded should only be windowed on its
             # right side if at all. Hence, if window_left is false and
@@ -274,6 +303,17 @@ class RealTimeDecoder(SignalProcessor):
             if not self.window_right:
                 break
 
+    def __call__(self, x):
+        """Calling a class instance is equivalent to running the
+        decoder on the specified sequence `x`."""
+
+        result = SignalProcessor.__call__(self, x)
+        if debug:
+            self.canvas = FigureCanvasAgg(self.fig)
+            self.canvas.print_figure(debug_plot_filename,
+                                     debug_plot_dpi)
+        return result
+    
     # Methods for computing the edges of the windows determined by the
     # windows() method:
     def _theta1(self, t, l, r):
