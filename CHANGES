@@ -3,8 +3,8 @@
 Change Log
 ==========
 
-Release 0.04 - ()
------------------
+Release 0.04 - (April 19, 2010)
+-------------------------------
 
 * Improve docstrings, use numpy docstring conventions.
 * Add IAF interpolation spline decoding algorithms.

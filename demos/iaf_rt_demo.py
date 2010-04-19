@@ -30,9 +30,9 @@ np.random.seed(0)
 noise_power = None
 
 if noise_power == None:
-    fig_title = 'IAF input signal with no noise'
+    fig_title = 'IAF Input Signal with No Noise'
 else:
-    fig_title = 'IAF input signal with %d dB of noise' % noise_power
+    fig_title = 'IAF Input Signal with %d dB of Noise' % noise_power
 print fig_title
 u = tu.func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
 tu.plot_signal(t, u, fig_title,
@@ -56,7 +56,7 @@ except ValueError('reconstruction condition not satisfied'):
 # Test leaky algorithm:
 
 output_count += 1
-fig_title = 'encoding using leaky real-time IAF algorithm'
+fig_title = 'Signal Encoded Using Leaky Real-Time IAF Encoder'
 print fig_title
 encoder = rt.IAFRealTimeEncoder(dt, b, d, R, C)
 s = tu.func_timer(encoder)(u)
@@ -64,7 +64,7 @@ tu.plot_encoded(t, u, s, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
-fig_title = 'decoding using leaky real-time IAF algorithm'
+fig_title = 'Signal Decoded Using Leaky Real-Time IAF Decoder'
 print fig_title
 decoder = rt.IAFRealTimeDecoder(dt, bw, b, d, R, C, N, M, K)
 u_rec = tu.func_timer(decoder)(s)
@@ -73,12 +73,12 @@ tu.plot_compare(t[:end], u[:end], u_rec[:end], fig_title,
                 output_name + str(output_count) + output_ext)
 
 
-# Test nonleaky algorithm:
+# Test ideal algorithm:
 
 R = np.inf
 
 output_count += 1
-fig_title = 'encoding using nonleaky real-time IAF algorithm'
+fig_title = 'Signal Encoded Using Ideal Real-Time IAF Encoder'
 print fig_title
 encoder = rt.IAFRealTimeEncoder(dt, b, d, R, C)
 s = tu.func_timer(encoder)(u)
@@ -86,7 +86,7 @@ tu.plot_encoded(t, u, s, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
-fig_title = 'decoding using nonleaky real-time IAF algorithm'
+fig_title = 'Signal Decoded Using Ideal Real-Time IAF Decoder'
 print fig_title
 decoder = rt.IAFRealTimeDecoder(dt, bw, b, d, R, C, N, M, K)
 u_rec = tu.func_timer(decoder)(s)

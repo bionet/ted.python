@@ -28,9 +28,9 @@ np.random.seed(0)
 
 noise_power = None
 if noise_power == None:
-    fig_title = 'ASDM input signal with no noise'
+    fig_title = 'ASDM Input Signal with No Noise'
 else:
-    fig_title = 'ASDM input signal with %d dB of noise' % noise_power
+    fig_title = 'ASDM Input Signal with %d dB of Noise' % noise_power
 print fig_title
 u = tu.func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
 tu.plot_signal(t, u, fig_title,
@@ -48,28 +48,28 @@ except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
 output_count += 1
-fig_title = 'encoding using ASDM algorithm'
+fig_title = 'Signal Encoded Using ASDM Encoder'
 print fig_title
 s = tu.func_timer(asdm.asdm_encode)(u, dt, b, d, k)
 tu.plot_encoded(t, u, s, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
-fig_title = 'decoding using ASDM algorithm'
+fig_title = 'Signal Decoded Using ASDM Decoder'
 print fig_title
 u_rec = tu.func_timer(asdm.asdm_decode)(s, dur, dt, bw, b, d, k)
 tu.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
-fig_title = 'decoding using threshold-insensitive ASDM algorithm'
+fig_title = 'Signal Decoded Using Threshold-Insensitive ASDM Decoder'
 print fig_title
 u_rec_ins = tu.func_timer(asdm.asdm_decode_ins)(s, dur, dt, bw, b)
 tu.plot_compare(t, u, u_rec_ins, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
-fig_title = 'decoding using fast ASDM algorithm'
+fig_title = 'Decoded Using Fast ASDM Decoder'
 print fig_title
 u_rec = tu.func_timer(asdm.asdm_decode_fast)(s, dur, dt, bw, M, b, d, k)
 tu.plot_compare(t, u, u_rec, fig_title,

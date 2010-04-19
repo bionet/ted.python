@@ -28,9 +28,9 @@ np.random.seed(0)
 
 noise_power = None
 if noise_power == None:
-    fig_title = 'IAF input signal with no noise';
+    fig_title = 'IAF Input Signal with no Noise';
 else:
-    fig_title = 'IAF input signal with %d dB of noise' % noise_power;
+    fig_title = 'IAF Input Signal with %d dB of Noise' % noise_power;
 print fig_title
 u = tu.func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
 tu.plot_signal(t, u, fig_title,
@@ -52,46 +52,46 @@ L = 5 # number of recursions for recursive decoding algorithm
 # Test leaky algorithms:
 
 output_count += 1
-fig_title = 'encoding using leaky IAF algorithm'
+fig_title = 'Signal Encoded Using Leaky IAF Encoder'
 print fig_title
 s = tu.func_timer(iaf.iaf_encode)(u, dt, b, d, R, C)
 tu.plot_encoded(t, u, s, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
-fig_title = 'decoding using leaky IAF algorithm'
+fig_title = 'Signal Decoded Using Leaky IAF Decoder'
 print fig_title
 u_rec = tu.func_timer(iaf.iaf_decode)(s, dur, dt, bw, b, d, R, C)
 tu.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
-fig_title = 'decoding using leaky fast IAF algorithm'
+fig_title = 'Signal Decoded Using Leaky Fast IAF Decoder'
 print fig_title
 u_rec = tu.func_timer(iaf.iaf_decode_fast)(s, dur, dt, bw, M, b, d, R, C)
 tu.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 
-# Test nonleaky algorithms:
+# Test ideal algorithms:
 
 R = np.inf
 
 output_count += 1
-fig_title = 'encoding using nonleaky IAF algorithm'
+fig_title = 'Signal Encoded Using Ideal IAF Encoder'
 print fig_title
 s = tu.func_timer(iaf.iaf_encode)(u, dt, b, d, R, C)
 tu.plot_encoded(t, u, s, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
-fig_title = 'decoding using nonleaky IAF algorithm'
+fig_title = 'Signal Decoded Using Ideal IAF Decoder'
 print fig_title
 u_rec = tu.func_timer(iaf.iaf_decode)(s, dur, dt, bw, b, d, R, C)
 tu.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
-fig_title = 'decoding using nonleaky fast IAF algorithm'
+fig_title = 'Signal Decoded Using Ideal Fast IAF Decoder'
 print fig_title
 u_rec = tu.func_timer(iaf.iaf_decode_fast)(s, dur, dt, bw, M, b, d, R, C)
 tu.plot_compare(t, u, u_rec, fig_title,

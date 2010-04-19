@@ -5,7 +5,6 @@ Demos of MIMO time encoding and decoding algorithms that use IAF
 neurons with delays.
 """
 
-import sys
 import numpy as np
 
 import bionet.utils.gen_test_signal as g
@@ -31,16 +30,16 @@ noise_power = None
 comps = 10
 
 if noise_power == None:
-    fig_title = 'IAF input signal with no noise'
+    fig_title = 'IAF Input Signal with No Noise'
 else:
-    fig_title = 'IAF input signal with %d dB of noise' % noise_power
+    fig_title = 'IAF Input Signal with %d dB of Noise' % noise_power
 
 M = 3 # number of input signals
 N = 9 # number of neurons
 
 u_list = []
 for i in xrange(M):
-    fig_title_in = fig_title + ' (signal #' + str(i+1) + ')'
+    fig_title_in = fig_title + ' (Signal #' + str(i+1) + ')'
     print fig_title_in
     u = tu.func_timer(g.gen_test_signal)(dur, dt, f, noise_power, comps)
     u /= max(u)
@@ -65,18 +64,18 @@ k_list = list(0.01*np.ones(N))
 a_list = map(list, np.reshape(np.random.exponential(0.003, N*M), (N, M)))
 w_list = map(list, np.reshape(randu(0.5, 1.0, N*M), (N, M)))
 
-fig_title = 'encoding using delayed IAF algorithm'
+fig_title = 'Signal Encoded Using Delayed IAF Encoder'
 print fig_title
 s_list = tu.func_timer(iaf.iaf_encode_delay)(u_list, T, dt, b_list, d_list,
                                            k_list, a_list, w_list)
 
-fig_title = 'decoding using delayed IAF algorithm'
+fig_title = 'Signal Decoded Using Delayed IAF Decoder'
 print fig_title
 u_rec_list = tu.func_timer(iaf.iaf_decode_delay)(s_list, T, dt, b_list, d_list, k_list,
                                                  a_list, w_list)
 
 for i in xrange(M):
-    fig_title_out = fig_title + ' (signal #' + str(i+1) + ')'
+    fig_title_out = fig_title + ' (Signal #' + str(i+1) + ')'
     print fig_title_out
     tu.plot_compare(t, u_list[i][0:len(t)], u_rec_list[i], fig_title_out, 
                     output_name + str(output_count) + output_ext)

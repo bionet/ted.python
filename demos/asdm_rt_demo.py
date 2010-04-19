@@ -28,9 +28,9 @@ np.random.seed(0)
 
 noise_power = None
 if noise_power == None:
-    fig_title = 'ASDM input signal with no noise'
+    fig_title = 'ASDM Input Signal with No Noise'
 else:
-    fig_title = 'ASDM input signal with %d dB of noise' % noise_power
+    fig_title = 'ASDM Input Signal with %d dB of Noise' % noise_power
 print fig_title
 u = tu.func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
 tu.plot_signal(t, u, fig_title,
@@ -55,7 +55,7 @@ except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
 output_count += 1
-fig_title = 'encoding using real-time ASDM algorithm'
+fig_title = 'Signal Encoded Using Real-Time ASDM Encoder'
 print fig_title
 encoder = rt.ASDMRealTimeEncoder(dt, b, d, k)
 s = tu.func_timer(encoder)(u)
@@ -63,7 +63,7 @@ tu.plot_encoded(t, u, s, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
-fig_title = 'decoding using real-time ASDM algorithm'
+fig_title = 'Signal Decoded Using Real-Time ASDM Decoder'
 print fig_title
 decoder = rt.ASDMRealTimeDecoder(dt, bw, b, d, k, N, M, K)
 u_rec = tu.func_timer(decoder)(s)
@@ -72,7 +72,7 @@ tu.plot_compare(t[:end], u[:end], u_rec[:end], fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
-fig_title = 'decoding using real-time threshold-insensitive ASDM algorithm'
+fig_title = 'Signal Decoded Using Real-Time\nThreshold-Insensitive ASDM Decoder'
 print fig_title
 decoder = rt.ASDMRealTimeDecoderIns(dt, bw, b, N, M, K)
 u_rec_ins = tu.func_timer(decoder)(s)

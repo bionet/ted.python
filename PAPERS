@@ -1,16 +1,24 @@
 @article{lazar_consistent_2009,
-        series = {Special Issue on Signal Processing for Neural Spike
-        Trains},
-        title = {Consistent Recovery of Sensory Stimuli Encoded with
-        {MIMO} Neural Circuits},
-        volume = {2009},
-        url =
-        {http://spike.ee.columbia.edu:3000/citation/paperfile/53/lazar_compineuro09.pdf},
-        doi = {10.1155/2010/469658},
-        journal = {Computational Intelligence and Neuroscience},
-        author = {Aurel A. Lazar and Eftychios A. Pnevmatikakis},
-        month = nov,
-        year = {2009}
+	series = {Special Issue on Signal Processing for Neural Spike Trains},
+	title = {Consistent Recovery of Sensory Stimuli Encoded with {MIMO} Neural Circuits},
+	volume = {2009},
+	url = {http://spike.ee.columbia.edu:3000/citation/paperfile/53/lazar_compineuro09.pdf},
+	doi = {10.1155/2010/469658},
+	journal = {Computational Intelligence and Neuroscience},
+	author = {Aurel A. Lazar and Eftychios A. Pnevmatikakis},
+	month = nov,
+	year = {2009}
+},
+
+@article{lazar_faithful_2008,
+	title = {Faithful Representation of Stimuli with a Population of {Integrate-and-Fire} Neurons},
+	volume = {20},
+	url = {http://neuron.ee.columbia.edu:3000/citation/paperfile/27/neuro_comp.pdf},
+	number = {11},
+	journal = {Neural Computation},
+	author = {Aurel A. Lazar and Eftychios A. Pnevmatikakis},
+	year = {2008},
+	pages = {2715--2744}
 },
 
 @inproceedings{lazar_fast_2004,
