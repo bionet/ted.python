@@ -498,10 +498,10 @@ class WriteSignal(WriteArray):
             raise ValueError("list of descriptor field values " +
                              "is of incorrect length")
         else:
-            desc_node.append([desc_val])
+            desc_node.append([tuple(desc_val)])
             desc_node.flush()
             self.desc_node_list.append(desc_node)
-            
+        
     def get_desc_nodes(self):
         """Retrieve the signal descriptors stored within the file."""
 
