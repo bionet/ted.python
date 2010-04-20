@@ -4,8 +4,15 @@
 Signal I/O classes
 ==================
 
-Classes for writing and reading sampled and encoded signals
-to and from HDF5 files.
+Classes for reading and writing numpy [1]_ arrays containing sampled
+or time-encoded signals from and to HDF5 files using PyTables [2]_.
+
+- ReadArray, WriteArray                         - I/O classes for basic types.
+- ReadSignal, WriteSignal                       - I/O classes for sampled signals.
+- ReadTimeEncodedSignal, WriteTimeEncodedSignal - I/O classes for time-encoded signals.
+
+.. [1] http://numpy.scipy.org/
+.. [2] http://www.pytables.com/
 
 """
 
@@ -14,10 +21,11 @@ __all__ = ['ReadArray', 'WriteArray',
            'ReadSampledSignal', 'WriteSampledSignal',
            'ReadTimeEncodedSignal', 'WriteTimeEncodedSignal']
 
-import tables as t
-import numpy as np
 import warnings as w
 import time
+
+import tables as t
+import numpy as np
 
 # Suppress warnings provoked by the use of integers as HDF5 group names:
 w.simplefilter('ignore', t.NaturalNameWarning)
@@ -27,8 +35,7 @@ class MissingDataError(AttributeError, LookupError):
     pass
     
 class ReadArray:    
-    """
-    A class for reading arrays of some elementary type saved in
+    """A class for reading arrays of some elementary type saved in
     an HDF5 file. More than one array may be stored in the file; the
     class assumes that each array is stored as a child of a group with
     an integer name.
@@ -138,8 +145,7 @@ class ReadArray:
             self.pos[id] = offset
                     
 class WriteArray:
-    """
-    A class for writing arrays of some elementary type to an HDF
+    """A class for writing arrays of some elementary type to an HDF
     file. More than one array may be stored in the file; the class
     assumes that each array is stored as a child of a group with an
     integer name.
@@ -326,10 +332,9 @@ def get_desc_types(desc):
     return types
 
 class ReadSignal(ReadArray):
-    """
-    A class for reading signals stored in HDF5 files. A single file
-    may contain multiple signals. Each signal contains a data array
-    and a descriptor.
+    """A class for reading signals stored in an HDF5 file. A single
+    file may contain multiple signals. Each signal contains a data
+    array and a descriptor.
 
     Parameters
     ----------
@@ -402,9 +407,9 @@ class ReadSignal(ReadArray):
         return desc_node_list
 
 class WriteSignal(WriteArray):
-    """A class for writing signals to an HDF file. More than one
-    signal may be stored in the file; the class assumes that each
-    array is stored as a child of a group with an integer name.
+    """A class for writing signals to an HDF5 file. A single file may
+    contain multiple signals. Each array is stored as a child of a
+    group with an integer name.
 
     Parameters
     ----------
@@ -541,7 +546,34 @@ class TimeEncodedSignalDescriptor(t.IsDescription):
     k            = t.FloatCol(pos=6, dflt=1.0) # integration constant
     
 class ReadSampledSignal(ReadSignal):
-    """A class for reading sampled signals stored in HDF5 files."""
+    """A class for reading sampled signals stored in an HDF5 file. A
+    single file may contain multiple signals. Each signal contains a
+    data array and a descriptor.
+
+    Parameters
+    ----------
+    filename : str
+        Input file name.
+
+    Methods
+    -------
+    close()
+        Close the opened file.
+    get_data_nodes()
+        Retrieve the nodes of the data arrays stored in the file.
+    get_desc_nodes()
+        Retrieve the descriptor nodes of the data arrays stored in
+        the file.
+    read(block_size=None, id=0)
+        Read a block of data of length `block_size` from data array `id`.
+    read_desc(id=0)
+        Return the data in the descriptor of data array `id`.
+    rewind(id=0)
+        Reset the data pointer for data array `id` to the first entry.
+    seek(offset, id=0)
+        Move the data pointer for data array `id` to the indicated offset.
+
+    """
 
     def __validate_descs(self):
         """Validate the descriptors in the file by making sure that
@@ -557,7 +589,44 @@ class ReadSampledSignal(ReadSignal):
                                            "an unrecognized descriptor" % filename)
 
 class WriteSampledSignal(WriteSignal):
-    """A class for writing sampled signals to HDF5 files."""
+    """A class for writing sampled signals to an HDF5 file. A single
+    file may contain multiple signals. Each signal is stored as a
+    child of a group with an integer name.
+
+    Parameters
+    ----------
+    filename : str
+        Output file name.
+    desc_vals : list of lists
+        Default descriptor values. Each descriptor's default values
+        must be specified as a separate list.
+    complevel : int, 0..9
+        Compression level; 0 disables compression, 9 corresponds to
+        maximum compression.
+    complib : {'zlib', 'lzo', 'bzip2'}
+        Compression filter used by pytables.
+    datatype : dtype
+        Data type to use in array (e.g., `numpy.float64`).
+
+    Methods
+    -------
+    close()
+        Close the opened file.
+    get_data_nodes()
+        Retrieve the nodes of the data arrays stored in the file.
+    get_desc_nodes()
+        Retrieve the descriptor nodes of the data arrays stored in
+        the file.
+    write(block_data, id=0)
+        Write the specified block of data to data array `id`.
+
+    Notes
+    -----
+    If the file already contains fewer data arrays than `num_arrays`,
+    they will be preserved and new arrays will be initialized and
+    added to the file.
+
+    """
 
     def __init__(self, filename, 
                  desc_vals=[get_desc_defaults(SampledSignalDescriptor)],
@@ -579,8 +648,35 @@ class WriteSampledSignal(WriteSignal):
                 raise WrongDescriptorError("descriptor values do not match format")
 
 class ReadTimeEncodedSignal(ReadSignal):
-    """A class for reading time-encoded signals stored in HDF5 files."""
+    """A class for reading time-encoded signals stored in an HDF5
+    file. A single file may contain multiple signals. Each signal
+    contains a data array and a descriptor.
 
+    Parameters
+    ----------
+    filename : str
+        Input file name.
+
+    Methods
+    -------
+    close()
+        Close the opened file.
+    get_data_nodes()
+        Retrieve the nodes of the data arrays stored in the file.
+    get_desc_nodes()
+        Retrieve the descriptor nodes of the data arrays stored in
+        the file.
+    read(block_size=None, id=0)
+        Read a block of data of length `block_size` from data array `id`.
+    read_desc(id=0)
+        Return the data in the descriptor of data array `id`.
+    rewind(id=0)
+        Reset the data pointer for data array `id` to the first entry.
+    seek(offset, id=0)
+        Move the data pointer for data array `id` to the indicated offset.
+        
+    """
+    
     def __validate_descs(self):
         """Validate the descriptors in the file by making sure that
         they possess the same columns as the
@@ -595,7 +691,44 @@ class ReadTimeEncodedSignal(ReadSignal):
                                            "an unrecognized descriptor" % filename)
             
 class WriteTimeEncodedSignal(WriteSignal):
-    """A class for writing time-encoded signals to HDF5 files."""
+    """A class for writing time-encoded signals to HDF5 files. A
+    single file may contain multiple signals. Each signal is stored as
+    a child of a group with an integer name.
+
+    Parameters
+    ----------
+    filename : str
+        Output file name.
+    desc_vals : list of lists
+        Default descriptor values. Each descriptor's default values
+        must be specified as a separate list.
+    complevel : int, 0..9
+        Compression level; 0 disables compression, 9 corresponds to
+        maximum compression.
+    complib : {'zlib', 'lzo', 'bzip2'}
+        Compression filter used by pytables.
+    datatype : dtype
+        Data type to use in array (e.g., `numpy.float64`).
+
+    Methods
+    -------
+    close()
+        Close the opened file.
+    get_data_nodes()
+        Retrieve the nodes of the data arrays stored in the file.
+    get_desc_nodes()
+        Retrieve the descriptor nodes of the data arrays stored in
+        the file.
+    write(block_data, id=0)
+        Write the specified block of data to data array `id`.
+
+    Notes
+    -----
+    If the file already contains fewer data arrays than `num_arrays`,
+    they will be preserved and new arrays will be initialized and
+    added to the file.
+
+    """
     
     def __init__(self, filename, 
                  desc_vals=[get_desc_defaults(TimeEncodedSignalDescriptor)],
