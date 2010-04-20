@@ -9,14 +9,12 @@ Package Description
 This package contains a variety of useful Python routines written for
 use in projects released by the Bionet Group.
 
-Future releases of this package (and other software written by members
-of the Bionet Group at Columbia University) can be obtained from
-
-http://bionet.ee.columbia.edu/code/
+Future releases of this package may be obtained from the Bionet
+Group's online code repository [1]_.
 
 Authors 
 -------
-The software in this package was written by Lev Givon [1]_, currently at
+The software in this package was written by Lev Givon, currently at
 the Bionet Group at Columbia University.
 
 License
@@ -32,5 +30,5 @@ Please direct all questions and comments pertaining to this software to
 
 Lev Givon <lev@columbia.edu>
 
-.. [1] http://www.columbia.edu/~lev
+.. [1] http://bionet.ee.columbia.edu/
 
