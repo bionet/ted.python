@@ -1,7 +1,16 @@
 #!/usr/bin/env python
 
 """
-Real-time time encoding and decoding algorithms.
+Real-time time encoding and decoding algorithms. These algorithms
+can process signals of arbitrarily long length without the memory
+limitations of the functions in the asdm and iaf modules.
+
+- ASDMRealTimeDecoder    - Real-time ASDM decoder.
+- ASDMRealTimeDecoderIns - Parameter-insensitive real-time ASDM decoder.
+- ASDMRealTimeEncoder    - Real-time ASDM encoder.
+- IAFRealTimeEncoder     - Real-time IAF encoder.
+- IAFRealTimeDecoder     - Real-time IAF decoder.
+
 """
 
 __all__ = ['SignalProcessor',

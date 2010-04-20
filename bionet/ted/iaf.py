@@ -3,6 +3,19 @@
 """
 Time encoding and decoding algorithms that make use of the
 integrate-and-fire neuron model.
+
+- iaf_decode            - Decode a signal encoded by an IAF encoder.
+- iaf_decode_fast       - Fast IAF decoding algorithm.
+- iaf_decode_pop        - Decode a signal encoded by several IAF encoders.
+- iaf decode_coupled    - Decode a signal encoded by coupled IAF encoders.
+- iaf_decode_delay      - Decode a signal encoded by delayed IAF encoders.
+- iaf_decode_spline     - Decode a IAF-encoded signal using spline interpolation.
+- iaf_decode_spline_pop - iaf_decode_spline for a population of IAF encoders.
+- iaf_encode            - Encode a signal using an IAF encoder.
+- iaf_encode_delay      - Encode a signal using delayed IAF encoders.
+- iaf_encode_coupled    - Encode a signal using coupled IAF encoders.
+- iaf_recoverable       - Check encoder parameters for decoding feasibility.
+
 """
 
 __all__ = ['iaf_recoverable', 'iaf_encode', 'iaf_decode',

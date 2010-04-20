@@ -3,6 +3,15 @@
 """
 Time encoding and decoding algorithms that make use of the
 asynchronous sigma-delta modulator.
+ 
+- asdm_decode         - Decode a signal encoded by an ASDM encoder.
+- asdm_decode_fast    - Fast ASDM decoding algorithm.
+- asdm_decode_ins     - Parameter-insensitive version of asdm_decode.
+- asdm_decode_pop     - asdm_decode for a population of ASDM encoders.
+- asdm_decode_pop_ins - Parameter-insensitive version of asdm_decode_pop.
+- asdm_encode         - Encode a signal using an ASDM encoder.
+- asdm_recoverable    - Check encoder parameters for decoding feasibility.
+
 """
 
 __all__ = ['asdm_recoverable', 'asdm_encode', 'asdm_decode',
