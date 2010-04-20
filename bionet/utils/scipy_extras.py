@@ -5,13 +5,15 @@ Scipy Extras
 ============
 
 This module contains various functions not currently included in
-scipy.
+scipy [1]_.
 
 - ei              Compute the exponential integral of a complex value.
 - si              Compute the sine integral of a complex value.
 - ci              Compute the cosine integral of a complex value.
 - shi             Compute the hyperbolic sine of a complex value.
 - chi             Compute the hyperbolic cosine of a complex value.
+
+.. [1] http://www.scipy.org/
 
 """
 

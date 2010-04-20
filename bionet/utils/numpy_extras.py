@@ -5,13 +5,15 @@ Numpy Extras
 ============
 
 This module contains various functions not currently included in
-numpy.
+numpy [1]_.
 
 - mdot            Compute the matrix product of several matricies.
 - rank            Estimate the number of linearly independent rows in a matrix.
 - mpower          Raise a square matrix to a (possibly non-integer) power.
 - hilb            Generate a Hilbert matrix of the specified size.
-                  
+
+.. [1] http://numpy.scipy.org/
+
 """
 
 __all__ = ['mdot', 'rank', 'mpower', 'hilb']
