@@ -1,11 +1,23 @@
 #!/usr/bin/env python
 
 """
-Various functions for testing performance and results.
+Testing Utilities
+=================
+
+This module contains functions for testing the performance and results
+of functions that produce numerical data.
+
+- func_timer      Function execution timer. Can be used as a decorator.
+- plot_encoded    Plot a time-encoded signal.
+- plot_compare    Display two superimposed signals and their difference.
+- plot_fourier    Plot the Discrete Time Fourier transform of a signal.
+- plot_raster     Display several time sequences as a raster plot.
+- plot_signal     Plot a signal over some time interval.
+
 """
 
-__all__ = ['func_timer', 'plot_signal', 'plot_encoded',
-           'plot_compare', 'plot_fourier']
+__all__ = ['func_timer', 'plot_compare', 'plot_encoded',
+           'plot_fourier','plot_raster', 'plot_signal']
 
 import time
     
@@ -40,6 +52,9 @@ def plot_signal(t, u, fig_title='', file_name=''):
         Times (s) at which the signal is defined.
     u : ndarray of floats
         Signal samples.
+
+    Optional Parameters
+    -------------------
     fig_title : string
         Plot title.
     file_name : string
@@ -63,7 +78,7 @@ def plot_signal(t, u, fig_title='', file_name=''):
         p.savefig(file_name)
 
 def plot_encoded(t, u, s, fig_title='', file_name=''):
-    """Plot a time encoded signal.
+    """Plot a time-encoded signal.
 
     Parameters
     ----------
@@ -73,6 +88,9 @@ def plot_encoded(t, u, s, fig_title='', file_name=''):
         Signal samples.
     s : ndarray of floats
         Intervals between encoded signal spikes.
+
+    Optional Parameters
+    -------------------
     fig_title : string
         Plot title.
     file_name : string
@@ -108,8 +126,11 @@ def plot_compare(t, u, v, fig_title='', file_name=''):
     ----------
     t : ndarray of floats
         Times (s) at which the signal is defined.
-    u,v : ndarrays of floats
+    u, v : ndarrays of floats
         Signal samples.
+
+    Optional Parameters
+    -------------------
     fig_title : string
         Plot title.
     file_name : string
@@ -151,6 +172,11 @@ def plot_fourier(u, fs, *args):
     fmax : float:
         Maximum frequency to display (Hz).
 
+    Notes
+    -----
+    This function may take a long time to run if the frequency range
+    is very large.
+    
     """
 
     if len(args) > 0:
@@ -192,6 +218,9 @@ def plot_raster(ts_list, plot_stems=True, fig_title='', file_name=''):
         Time sequences to plot.
     plot_stems : bool
         Show stems for all events.
+
+    Optional Parameters
+    -------------------
     fig_title : string
         Plot title.
     file_name : string
