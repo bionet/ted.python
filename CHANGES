@@ -3,6 +3,13 @@
 Change Log
 ==========
 
+Release 0.014 - (April 20, 2010)
+--------------------------------
+
+* Add more plotting functions.
+* Fix bug in signal IO module.
+* Various small improvements.
+
 Release 0.013 - (November 12, 2009)
 -----------------------------------
 
