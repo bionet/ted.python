@@ -1,10 +1,15 @@
+NAME = bionet.utils
+VERSION = 0.014
+LANG = python
+
 PYTHON = /usr/bin/python
 DESTDIR = /usr
 
 .PHONY: package build install clean
 
 package:
-	$(PYTHON) setup.py sdist --formats=gztar
+	$(PYTHON) setup.py sdist --formats=gztar && \
+	mv -f dist/$(NAME)-$(VERSION).tar.gz dist/$(NAME)-$(LANG)-$(VERSION).tar.gz
 
 build:
 	$(PYTHON) setup.py build
