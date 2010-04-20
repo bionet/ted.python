@@ -92,7 +92,7 @@ def upsample(x, n, offset=0):
 
     if len(shape(x)) > 1:
         raise ValueError('x must be a vector')
-    y = zeros(len(x)*n,asarray(x).dtype)
+    y = zeros(len(x)*n, asarray(x).dtype)
     y[offset::n] = x
     return y
 
@@ -145,7 +145,7 @@ def fftfilt(b, x, *n):
             # cost of the overlap-add method for 1 length-N block is
             # N*(1+log2(N)). For the sake of efficiency, only FFT
             # lengths that are powers of 2 are considered:
-            N = 2**arange(ceil(log2(N_b)),floor(log2(N_x)))
+            N = 2**arange(ceil(log2(N_b)), floor(log2(N_x)))
             cost = ceil(N_x/(N-N_b+1))*N*(log2(N)+1)
             N_fft = N[argmin(cost)]
 
@@ -161,7 +161,7 @@ def fftfilt(b, x, *n):
     L = int(N_fft - N_b + 1)
     
     # Compute the transform of the filter:
-    H = fft(b,N_fft)
+    H = fft(b, N_fft)
 
     y = zeros(N_x,float)
     i = 0
@@ -189,11 +189,12 @@ def remlplen_herrmann(fp, fs, dp, ds):
     fp and fs must be normalized with respect to the sampling frequency.
     Note that the filter order is one less than the filter length.
 
-    Uses approximation algorithm described by Herrmann et al.:
-
+    References
+    ----------
     O. Herrmann, L.R. Raviner, and D.S.K. Chan, Practical Design Rules for
     Optimum Finite Impulse Response Low-Pass Digital Filters, Bell Syst. Tech.
     Jour., 52(6):769-799, Jul./Aug. 1973.
+
     """
 
     dF = fs-fp
@@ -212,10 +213,11 @@ def remlplen_kaiser(fp, fs, dp, ds):
     fp and fs must be normalized with respect to the sampling frequency.
     Note that the filter order is one less than the filter length.
 
-    Uses approximation algorithm described by Kaiser:
-
+    References
+    ----------
     J.F. Kaiser, Nonrecursive Digital Filter Design Using I_0-sinh Window
     function, Proc. IEEE Int. Symp. Circuits and Systems, 20-23, April 1974.
+
     """
 
     dF = fs-fp
@@ -229,11 +231,12 @@ def remlplen_ichige(fp, fs, dp, ds):
     fp and fs must be normalized with respect to the sampling frequency.
     Note that the filter order is one less than the filter length.
     
-    Uses approximation algorithm described by Ichige et al.:
-    
+    References
+    ----------
     K. Ichige, M. Iwaki, and R. Ishii, Accurate Estimation of Minimum
     Filter Length for Optimum FIR Digital Filters, IEEE Transactions on
     Circuits and Systems, 47(10):1008-1017, October 2000.
+
     """
     
     dF = fs-fp
@@ -249,35 +252,45 @@ def remlplen_ichige(fp, fs, dp, ds):
     return int(N4)
 
 def remezord(freqs, amps, rips, Hz=1, alg='ichige'):
-    """Filter parameter selection for the Remez exchange algorithm.
+    """Calculate the parameters required by the Remez exchange algorithm to
+    construct a finite impulse response (FIR) filter that approximately
+    meets the specified design. 
 
-    Description:
+    Parameters
+    ----------
+    freqs : array_like of floats
+        A monotonic sequence of band edges specified in Hertz. All
+        elements must be non-negative and less than 1/2 the
+        sampling frequency as given by the Hz parameter.
+    amps : array_like of floats
+        A sequence containing the amplitudes of the signal to be
+        filtered over the various bands.
+    rips : array_like of floats
+        A sequence specifying the maximum ripples of each band.
+    alg : {'herrmann', 'kaiser', 'ichige'}
+        Filter length approximation algorithm. 
 
-      Calculate the parameters required by the Remez exchange algorithm to
-      construct a finite impulse response (FIR) filter that approximately
-      meets the specified design. 
-      
-    Inputs:
+    Returns
+    -------
+    numtaps : int
+        Desired number of filter taps.
+    bands : ndarray of floats
+        A monotonic sequence containing the band edges.
+    amps : ndarray of floats
+        Desired gain for each band region.
+    weights : ndarray of floats
+        Filter design weights.
 
-      freqs --- A monotonic sequence of band edges specified in Hertz. All
-                elements must be non-negative and less than 1/2 the
-                sampling frequency as given by the Hz parameter.
-      amps  --- A sequence containing the amplitudes of the signal to be
-                filtered over the various bands.
-      rips  --- A sequence specifying the maximum ripples of each band.
-      alg   --- Filter length approximation algorithm. May be
-                'herrmann', 'kaiser', or 'ichige'.
-
-    Outputs:
-
-      numtaps, bands, desired, weight -- See help for the remez function.   
-
+    See Also
+    --------
+    scipy.signal.remez
+    
     """
 
     # Make sure the parameters are floating point numpy arrays:
-    freqs = asarray(freqs,'d')
-    amps = asarray(amps,'d')
-    rips = asarray(rips,'d')
+    freqs = asarray(freqs, 'd')
+    amps = asarray(amps, 'd')
+    rips = asarray(rips, 'd')
 
     # Scale ripples with respect to band amplitudes:
     rips /= (amps+(amps==0.0))
@@ -314,15 +327,15 @@ def remezord(freqs, amps, rips, Hz=1, alg='ichige'):
     L = 0
     for i in range(len(amps)-1):
         L = max((L,
-                 remlplen(f1[i],f2[i],rips[i],rips[i+1]),
-                 remlplen(0.5-f2[i],0.5-f1[i],rips[i+1],rips[i])))
+                 remlplen(f1[i], f2[i], rips[i], rips[i+1]),
+                 remlplen(0.5-f2[i], 0.5-f1[i], rips[i+1], rips[i])))
 
     # Cap the sequence of band edges with the limits of the digital frequency
     # range:
-    bands = hstack((0.0,freqs,0.5))
+    bands = hstack((0.0, freqs, 0.5))
 
     # The filter design weights correspond to the ratios between the maximum
     # ripple and all of the other ripples:
     weight = max(rips)/rips
     
-    return [L,bands,amps,weight]
+    return [L, bands, amps, weight]
