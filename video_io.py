@@ -21,8 +21,10 @@ class ReadVideo:
         Return the number of frames in the video.
     get_prop_fps()
         Return the frame rate of the video.
-    read_frame()
-        Read a frame from the video.
+    read_cv_frame()
+        Read a frame from the video as an OpenCV frame.
+    read_np_frame()
+        Read a frame from the video as an ndarray.
         
     """
 
@@ -65,15 +67,21 @@ class ReadVideo:
         a.shape = (img.height, img.width, img.nChannels)
         return a
     
-    def read_frame(self):
-        """Read a frame from the video."""
+    def read_np_frame(self):
+        """Read a frame as a numpy array from the video."""
         
         frame = cv.QueryFrame(self.capture)
         if frame != None:
             return self.__cv2array(frame)
         else:
             return None
-            
+
+    def read_cv_frame(self):
+        """Read a frame as an OpenCV image from the video."""
+        
+        frame = cv.QueryFrame(self.capture)
+        return frame
+
 class WriteVideo:
     """
     This class provides an interface for writing frames represented
@@ -94,12 +102,14 @@ class WriteVideo:
 
     Methods
     -------
-    write_frame(a)
+    write_cv_frame(a)
+        Write an OpenCV frame `a` to the video.
+    write_np_frame(a)
         Write the frame represented as ndarray `a` to the video.
         
     """
 
-    def __init__(self, filename, fourcc=('M', 'J', 'P', 'G'),
+    def __init__(self, filename, fourcc=('D', 'I', 'V', 'X'),
                  fps=30.0, frame_size=(256,256), is_color=True):
         self.writer = cv.CreateVideoWriter(filename,
                  cv.CV_FOURCC(*fourcc), fps, frame_size, int(is_color))
@@ -131,9 +141,13 @@ class WriteVideo:
                    a.dtype.itemsize*nChannels*a.shape[1])
         return img
           
-    def write_frame(self, a):
-        """Write a frame to the video."""
+    def write_cv_frame(self, a):
+        """Write an OpenCV image as a frame to the video."""
+        
+        cv.WriteFrame(self.writer, a)
+        
+    def write_np_frame(self, a):
+        """Write a numpy array as a frame to the video."""
         
         img = self.__array2cv(a)
         cv.WriteFrame(self.writer, img)
-        
