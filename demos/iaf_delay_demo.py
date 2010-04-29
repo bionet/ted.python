@@ -17,7 +17,7 @@ output_count = 0
 output_ext = '.png'
 
 # Define input signal generation parameters:
-T = 0.1
+T = 0.05
 dur = 2*T
 dt = 1e-6
 f = 100
@@ -69,6 +69,12 @@ print fig_title
 s_list = tu.func_timer(iaf.iaf_encode_delay)(u_list, T, dt, b_list, d_list,
                                            k_list, a_list, w_list)
 
+for i in xrange(M):
+    fig_title_out = fig_title + ' (Signal #' + str(i+1) + ')'
+    tu.plot_encoded(t, u_list[i][0:len(t)], s_list[i], fig_title_out,
+                    output_name + str(output_count) + output_ext)
+    output_count += 1
+    
 fig_title = 'Signal Decoded Using Delayed IAF Decoder'
 print fig_title
 u_rec_list = tu.func_timer(iaf.iaf_decode_delay)(s_list, T, dt, b_list, d_list, k_list,
@@ -76,7 +82,6 @@ u_rec_list = tu.func_timer(iaf.iaf_decode_delay)(s_list, T, dt, b_list, d_list, 
 
 for i in xrange(M):
     fig_title_out = fig_title + ' (Signal #' + str(i+1) + ')'
-    print fig_title_out
     tu.plot_compare(t, u_list[i][0:len(t)], u_rec_list[i], fig_title_out, 
                     output_name + str(output_count) + output_ext)
     output_count += 1
