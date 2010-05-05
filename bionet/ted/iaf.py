@@ -990,7 +990,7 @@ def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
 
         # Compute p and r:
         ts = ts_list[i]
-        s = s_list[i][1:]
+        s = array(s_list[i][1:])
         Gpr[n_sum, sum(n_list[:i]):sum(n_list[:i+1])] = \
                    Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum] = \
                    ts[1:]-ts[:-1]
@@ -1206,8 +1206,9 @@ def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
 
     Notes
     -----
-    The specified signal length must exceed the support `T` over which
-    the signal is decoded by the length of the longest delay.
+    The specified signal length `max(map(sum, s_list))` must exceed
+    the support `T` over which the signal is decoded by the length of
+    the longest delay.
     
     """
 
@@ -1227,7 +1228,7 @@ def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
 
         # Compute the quanta:
         qz[sum(n_list[:j]):sum(n_list[:j+1])] = \
-            k_list[j]*d_list[j]-b_list[j]*s_list[j][1:]
+            k_list[j]*d_list[j]-b_list[j]*array(s_list[j][1:])
 
         # Compute p and r:
         for i in xrange(M):
