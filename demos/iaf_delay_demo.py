@@ -70,10 +70,12 @@ s_list = tu.func_timer(iaf.iaf_encode_delay)(u_list, T, dt, b_list, d_list,
                                            k_list, a_list, w_list)
 
 for i in xrange(M):
-    fig_title_out = fig_title + ' (Signal #' + str(i+1) + ')'
-    tu.plot_encoded(t, u_list[i][0:len(t)], s_list[i], fig_title_out,
-                    output_name + str(output_count) + output_ext)
-    output_count += 1
+    for j in xrange(N):
+        fig_title_out = fig_title + '\n(Signal #' + str(i+1) + \
+                        ', Neuron #' + str(j+1) + ')'
+        tu.plot_encoded(t, u_list[i][0:len(t)], s_list[j], fig_title_out,
+                        output_name + str(output_count) + output_ext)
+        output_count += 1
     
 fig_title = 'Signal Decoded Using Delayed IAF Decoder'
 print fig_title
