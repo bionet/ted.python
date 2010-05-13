@@ -12,6 +12,8 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 import subprocess
 import os
 import tempfile
+
+from time import time
 from glob import glob
 
 if not os.path.exists('/usr/bin/mencoder'):
@@ -255,3 +257,16 @@ class WriteFigureVideo:
         if self.tempdir:
             self.create_video()
     
+
+def video_capture(filename, t, fourcc=('D','I','V','X'), fps=30.0,
+                  frame_size=(640, 480), is_color=True):
+    """Capture a video of time length `t` from a webcam using OpenCV
+    and save it in `filename` using the specified format."""
+
+    camera = cv.CaptureFromCAM(0)
+    w = WriteVideo(filename, fourcc, fps, frame_size, is_color)
+    start = time()
+    end = start + t
+    while time() < end:
+        frame = cv.QueryFrame(camera)
+        w.write_cv_frame(frame)
