@@ -100,6 +100,9 @@ def plot_encoded(t, u, s, fig_title='', file_name=''):
 
     dt = t[1]-t[0]
     cs = np.cumsum(s)
+    if int(cs[-1]/dt) >= len(u):
+        raise ValueError('some spike times occur outside of signal''s '
+                         'support (%f >= %f)' % (cs[-1], dt*len(u)))
     p.clf()
     p.gcf().canvas.set_window_title(fig_title)
     p.axes([0.125, 0.3, 0.775, 0.6])
