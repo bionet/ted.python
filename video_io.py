@@ -1,5 +1,21 @@
+#!/usr/bin/env python
+
 import numpy as np
 import cv
+
+from numpy import floor
+import matplotlib
+
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+
+import subprocess
+import os
+import tempfile
+from glob import glob
+
+if not os.path.exists('/usr/bin/mencoder'):
+    raise RuntimeError('mencoder not found')
 
 # See http://opencv.willowgarage.com/wiki/PythonInterface
 # for more information on converting OpenCV image to ndarrays and
@@ -151,3 +167,91 @@ class WriteVideo:
         
         img = self.__array2cv(a)
         cv.WriteFrame(self.writer, img)
+
+class WriteFigureVideo:
+    """
+    This class provides an interface for writing frames represented as
+    matplotlib figures to a video file using mencoder.
+
+    Parameters
+    ----------
+    filename : str
+        Output video file name.
+    dpi : float
+        Resolution at which to save each frame. This defaults to
+        the value assumed by `savefig`.
+    width : float
+        Frame width (in inches).
+    height : float
+        Frame height (in inches).
+    fps : float
+        Frames per second.
+
+    Methods
+    -------
+    write_fig(fig)
+        Write a matplotlib figure `fig` to the output video file.
+    create_video()
+        Create the output video file.
+        
+    Notes
+    -----
+    This class is based upon the file movie_demo.py ((c) 2004 by Josh
+    Lifton) included with matplotlib. The output video file is not
+    actually assembled until the `close` method is called.
+    
+    """
+
+    def __init__(self, filename,
+                 dpi=matplotlib.rcParams['savefig.dpi'], width=8.0,
+                 height=6.0, fps=25):
+        self.filename = filename
+        self.dpi = dpi
+        self.width = 8.0
+        self.height = 6.0
+        self.fps = fps
+        
+        self.tempdir = tempfile.mkdtemp()
+        self.frame_count = 0
+        
+    def write_fig(self, fig):
+        """Write a matplotlib figure to the output video file."""
+        
+        if self.tempdir == None:
+            raise ValueError('cannot add frames to completed video file')
+        
+        if not isinstance(fig, Figure):
+            raise ValueError('can only write instances of type '
+                             'matplotlib.figure.Figure')
+        if fig.get_figwidth() != self.width:
+            raise ValueError('figure width must be %f' % self.width)
+        if fig.get_figheight() != self.height:
+            raise ValueError('figure height must be %f' % self.height)
+        
+        canvas = FigureCanvasAgg(fig)
+        canvas.print_figure(self.tempdir + str("/%010d.png" % self.frame_count),
+                            self.dpi)
+        self.frame_count += 1
+        
+    def create_video(self):
+        """Assemble the output video from the input frames."""
+        
+        width_pix = int(floor(self.width*self.dpi))
+        height_pix = int(floor(self.height*self.dpi))
+        command = ('mencoder', 'mf://'+self.tempdir+'/*.png',
+                   '-mf', 'type=png:w=%d:h=%d:fps=%d' % (width_pix, height_pix,
+                                                         self.fps), 
+                   '-ovc', 'lavc', '-lavcopts', 'vcodec=mpeg4',
+                   '-oac', 'copy', '-o', self.filename)
+        subprocess.check_call(command)
+        for f in glob(self.tempdir + '/*.png'):
+            os.remove(f)
+        os.rmdir(self.tempdir)
+        self.tempdir = None
+        
+    def __del__(self):
+        """Create the video before the class instance is destroyed."""
+        
+        if self.tempdir:
+            self.create_video()
+    
