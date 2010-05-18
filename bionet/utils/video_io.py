@@ -1,5 +1,27 @@
 #!/usr/bin/env python
 
+"""
+Video I/O classes
+=================
+
+Classes for reading and writing video files into and from numpy [1]
+ndarrays using OpenCV [2]_ and
+matplotlib [3]_.
+
+- ReadVideo          - Read frames from a video into ndarrays.
+- WriteVideo         - Write ndarrays as frames of a video.
+- WriteFigureVideo   - Write matplotlib figures as frames of a video.
+- video_capture      - Capture video data from a webcam.
+
+.. [1] http://numpy.scipy.org/
+.. [2] http://opencv.willowgarage.com/wiki/PythonInterface/
+.. [3] http://matplotlib.sf.net/
+
+"""
+
+__all__ = ['ReadVideo', 'WriteVideo', 'WriteFigureVideo',
+           'video_capture']
+
 import numpy as np
 import cv
 
