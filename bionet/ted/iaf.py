@@ -197,8 +197,8 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
             y = 0.0
 
     if full_output:
-        return array(s), dt, b, d, R, C, dte, y, interval, \
-               quad_method, full_output
+        return [array(s), dt, b, d, R, C, dte, y, interval, \
+                quad_method, full_output]
     else:
         return array(s)
 
@@ -1101,7 +1101,7 @@ def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list,
         If `full_output` == False, returns the signals encoded as a list
         of arrays of time intervals between spikes.
     s_list, T, dt, b_list, d_list, k_list, a_list, w_list, y_list,
-    interval_list, u_list_prev, full_output : tuple
+    interval_list, u_list_prev, full_output : list
         If `full_output` == True, returns the encoded signals followed
         by updated encoder parameters.
 
