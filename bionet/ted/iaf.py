@@ -14,12 +14,14 @@ integrate-and-fire neuron model.
 - iaf_encode            - Encode a signal using an IAF encoder.
 - iaf_encode_delay      - Encode a signal using delayed IAF encoders.
 - iaf_encode_coupled    - Encode a signal using coupled IAF encoders.
+- iaf_encode_pop        - Encode a signal with several IAF encoders.
 - iaf_recoverable       - Check encoder parameters for decoding feasibility.
 
 """
 
 __all__ = ['iaf_recoverable', 'iaf_encode', 'iaf_decode',
-           'iaf_decode_fast', 'iaf_decode_pop',
+           'iaf_decode_fast',
+           'iaf_encode_pop', 'iaf_decode_pop',
            'iaf_decode_spline', 'iaf_decode_spline_pop',
            'iaf_encode_coupled', 'iaf_decode_coupled',
            'iaf_encode_delay', 'iaf_decode_delay']
@@ -135,7 +137,7 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
     s : ndarray of floats
         If `full_output` == False, returns the signal encoded as an
         array of time intervals between spikes.
-    s, dt, b, d, R, C, dte, y, interval, quad_method, full_output : tuple
+    s, dt, b, d, R, C, dte, y, interval, quad_method, full_output : list
         If `full_output` == True, returns the encoded signal
         followed by updated encoder parameters.
         
@@ -201,6 +203,143 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
                 quad_method, full_output]
     else:
         return array(s)
+
+def iaf_encode_pop(u_list, dt, b_list, d_list, R_list, C_list, dte=0, y=None, interval=None,
+               quad_method='trapz', full_output=False):
+    """
+    Encode several signals with an ensemble of IAF neurons.
+
+    Parameters
+    ----------
+    u_list : list of ndarrays
+        Signals to encode.
+    dt : float
+        Sampling resolution of input signal; the sampling frequency
+        is 1/dt Hz.
+    b_list : list of floats
+        List of encoder biases.
+    d_list : list of floats
+        List of encoder thresholds.
+    R_list : list of floats 
+        List of encoder resistances.
+    C_list : list of floats
+        List of encoder capacitances.
+    dte : float
+        Sampling resolution assumed by the encoders.
+        This may not exceed `dt`.
+    y : ndarray of floats
+        Initial values of integrators.
+    interval : ndarray of float
+        Times since last spike (in s).
+    quad_method : {'rect', 'trapz'}
+        Quadrature method to use (rectangular or trapezoidal) when the
+        neuron is not leaky; exponential Euler integration is used
+        when the neuron is leaky.
+    full_output : bool
+        If set, the function returns the encoded data block followed
+        by the given parameters (with updated values for `y` and `interval`).
+        This is useful when the function is called repeatedly to
+        encode a long signal.
+
+    Returns
+    -------
+    s_list : ndarray of floats
+        If `full_output` == False, returns the signal encoded as an
+        array of time intervals between spikes.
+    s_list, dt, b_list, d_list, R_list, C_list, dte, y, interval,
+    quad_method, full_output : list
+        If `full_output` == True, returns the encoded signal
+        followed by updated encoder parameters.
+        
+    Notes
+    -----
+    When trapezoidal integration is used, the value of the integral
+    will not be computed for the very last entry in the arrays in
+    `u_list`.
+    Using this function to encode multiple signals is faster than than
+    repeatedly invoking `iaf_encode()` when the number of signals is
+    sufficiently high.
+
+    """
+
+    u_array = array(u_list)
+    Nu = u_array.shape[1]
+    if Nu == 0:
+        s_list = [array((), float) for i in u_array.shape[0]]
+        if full_output:
+            return s_list, dt, b_list, d_list, R_list, C_list, dte, y, interval, \
+                   quad_method, full_output
+        else:
+            return s_list
+
+    # Check whether the encoding resolution is finer than that of the
+    # original sampled signal:
+    if dte > dt:
+        raise ValueError('encoding time resolution must not exceeed original signal resolution')
+    if dte < 0:
+        raise ValueError('encoding time resolution must be nonnegative')
+    if dte != 0:        
+        u_array = array([resample(u, len(u)*int(dt/dte)) for u in u_list])
+        dt = dte
+
+    # Use a list rather than an array to save the spike intervals
+    # because the number of spikes is not fixed:
+    s_list = [[] for i in xrange(u_array.shape[0])]
+
+    # For the sake of computational efficiency, all of the input
+    # signals must be encoded using either ideal or nonideal neurons
+    # exclusively:
+    b_array = asarray(b_list)
+    d_array = asarray(d_list)
+    R_array = asarray(R_list)
+    C_array = asarray(C_list)
+    if not all(R_array == inf) and not all(R_array != inf):
+        raise ValueError('all neurons must be either exclusively ' +
+                         'ideal or exclusively leaky')
+
+    # Choose integration method:
+    if all(R_array == inf):        
+        if quad_method == 'rect':
+            compute_y = lambda y, i: y + dt*(b_array+u_array[:, i])/C_array
+            last = Nu
+        elif quad_method == 'trapz':
+            compute_y = lambda y, i: y + dt*(b_array+ \
+                                             (u_array[:, i]+u_array[:, i+1])/2.0)/C_array
+            last = Nu-1
+        else:
+            raise ValueError('unrecognized quadrature method')
+    else:
+
+        # When the neuron is leaky, use the exponential Euler method to perform
+        # the encoding:
+        RC_array = R_array*C_array
+        compute_y = lambda y, i: \
+            y*exp(-dt/RC_array)+R_array*(1-exp(-dt/RC_array))*(b_array+u_array[:, i])
+        last = Nu
+
+    # Initialize integrator variables if necessary:
+    if y == None:
+        y = zeros(u_array.shape[0], float)
+    if interval == None:
+        interval = zeros(u_array.shape[0], float)
+        
+    # The interval between spikes is saved between iterations rather than the
+    # absolute time so as to avoid overflow problems for very long signals:
+    for i in xrange(last):
+        y = compute_y(y, i)
+        interval += dt
+        exceeded = where(y >= d_array)[0]
+        for i in exceeded:
+            s_list[i].append(interval[i])
+        y[exceeded] = 0.0
+        interval[exceeded] = 0.0
+
+    s_list = [array(s) for s in s_list]
+    if full_output:
+        return [s_list, dt, b_list, d_list, R_list, C_list, dte, y, interval, \
+                quad_method, full_output]
+    else:
+        return s_list
 
 def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     """
