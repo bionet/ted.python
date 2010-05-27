@@ -58,26 +58,27 @@ try:
 except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
-output_count += 1
-fig_title = 'Signal Encoded Using Leaky IAF Encoder #1'
-print fig_title
-s1 = tu.func_timer(iaf.iaf_encode)(u, dt, b1, d1, R1, C1)
-tu.plot_encoded(t, u, s1, fig_title,
-                output_name + str(output_count) + output_ext)
+b_list = np.array([b1, b2])
+d_list = np.array([d1, d2])
+R_list = np.array([R1, R2])
+C_list = np.array([C1, C2])
 
 output_count += 1
-fig_title = 'Signal Encoded Using Leaky IAF Encoder #2'
+fig_title = 'Signal Encoded Using Leaky IAF Encoder'
 print fig_title
-s2 = tu.func_timer(iaf.iaf_encode)(u, dt, b2, d2, R2, C1)
-tu.plot_encoded(t, u, s2, fig_title,
+s_list = tu.func_timer(iaf.iaf_encode_pop)([u, u], dt, b_list, d_list, R_list, C_list)
+tu.plot_encoded(t, u, s_list[0], fig_title + ' #1',
+                output_name + str(output_count) + output_ext)
+output_count += 1
+tu.plot_encoded(t, u, s_list[1], fig_title + ' #2',
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'Signal Decoded Using Leaky IAF Population Decoder'
 print fig_title
-u_rec = tu.func_timer(iaf.iaf_decode_pop)([s1, s2], dur, dt, bw,
-                                          [b1, b2], [d1, d2], [R1, R2],
-                                          [C1, C2])
+u_rec = tu.func_timer(iaf.iaf_decode_pop)(s_list, dur, dt, bw,
+                                          b_list, d_list, R_list,
+                                          C_list)
 tu.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 
@@ -103,26 +104,27 @@ try:
 except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
-output_count += 1
-fig_title = 'Signal Encoded Using Ideal IAF Encoder #1'
-print fig_title
-s1 = tu.func_timer(iaf.iaf_encode)(u, dt, b1, d1, R1, C1)
-tu.plot_encoded(t, u, s1, fig_title,
-                output_name + str(output_count) + output_ext)
+b_list = [b1, b2]
+d_list = [d1, d2]
+R_list = [R1, R2]
+C_list = [C1, C2]
 
 output_count += 1
-fig_title = 'Signal Encoded Using Ideal IAF Encoder #2'
+fig_title = 'Signal Encoded Using Ideal IAF Encoder'
 print fig_title
-s2 = tu.func_timer(iaf.iaf_encode)(u, dt, b2, d2, R2, C1)
-tu.plot_encoded(t, u, s2, fig_title,
+s_list = tu.func_timer(iaf.iaf_encode_pop)([u, u], dt, b_list, d_list, R_list, C_list)
+tu.plot_encoded(t, u, s_list[0], fig_title + ' #1',
+                output_name + str(output_count) + output_ext)
+output_count += 1
+tu.plot_encoded(t, u, s_list[1], fig_title + ' #2',
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'Signal Decoded Using Ideal IAF Population Decoder'
 print fig_title
-u_rec = tu.func_timer(iaf.iaf_decode_pop)([s1, s2], dur, dt, bw,
-                                          [b1, b2], [d1, d2], [R1, R2],
-                                          [C1, C2])
+u_rec = tu.func_timer(iaf.iaf_decode_pop)(s_list, dur, dt, bw,
+                                          b_list, d_list, R_list,
+                                          C_list)
 tu.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 
