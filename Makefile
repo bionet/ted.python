@@ -1,9 +1,9 @@
-NAME = bionet.utils
-VERSION = 0.014
-LANG = python
-
 PYTHON = /usr/bin/python
 DESTDIR = /usr
+
+NAME = bionet.utils
+VERSION = $(shell $(PYTHON) -c 'import setup; print setup.VERSION')
+LANG = python
 
 .PHONY: package build install clean
 
