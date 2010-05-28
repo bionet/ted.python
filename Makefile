@@ -1,9 +1,9 @@
-NAME = bionet.ted
-VERSION = 0.04
-LANG = python
-
 PYTHON = /usr/bin/python
 DESTDIR = /usr
+
+NAME = bionet.ted
+VERSION = $(shell $(PYTHON) -c 'import setup; print setup.VERSION')
+LANG = python
 
 .PHONY: package build install clean
 
