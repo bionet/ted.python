@@ -43,10 +43,24 @@ from numpy import arange, array, cos, cumsum, float, hstack, \
      inf, intersect1d, pi, round, sin, where, zeros
 
 class SignalProcessor:
-    """This class describes a signal processor that retrieves blocks
+    """
+    Abstract signal processor.
+    
+    This class describes a signal processor that retrieves blocks
     of signal data from a source, applies some processing algorithm to
-    it, and saves the processed blocks. It must be subclassed in order
-    to be made functional."""
+    it, and saves the processed blocks. 
+
+    Methods
+    -------
+    process(get, put)
+        Process data obtained from `get()` and write it using `put()`.
+
+    Notes
+    -----
+    The `process()` method must be extended in functional subclasses of this
+    class in order.
+    
+    """
     
     def __init__(self, *args):
         """Initialize a signal processor with the specified
@@ -86,8 +100,25 @@ class SignalProcessor:
         return self.__class__.__name__+repr(tuple(self.params))
 
 class RealTimeEncoder(SignalProcessor):
-    """This class implements a real-time time encoding machine. It
-    must be subclassed to use a specific encoding algorithm."""
+    """
+    Abstract real-time time encoding machine.
+    
+    This class implements a real-time time encoding machine. It
+    must be subclassed to use a specific encoding algorithm.
+
+    Methods
+    -------
+    encode(data, *args)
+        Encode a block of data.
+    process(get, put)
+        Process data obtained from `get()` and write it using `put()`.
+
+    Notes
+    -----
+    The `encode()` method must be extended to contain a time encoding
+    algorithm implementation in functional subclasses of this class.
+    
+    """
 
     def __init__(self, *args):
         """Initialize a real-time time encoder."""
@@ -120,7 +151,10 @@ class RealTimeEncoder(SignalProcessor):
             put(encoded_data)
 
 class RealTimeDecoder(SignalProcessor):
-    """This class implements a real-time time decoding machine. It
+    """
+    Abstract real-time time decoding machine.
+    
+    This class implements a real-time time decoding machine. It
     must be subclassed to use a specific decoding algorithm.
 
     Parameters
@@ -137,6 +171,13 @@ class RealTimeDecoder(SignalProcessor):
         block.
     K : int
         Number of spikes in the overlap between successive blocks.   
+
+    Methods
+    -------
+    decode(data, *args)
+        Decode a block of data.
+    process(get, put)
+        Process data obtained from `get()` and write it using `put()`.
 
     """
     
@@ -352,8 +393,10 @@ class RealTimeDecoder(SignalProcessor):
 
 class ASDMRealTimeEncoder(RealTimeEncoder):
     """
+    Real-time ASDM time encoding machine.
+    
     This class implements a real-time time encoding machine that uses
-    an ASDM encoder to encode data.
+    an Asynchronous Sigma-Delta Modulator to encode data.
 
     Parameters
     ----------
@@ -372,6 +415,14 @@ class ASDMRealTimeEncoder(RealTimeEncoder):
     quad_method : {'rect', 'trapz'}
         Quadrature method to use (rectangular or trapezoidal).
 
+
+    Methods
+    -------
+    encode(data, *args)
+        Encode a block of data.
+    process(get, put)
+        Process data obtained from `get()` and write it using `put()`.
+
     """
     
     def __init__(self, dt, b, d, k=1.0, dte=0.0, quad_method='trapz'):
@@ -388,8 +439,11 @@ class ASDMRealTimeEncoder(RealTimeEncoder):
         return asdm.asdm_encode(data, *self.params)
 
 class ASDMRealTimeDecoder(RealTimeDecoder):
-    """This class implements a real-time time decoding machine that
-    decodes data encoded using an ASDM decoder.
+    """
+    Real-time ASDM time decoding machine.
+    
+    This class implements a real-time time decoding machine that
+    decodes data encoded using an Asynchronous Sigma-Delta Modulator.
 
     Parameters
     ----------
@@ -412,6 +466,13 @@ class ASDMRealTimeDecoder(RealTimeDecoder):
     K : int
         Number of spikes in the overlap between successive blocks.   
 
+    Methods
+    -------
+    decode(data, *args)
+        Decode a block of data.
+    process(get, put)
+        Process data obtained from `get()` and write it using `put()`.
+    
     """
 
     def __init__(self, dt, bw, b, d, k, N, M, K):
@@ -431,8 +492,12 @@ class ASDMRealTimeDecoder(RealTimeDecoder):
                                        self.sgn)
 
 class ASDMRealTimeDecoderIns(RealTimeDecoder):
-    """This class implements a parameter-insensitive real-time time
-    decoding machine that decodes data encoded using an ASDM encoder.
+    """
+    Real-time threshold-insensitive ASDM time decoding machine.
+    
+    This class implements a threshold-insensitive real-time time
+    decoding machine that decodes data encoded using an Asynchronous
+    Sigma-Delta Modulator.
 
     Parameters
     ----------
@@ -451,6 +516,13 @@ class ASDMRealTimeDecoderIns(RealTimeDecoder):
     K : int
         Number of spikes in the overlap between successive blocks.   
 
+    Methods
+    -------
+    decode(data, *args)
+        Decode a block of data.
+    process(get, put)
+        Process data obtained from `get()` and write it using `put()`.
+
     """
 
     def __init__(self, dt, bw, b, N, M, K):
@@ -468,8 +540,10 @@ class ASDMRealTimeDecoderIns(RealTimeDecoder):
 
 class IAFRealTimeEncoder(RealTimeEncoder):
     """
+    Real-time IAF neuron time encoding machine.
+    
     This class implements a real-time time encoding machine that uses
-    an IAF neuron to encode data.
+    an Integrate-and-Fire neuron to encode data.
 
     Parameters
     ----------
@@ -490,6 +564,13 @@ class IAFRealTimeEncoder(RealTimeEncoder):
     quad_method : {'rect', 'trapz'}
         Quadrature method to use (rectangular or trapezoidal).
 
+    Methods
+    -------
+    encode(data, *args)
+        Encode a block of data.
+    process(get, put)
+        Process data obtained from `get()` and write it using `put()`.
+
     """
     
     def __init__(self, dt, b, d, R=inf, C=1.0, dte=0.0, quad_method='trapz'):
@@ -505,8 +586,11 @@ class IAFRealTimeEncoder(RealTimeEncoder):
         return iaf.iaf_encode(data, *self.params)
 
 class IAFRealTimeDecoder(RealTimeDecoder):
-    """This class implements a real-time time decoding machine that
-    decodes data encoded using an IAF neuron.
+    """
+    Real-time IAF neuron time decoding machine.
+    
+    This class implements a real-time time decoding machine that
+    decodes data encoded using an Integrate-and-Fire neuron.
 
     Parameters
     ----------
@@ -530,6 +614,13 @@ class IAFRealTimeDecoder(RealTimeDecoder):
         block.
     K : int
         Number of spikes in the overlap between successive blocks.   
+
+    Methods
+    -------
+    decode(data, *args)
+        Decode a block of data.
+    process(get, put)
+        Process data obtained from `get()` and write it using `put()`.
 
     """
 

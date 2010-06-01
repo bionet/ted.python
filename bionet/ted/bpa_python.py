@@ -11,6 +11,8 @@ import numpy as np
 
 def isvander(V, rtol=1e-5, atol=1e-8):
     """
+    Test a matrix for Vandermonde structure.
+    
     Test if a matrix has a Vandermonde structure by checking whether
     its columns `V[2:,:]` are integer powers of column `V[1, :]` within
     tolerance.
@@ -57,7 +59,9 @@ def isvander(V, rtol=1e-5, atol=1e-8):
     
 def bpa(V, b):
     """
-    Solve a Vandermonde system using the Bjork-Pereyra algorithm.
+    Solve a Vandermonde system using BPA.
+    
+    Solve a Vandermonde linear system using the Bjork-Pereyra algorithm.
 
     Parameters
     ----------

@@ -4,18 +4,18 @@
 Time encoding and decoding algorithms that make use of the
 integrate-and-fire neuron model.
 
-- iaf_decode            - Decode a signal encoded by an IAF encoder.
-- iaf_decode_fast       - Fast IAF decoding algorithm.
-- iaf_decode_pop        - Decode a signal encoded by several IAF encoders.
-- iaf decode_coupled    - Decode a signal encoded by coupled IAF encoders.
-- iaf_decode_delay      - Decode a signal encoded by delayed IAF encoders.
-- iaf_decode_spline     - Decode a IAF-encoded signal using spline interpolation.
-- iaf_decode_spline_pop - iaf_decode_spline for a population of IAF encoders.
-- iaf_encode            - Encode a signal using an IAF encoder.
-- iaf_encode_delay      - Encode a signal using delayed IAF encoders.
-- iaf_encode_coupled    - Encode a signal using coupled IAF encoders.
-- iaf_encode_pop        - Encode a signal with several IAF encoders.
-- iaf_recoverable       - Check encoder parameters for decoding feasibility.
+- iaf_decode            - IAF time decoding machine.
+- iaf_decode_fast       - Fast IAF time decoding machine.
+- iaf_decode_pop        - MISO IAF time decoding machine.
+- iaf decode_coupled    - MISO coupled IAF time decoding machine.
+- iaf_decode_delay      - MIMO delayed IAF time decoding machine.
+- iaf_decode_spline     - Spline interpolation IAF time decoding machine.
+- iaf_decode_spline_pop - MISO spline interpolation IAF time decoding machine.
+- iaf_encode            - IAF time encoding machine.
+- iaf_encode_delay      - MIMO delayed IAF time decoding machine.
+- iaf_encode_coupled    - SIMO coupled IAF time encoding machine.
+- iaf_encode_pop        - MIMO IAF time encoding machine.
+- iaf_recoverable       - IAF time encoding parameter check.
 
 """
 
@@ -52,8 +52,10 @@ __pinv_rcond__ = 1e-8
 
 def iaf_recoverable(u, bw, b, d, R, C):
     """
-    Determine whether a signal can be perfectly recovered using an IAF
-    decoder with the specified parameters.
+    IAF time encoding parameter check.
+    
+    Determine whether a signal encoded with an Integrate-and-Fire
+    neuron with the specified parameters can be perfectly recovered.
 
     Parameters
     ----------
@@ -98,7 +100,9 @@ def iaf_recoverable(u, bw, b, d, R, C):
 def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
                quad_method='trapz', full_output=False):
     """
-    Encode a signal with an IAF neuron.
+    IAF time encoding machine.
+    
+    Encode a finite length signal with an Integrate-and-Fire neuron.
 
     Parameters
     ----------
@@ -124,7 +128,7 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
         Time since last spike (in s).
     quad_method : {'rect', 'trapz'}
         Quadrature method to use (rectangular or trapezoidal) when the
-        neuron is not leaky; exponential Euler integration is used
+        neuron is ideal; exponential Euler integration is used
         when the neuron is leaky.
     full_output : bool
         If set, the function returns the encoded data block followed
@@ -137,7 +141,7 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
     s : ndarray of floats
         If `full_output` == False, returns the signal encoded as an
         array of time intervals between spikes.
-    s, dt, b, d, R, C, dte, y, interval, quad_method, full_output : list
+    [s, dt, b, d, R, C, dte, y, interval, quad_method, full_output] : list
         If `full_output` == True, returns the encoded signal
         followed by updated encoder parameters.
         
@@ -207,7 +211,9 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
 def iaf_encode_pop(u_list, dt, b_list, d_list, R_list, C_list, dte=0, y=None, interval=None,
                quad_method='trapz', full_output=False):
     """
-    Encode several signals with an ensemble of IAF neurons.
+    Multiple input multiple output IAF time encoding machine.
+    
+    Encode several signals with an ensemble of Integrate-and-Fire neurons.
 
     Parameters
     ----------
@@ -233,7 +239,7 @@ def iaf_encode_pop(u_list, dt, b_list, d_list, R_list, C_list, dte=0, y=None, in
         Times since last spike (in s).
     quad_method : {'rect', 'trapz'}
         Quadrature method to use (rectangular or trapezoidal) when the
-        neuron is not leaky; exponential Euler integration is used
+        neuron is ideal; exponential Euler integration is used
         when the neuron is leaky.
     full_output : bool
         If set, the function returns the encoded data block followed
@@ -246,8 +252,8 @@ def iaf_encode_pop(u_list, dt, b_list, d_list, R_list, C_list, dte=0, y=None, in
     s_list : ndarray of floats
         If `full_output` == False, returns the signal encoded as an
         array of time intervals between spikes.
-    s_list, dt, b_list, d_list, R_list, C_list, dte, y, interval,
-    quad_method, full_output : list
+    [s_list, dt, b_list, d_list, R_list, C_list, dte, y, interval,
+    quad_method, full_output] : list
         If `full_output` == True, returns the encoded signal
         followed by updated encoder parameters.
         
@@ -343,7 +349,10 @@ def iaf_encode_pop(u_list, dt, b_list, d_list, R_list, C_list, dte=0, y=None, in
 
 def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     """
-    Decode a signal encoded with an IAF neuron.
+    IAF time decoding machine.
+    
+    Decode a finite length signal encoded with an Integrate-and-Fire
+    neuron.
 
     Parameters
     ----------
@@ -438,8 +447,10 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
 
 def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
     """
-    Decode a signal encoded with an IAF neuron using a fast recovery
-    algorithm.
+    Fast IAF time decoding machine.
+    
+    Decode a signal encoded with an Integrate-and-Fire neuron using a
+    fast recovery algorithm.
 
     Parameters
     ----------
@@ -512,7 +523,9 @@ def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
 
 def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
     """
-    Decode a signal encoded with an ensemble of IAF neurons.
+    Multiple input single output IAF time decoding machine.
+    
+    Decode a signal encoded with an ensemble of Integrate-and-Fire neurons.
 
     Parameters
     ----------
@@ -644,6 +657,8 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
 
 def iaf_decode_spline(s, dur, dt, b, d, R=inf, C=1.0):
     """
+    Spline interpolation IAF time decoding machine.
+
     Decode a signal encoded with an IAF neuron using spline
     interpolation.
 
@@ -775,8 +790,11 @@ def iaf_decode_spline(s, dur, dt, b, d, R=inf, C=1.0):
 def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
                           C_list):
     """
-    Decode a signal encoded with an ensemble of IAF neurons using
-    spline interpolation.
+    Multiple input single output spline interpolation IAF time
+    decoding machine.
+                          
+    Decode a signal encoded with an ensemble of Integrate-and-Fire
+    neurons using spline interpolation.
 
     Parameters
     ----------
@@ -1006,8 +1024,11 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
 
 def iaf_encode_coupled(u, dt, b_list, d_list, k_list, h_list, type_list):
     """
-    Encode a signal with an ensemble of coupled ideal ON-OFF IAF
-    neurons.
+    Single input multiple output coupled IAF time encoding
+    machine.
+    
+    Encode a signal with an ensemble of coupled ideal ON-OFF
+    Integrate-and-Fire neurons.
 
     Parameters
     ----------
@@ -1074,8 +1095,10 @@ def iaf_encode_coupled(u, dt, b_list, d_list, k_list, h_list, type_list):
 
 def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
     """
-    Decode a signal encoded with an ensemble of coupled IAF ON-OFF
-    neurons.
+    Multiple input single output coupled IAF time decoding machine.
+    
+    Decode a signal encoded with an ensemble of coupled ON-OFF
+    Integrate-and-Fire neurons.
 
     Parameters
     ----------
@@ -1197,8 +1220,11 @@ def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list,
                      w_list, y_list=None, interval_list=None,
                      u_list_prev=None, full_output=False):
     """
-    Encode several signals with an ensemble of ideal IAF neurons with
-    delays.
+    Multiple input multiple output delayed IAF time encoding
+    machine.
+                     
+    Encode several signals with an ensemble of ideal
+    Integrate-and-Fire neurons with delays.
 
     Parameters
     ----------
@@ -1239,8 +1265,8 @@ def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list,
     s_list : list of ndarrays of floats
         If `full_output` == False, returns the signals encoded as a list
         of arrays of time intervals between spikes.
-    s_list, T, dt, b_list, d_list, k_list, a_list, w_list, y_list,
-    interval_list, u_list_prev, full_output : list
+    [s_list, T, dt, b_list, d_list, k_list, a_list, w_list, y_list,
+    interval_list, u_list_prev, full_output] : list
         If `full_output` == True, returns the encoded signals followed
         by updated encoder parameters.
 
@@ -1313,8 +1339,10 @@ def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list,
 
 def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
     """
-    Decode several signals encoded with an ensemble of ideal IAF
-    neurons with delays.
+    Multiple input multiple output delayed IAF time decoding machine.
+    
+    Decode several signals encoded with an ensemble of ideal
+    Integrate-and-Fire neurons with delays.
 
     Parameters
     ----------

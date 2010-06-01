@@ -7,6 +7,10 @@ import numpy as np
 
 def bpa(ndarray V, ndarray b):
     """
+    bpa(V, b)
+    
+    Solve a Vandermonde system using BPA.
+    
     Solve a Vandermonde system using the Bjork-Pereyra algorithm.
 
     Parameters

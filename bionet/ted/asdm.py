@@ -4,13 +4,13 @@
 Time encoding and decoding algorithms that make use of the
 asynchronous sigma-delta modulator.
  
-- asdm_decode         - Decode a signal encoded by an ASDM encoder.
-- asdm_decode_fast    - Fast ASDM decoding algorithm.
-- asdm_decode_ins     - Parameter-insensitive version of asdm_decode.
-- asdm_decode_pop     - asdm_decode for a population of ASDM encoders.
-- asdm_decode_pop_ins - Parameter-insensitive version of asdm_decode_pop.
-- asdm_encode         - Encode a signal using an ASDM encoder.
-- asdm_recoverable    - Check encoder parameters for decoding feasibility.
+- asdm_decode         - ASDM time decoding machine.
+- asdm_decode_fast    - Fast ASDM time decoding machine.
+- asdm_decode_ins     - Threshold-insensitive ASDM time decoding machine.
+- asdm_decode_pop     - MISO ASDM time decoding machine.
+- asdm_decode_pop_ins - Threshold-insensitive MISO ASDM time decoding machine.
+- asdm_encode         - ASDM time encoding machine.
+- asdm_recoverable    - ASDM time encoding parameter check.
 
 """
 
@@ -39,8 +39,11 @@ __pinv_rcond__ = 1e-8
 
 def asdm_recoverable_strict(u, bw, b, d, k):
     """
-    Determine whether a signal can be perfectly recovered with an ASDM
-    decoder with the specified parameters.
+    ASDM time encoding parameter check.
+    
+    Determine whether a signal encoded with an Asynchronous
+    Sigma-Delta Modulator using the specified parameters can be
+    perfectly recovered.
     
     Parameters
     ----------
@@ -78,8 +81,11 @@ def asdm_recoverable_strict(u, bw, b, d, k):
 
 def asdm_recoverable(u, bw, b, d, k):
     """
-    Determine whether a signal can be perfectly recovered with an ASDM
-    decoder with the specified parameters.
+    ASDM time encoding parameter check.
+
+    Determine whether a signal encoded with an Asynchronous
+    Sigma-Delta Modulator using the specified parameters can be
+    perfectly recovered.
 
     Parameters
     ----------
@@ -123,8 +129,11 @@ def asdm_recoverable(u, bw, b, d, k):
 def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
                 sgn=1, quad_method='trapz', full_output=False):
     """
-    Encode a finite length signal with an ASDM encoder.
+    ASDM time encoding machine.
 
+    Encode a finite length signal using an Asynchronous Sigma-Delta
+    Modulator.
+    
     Parameters
     ----------
     u : array_like of floats
@@ -224,7 +233,9 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
 
 def asdm_decode(s, dur, dt, bw, b, d, k=1.0, sgn=-1):    
     """
-    Decode a signal encoded with an ASDM encoder.
+    ASDM time decoding machine.
+    
+    Decode a signal encoded with an Asynchronous Sigma-Delta Modulator.
 
     Parameters
     ----------
@@ -299,8 +310,10 @@ def asdm_decode(s, dur, dt, bw, b, d, k=1.0, sgn=-1):
 
 def asdm_decode_ins(s, dur, dt, bw, b, sgn=-1):    
     """
-    Decode a signal encoded with an ASDM encoder using a
-    threshold-insensitive recovery algorithm.
+    Threshold-insensitive ASDM time decoding machine.
+    
+    Decode a signal encoded with an Asynchronous Sigma-Delta
+    Modulator using a threshold-insensitive recovery algorithm.
 
     Parameters
     ----------
@@ -372,8 +385,10 @@ def asdm_decode_ins(s, dur, dt, bw, b, sgn=-1):
 
 def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0, sgn=-1):
     """
-    Decode a signal encoded by an ASDM encoder using a fast recovery
-    algorithm.
+    Fast ASDM time decoding machine.
+    
+    Decode a signal encoded by an Asynchronous Sigma-Delta Modulator
+    using a fast recovery algorithm.
 
     Parameters
     ----------
@@ -444,7 +459,10 @@ def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0, sgn=-1):
 
 def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
     """
-    Decode a signal encoded by an ensemble of ASDM encoders.
+    Multiple input single output ASDM time decoding machine.
+    
+    Decode a signal encoded by an ensemble of Asynchronous Sigma-Delta
+    Modulators.
 
     Parameters
     ----------
@@ -545,6 +563,9 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
 
 def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
     """
+    Threshold-insensitive multiple input single output time decoding
+    machine.
+    
     Decode a signal encoded by an ensemble of ASDM encoders using a
     threshold-insensitive recovery algorithm.
 

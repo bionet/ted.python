@@ -16,8 +16,12 @@ import bionet.ted.bpa as bpa
 
 def asdm_decode_vander(s, dur, dt, bw, b, d, k, sgn=-1):
     """
-    Decode a finite length signal encoded by an asynchronous
-    sigma-delta modulator by solving a Vandermonde system using BPA.
+    Asynchronous Sigma-Delta Modulator time decoding machine that uses
+    BPA.
+    
+    Decode a finite length signal encoded with an Asynchronous
+    Sigma-Delta Modulator by efficiently solving a Vandermonde system
+    using the Bjork-Pereyra Algorithm.
 
     Parameters
     ----------
@@ -86,9 +90,12 @@ def asdm_decode_vander(s, dur, dt, bw, b, d, k, sgn=-1):
 
 def asdm_decode_vander_ins(s, dur, dt, bw, b, sgn=-1):
     """
-    Decode a finite length signal encoded by an asynchronous
-    sigma-delta modulator by solving a parameter-insensitive
-    Vandermonde system using BPA.
+    Threshold-insensitive ASDM time decoding machine that uses BPA.
+    
+    Decode a finite length signal encoded with an Asynchronous
+    Sigma-Delta Modulator by efficiently solving a
+    threshold-insensitive Vandermonde system using the Bjork-Pereyra
+    Algorithm.
 
     Parameters
     ----------
@@ -166,8 +173,11 @@ def asdm_decode_vander_ins(s, dur, dt, bw, b, sgn=-1):
 
 def iaf_decode_vander(s, dur, dt, bw, b, d, R, C):
     """
-    Decode a finite length signal encoded by an integrate-and-fire
-    neuron by solving a Vandermonde system using BPA.
+    IAF time decoding machine that uses BPA.
+    
+    Decode a finite length signal encoded with an Integrate-and-Fire
+    neuron by efficiently solving a Vandermonde system using the
+    Bjork-Pereyra Algorithm.
 
     Parameters
     ----------
