@@ -110,8 +110,8 @@ def asdm_recoverable(u, bw, b, d, k):
     ValueError
         When the signal cannot be perfectly recovered.
         
-    Note
-    ----
+    Notes
+    -----
     The bound assumed by this check is not as strict as that described in
     most of Prof. Lazar's papers.
 
