@@ -108,8 +108,8 @@ class RealTimeEncoder(SignalProcessor):
 
     Methods
     -------
-    encode(data, *args)
-        Encode a block of data.
+    encode(data, ...)
+        Encode a block of data using the additional parameters.
     process(get, put)
         Process data obtained from `get()` and write it using `put()`.
 
@@ -174,8 +174,8 @@ class RealTimeDecoder(SignalProcessor):
 
     Methods
     -------
-    decode(data, *args)
-        Decode a block of data.
+    decode(data, ...)
+        Decode a block of data using the additional parameters.
     process(get, put)
         Process data obtained from `get()` and write it using `put()`.
 
@@ -418,8 +418,8 @@ class ASDMRealTimeEncoder(RealTimeEncoder):
 
     Methods
     -------
-    encode(data, *args)
-        Encode a block of data.
+    encode(data, ...)
+        Encode a block of data using the additional parameters.
     process(get, put)
         Process data obtained from `get()` and write it using `put()`.
 
@@ -468,8 +468,8 @@ class ASDMRealTimeDecoder(RealTimeDecoder):
 
     Methods
     -------
-    decode(data, *args)
-        Decode a block of data.
+    decode(data, ...)
+        Decode a block of data using the additional parameters.
     process(get, put)
         Process data obtained from `get()` and write it using `put()`.
     
@@ -518,8 +518,8 @@ class ASDMRealTimeDecoderIns(RealTimeDecoder):
 
     Methods
     -------
-    decode(data, *args)
-        Decode a block of data.
+    decode(data, ...)
+        Decode a block of data using the additional parameters.
     process(get, put)
         Process data obtained from `get()` and write it using `put()`.
 
@@ -566,8 +566,8 @@ class IAFRealTimeEncoder(RealTimeEncoder):
 
     Methods
     -------
-    encode(data, *args)
-        Encode a block of data.
+    encode(data, ...)
+        Encode a block of data using the additional parameters.
     process(get, put)
         Process data obtained from `get()` and write it using `put()`.
 
@@ -617,8 +617,8 @@ class IAFRealTimeDecoder(RealTimeDecoder):
 
     Methods
     -------
-    decode(data, *args)
-        Decode a block of data.
+    decode(data, ...)
+        Decode a block of data using the additional parameters.
     process(get, put)
         Process data obtained from `get()` and write it using `put()`.
 
