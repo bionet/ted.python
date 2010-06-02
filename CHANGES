@@ -3,7 +3,7 @@
 Change Log
 ==========
 
-Releast 0.041 - (June 1, 2010)
+Releast 0.05 - (June 1, 2010)
 ------------------------------
 * Add documentation.
 * Add more efficient concurrent IAF encoder.
