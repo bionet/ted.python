@@ -8,19 +8,25 @@ Prerequisites
 
 The Python implementation of the Time Encoding and Decoding Toolbox
 requires that several software packages be present in order to be
-built and installed (newer versions of these packages may also work).
+built and installed (older versions of these packages may work, but have not
+been tested):
 
-* `Python 2.5 <http://www.python.org>`_
-* `Cython 0.11.2 <http://www.cython.org>`_
-* `Numpy 1.2.0 <http://numpy.scipy.org>`_
-* `Scipy 0.7.0 <http://www.scipy.org>`_
-* `PyTables 2.0.0 <http://www.pytables.org>`_
-* `Bionet Python Utilities 0.014 <http://bionet.ee.columbia.edu/code>`_
+* `Python <http://www.python.org>`_ 2.5 or later.
+* `Cython <http://www.cython.org>`_ 0.11.2 or later.
+* `Numpy <http://numpy.scipy.org>`_ 1.2.0 or later.
+* `Scipy <http://www.scipy.org>`_ 0.7.0 or later.
+* `PyTables <http://www.pytables.org>`_ 2.0.0 or later.
+* `Bionet Python Utilities <http://bionet.ee.columbia.edu/code>`_ 0.014 or later.
 
 To run the demo code and generate plots, the following package 
 is also required:
 
-* `Matplotlib 0.98 <http://matplotlib.sourceforge.net>`_
+* `Matplotlib <http://matplotlib.sourceforge.net>`_ 0.98 or later.
+
+To build the documentation, the following packages are also required:
+
+* `Docutils <http://docutils.sourceforge.net>`_ 0.5 or later.
+* `Sphinx <http://sphinx.pocoo.org>`_ 0.6.3 or later.
 
 This software has been tested on Linux and MacOSX. Although not tested
 on Windows, it should work on that platform given that all of the
@@ -29,10 +35,17 @@ above prerequisites are available for Windows.
 Building and Installation
 -------------------------
 
-Build and install the toolbox by running::
+To build and install the toolbox, download and unpack the source 
+release and run::
 
    python setup.py install
 
-Sample code demonstrating how to use the toolbox is located in the
+from within the main directory in the release. Sample code 
+demonstrating how to use the toolbox is located in the
 ``demos/`` subdirectory.
+
+To build the documentation in HTML format, run::
+
+   make -C doc html
+
 

@@ -3,6 +3,12 @@
 Change Log
 ==========
 
+Releast 0.041 - (June 1, 2010)
+------------------------------
+* Add documentation.
+* Add more efficient concurrent IAF encoder.
+* Fix bug in MIMO spline interpolation decoders.
+
 Release 0.04 - (April 19, 2010)
 -------------------------------
 

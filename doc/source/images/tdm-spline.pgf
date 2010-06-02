@@ -1,0 +1,26 @@
+% Time decoding with spline interpolation.
+
+\tikzstyle{empty}=[]
+\tikzstyle{rect}=[rectangle,draw=black,thick,minimum size=8mm]
+\begin{tikzpicture}[>=latex,join=miter]
+\node (input) [] {$\left(t_k\right)_{k\in\mathbb{Z}}$};
+\node (coeff) [draw,node distance=35mm,right of=input] {$\begin{bmatrix}
+\mathbf{G} & \mathbf{p} & \mathbf{r} \\
+\mathbf{p}^T & 0 & 0 \\
+\mathbf{r}^T & 0 & 0 \\
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{c} \\
+d_0 \\
+d_1 \\
+\end{bmatrix}=\begin{bmatrix}
+\mathbf{q} \\
+0 \\
+0 \\
+\end{bmatrix}$};
+\node (sum) [draw,node distance=50mm,right of=coeff] {$d_0+d_1 t +\sum_{k=1}^{n-1}c_k \psi_k(t)$};
+\node (output) [node distance=30mm,right of=sum] {$\hat{u}(t)$};
+\draw [->] (input) to (coeff);
+\draw [->] (coeff) to (sum);
+\draw [->] (sum) to (output);
+\end{tikzpicture}

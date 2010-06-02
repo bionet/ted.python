@@ -1,0 +1,11 @@
+% Time decoding with fast approximation algorithm.
+
+\begin{tikzpicture}[>=latex,join=miter]
+\node (input) [] {$\left(t_k\right)_{k\in\mathbb{Z}}$};
+\node (coeff) [draw,node distance=30mm,right of=input] {$\mathbf{d}=\alpha\mathbf{T}^+\mathbf{S}\mathbf{D}\mathbf{P}^{-1}\mathbf{q}$};
+\node (sum) [draw,node distance=40mm,right of=coeff] {$\frac{j\Omega}{M}\sum_{n=-M}^{M}n d_n e^{j n\Omega t/M}$};
+\node (output) [node distance=30mm,right of=sum] {$\hat{u}(t)$};
+\draw [->] (input) to (coeff);
+\draw [->] (coeff) to (sum);
+\draw [->] (sum) to (output);
+\end{tikzpicture}

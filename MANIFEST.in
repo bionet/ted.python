@@ -1,2 +1,8 @@
 include CHANGES INSTALL LICENSE PAPERS README
-recursive-include demos *.py
+recursive-include demos *.py 
+recursive-include doc *
+exclude doc/source/*pgf*
+exclude doc/source/images/*.pgf
+exclude doc/source/make_*.py
+prune doc/source/generated/
+prune doc/build/

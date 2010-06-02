@@ -1,0 +1,110 @@
+% MIMO time encoder.
+
+\begin{tikzpicture}[>=latex,join=miter]
+\matrix (h_1) [row sep=1mm,minimum width=10mm,node distance=15mm] {
+\node (h_11) [draw] {$h^{11}$}; \\
+\node (h_12) [draw] {$h^{12}$}; \\
+\node (h_1dots) [] {$\vdots$}; \\
+\node (h_1M) [draw] {$h^{1M}$}; \\
+};
+\node (sum_1) [draw,circle,node distance=15mm,right of=h_1] {$\sum$};
+\draw [->] (h_11.east) to (sum_1);
+\draw [->] (h_12.east) to (sum_1);
+\draw [->] (h_1M.east) to (sum_1);
+
+\matrix (h_2) [row sep=1mm,minimum width=10mm,node distance=33mm,below of=h_1] {
+\node (h_21) [draw] {$h^{21}$}; \\
+\node (h_22) [draw] {$h^{22}$}; \\
+\node (h_2dots) [] {$\vdots$}; \\
+\node (h_2M) [draw] {$h^{2M}$}; \\
+};
+\node (sum_2) [draw,circle,node distance=15mm,right of=h_2] {$\sum$};
+\draw [->] (h_21.east) to (sum_2);
+\draw [->] (h_22.east) to (sum_2);
+\draw [->] (h_2M.east) to (sum_2);
+
+\node (h_dots) [node distance=19mm,below of=h_2] {$\vdots$};\\
+
+\matrix (h_N) [row sep=1mm,minimum width=10mm,node distance=20mm,below of=h_dots] {
+\node (h_N1) [draw] {$h^{N1}$}; \\
+\node (h_N2) [draw] {$h^{N2}$}; \\
+\node (h_Ndots) [] {$\vdots$}; \\
+\node (h_NM) [draw] {$h^{NM}$}; \\
+};
+\node (sum_N) [draw,circle,node distance=15mm,right of=h_N] {$\sum$};
+\draw [->] (h_N1.east) to (sum_N);
+\draw [->] (h_N2.east) to (sum_N);
+\draw [->] (h_NM.east) to (sum_N);
+
+\node (input_1) [node distance=25mm,left of=h_1] {$u^1(t)$};
+\node (input_2) [node distance=25mm,left of=h_2] {$u^2(t)$};
+\node (input_M) [node distance=25mm,left of=h_N] {$u^M(t)$};
+
+\path [->] (input_1) edge (h_11.west) edge (h_21.west) edge (h_N1.west);
+\path [->] (input_2) edge (h_12.west) edge (h_22.west) edge (h_N2.west);
+\path [->] (input_M) edge (h_1M.west) edge (h_2M.west) edge (h_NM.west);
+
+\node (sum_bias_1) [draw,circle,node distance=20mm,right of=sum_1] {$\sum$};
+\node (sum_bias_2) [draw,circle,node distance=20mm,right of=sum_2] {$\sum$};
+\node (sum_bias_N) [draw,circle,node distance=20mm,right of=sum_N] {$\sum$};
+
+\draw [->] (sum_1) to node [above] {$\nu^1$} (sum_bias_1);
+\draw [->] (sum_2) to node [above] {$\nu^2$} (sum_bias_2);
+\draw [->] (sum_N) to node [above] {$\nu^N$} (sum_bias_N);
+
+\node (bias_1) [above of=sum_bias_1] {$b^1$};
+\node (bias_2) [above of=sum_bias_2] {$b^2$};
+\node (bias_N) [above of=sum_bias_N] {$b^N$};
+
+\draw [->] (bias_1) to (sum_bias_1);
+\draw [->] (bias_2) to (sum_bias_2);
+\draw [->] (bias_N) to (sum_bias_N);
+
+\node (integrator_1) [draw,node distance=17mm,right of=sum_bias_1] {$\frac{1}{\kappa^1}\int dt$};
+\node (integrator_2) [draw,node distance=17mm,right of=sum_bias_2] {$\frac{1}{\kappa^2}\int dt$};
+\node (integrator_N) [draw,node distance=17mm,right of=sum_bias_N] {$\frac{1}{\kappa^N}\int dt$};
+
+\draw [->] (sum_bias_1) to (integrator_1);
+\draw [->] (sum_bias_2) to (integrator_2);
+\draw [->] (sum_bias_N) to (integrator_N);
+
+\node (threshold_1) [matrix,draw,inner xsep=2mm,inner ysep=1mm,node distance=20mm,right of=integrator_1] {
+	\draw[->] (0,0) to (0,0.5); 
+	\draw[->] (0,0) to (1.5,0); 
+	\draw (0.5,0) node [below] {$\delta^1$} to (0.5,0.25); 
+	\draw (0.5,0.25) to (1.25,0.25);\\
+};
+\node (threshold_2) [matrix,draw,inner xsep=2mm,inner ysep=1mm,node distance=20mm,right of=integrator_2] {
+	\draw[->] (0,0) to (0,0.5); 
+	\draw[->] (0,0) to (1.5,0); 
+	\draw (0.5,0) node [below] {$\delta^2$} to (0.5,0.25); 
+	\draw (0.5,0.25) to (1.25,0.25);\\
+};
+\node (threshold_N) [matrix,draw,inner xsep=2mm,inner ysep=1mm,node distance=20mm,right of=integrator_N] {
+	\draw[->] (0,0) to (0,0.5); 
+	\draw[->] (0,0) to (1.5,0); 
+	\draw (0.5,0) node [below] {$\delta^N$} to (0.5,0.25); 
+	\draw (0.5,0.25) to (1.25,0.25);\\
+};
+
+\draw [->] (integrator_1) to node [shape=coordinate,name=y_1] {} (threshold_1);
+\draw [->] (integrator_2) to node [shape=coordinate,name=y_2] {} (threshold_2);
+\draw [->] (integrator_N) to node [shape=coordinate,name=y_N] {} (threshold_N);
+
+\node (output_1) [node distance=25mm,right of=threshold_1] {$\left(t_k^1\right)_{k\in\mathbb{Z}}$};
+\node (output_2) [node distance=25mm,right of=threshold_2] {$\left(t_k^2\right)_{k\in\mathbb{Z}}$};
+\node (output_N) [node distance=25mm,right of=threshold_N] {$\left(t_k^N\right)_{k\in\mathbb{Z}}$};
+
+\draw [->] (threshold_1) to node [shape=coordinate,name=tk_1] {} (output_1);
+\draw [->] (threshold_2) to node [shape=coordinate,name=tk_2] {} (output_2);
+\draw [->] (threshold_N) to node [shape=coordinate,name=tk_N] {} (output_N);
+
+\node (feedback_1) [shape=coordinate,below of=y_1] {};
+\node (feedback_2) [shape=coordinate,below of=y_2] {};
+\node (feedback_N) [shape=coordinate,below of=y_N] {};
+
+\draw [->,dotted] (tk_1) |- (feedback_1) -| (integrator_1);
+\draw [->,dotted] (tk_2) |- (feedback_2) -| (integrator_2);
+\draw [->,dotted] (tk_N) |- (feedback_N) -| (integrator_N);
+
+\end{tikzpicture}

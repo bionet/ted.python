@@ -1,0 +1,36 @@
+% Threshold-insensitive MISO time decoding with sinc kernels.
+
+\def\blockdist{2}
+\begin{tikzpicture}[>=latex,join=miter]
+\node (coeff) [draw,minimum height=65mm,minimum width=20mm] {$\mathbf{c}=\mathbf{B}^{-1}(\mathbf{B}\mathbf{G}\mathbf{B}^{-1})^+\cdot\mathbf{B}\mathbf{q}$};
+\path (coeff.125)+(-\blockdist,0) node (input_1) [] {$\left(t_k^1\right)_{k\in\mathbb{Z}}$};
+\path (coeff.155)+(-\blockdist,0) node (input_2) [] {$\left(t_k^2\right)_{k\in\mathbb{Z}}$};
+\node (input_dots) [node distance=16mm,below of=input_2] {$\vdots$};
+\path (coeff.-125)+(-\blockdist,0) node (input_n) [] {$\left(t_k^n\right)_{k\in\mathbb{Z}}$};
+\path (coeff.55)+(1.2*\blockdist,0) node (sum_1) [draw] {$\sum_{k\in\mathbb{Z}}c_k^1 \delta^1\left(t-s_k^1\right)$};
+\path (coeff.25)+(1.2*\blockdist,0) node (sum_2) [draw] {$\sum_{k\in\mathbb{Z}}c_k^2 \delta^2\left(t-s_k^2\right)$};
+\node (output_dots) [node distance=16mm,below of=sum_2] {$\vdots$};
+\path (coeff.-55)+(1.2*\blockdist,0) node (sum_n) [draw] {$\sum_{k\in\mathbb{Z}}c_k^n \delta^n\left(t-s_k^n\right)$};
+\node (output_1) [shape=coordinate,node distance=20mm,right of=sum_1] {};
+\node (output_2) [shape=coordinate,node distance=20mm,right of=sum_2] {};
+\node (output_n) [shape=coordinate,node distance=20mm,right of=sum_n] {};
+\path (coeff.east)+(2.7*\blockdist,0) node (sum_output) [shape=circle,draw] {$\sum$};
+\node (lpf) [draw,matrix,inner xsep=2mm,inner ysep=1mm,node distance=20mm,right of=sum_output] { 
+	\draw[->] (0,0) to (0,0.6); 
+	\draw[->] (0,0) to (1.5,0); 
+	\draw (0.75,0) node [below] {$\Omega$} to (0.75,0.25); 
+	\draw (0,0.25) to (0.75,0.25);\\
+};
+\node (output) [node distance=20mm,right of=lpf] {$\hat{u}(t)$};
+\draw [->] (input_1) to (coeff.west |- input_1); 
+\draw [->] (input_2) to (coeff.west |- input_2);
+\draw [->] (input_n) to (coeff.west |- input_n); 
+\draw [->] (coeff.east |- sum_1) to (sum_1); 
+\draw [->] (coeff.east |- sum_2) to (sum_2); 
+\draw [->] (coeff.east |- sum_n) to (sum_n);
+\draw [->] (sum_1) to (output_1) to (sum_output);
+\draw [->] (sum_2) to (output_2) to (sum_output);
+\draw [->] (sum_n) to (output_n) to (sum_output);
+\draw [->] (sum_output) to (lpf);
+\draw [->] (lpf) to (output);
+\end{tikzpicture}
