@@ -69,6 +69,7 @@ redirect_output = ' 1>/dev/null 2>&1'
 # Defaults:
 default_template = """\\documentclass[10pt]{article}
 \\usepackage{amsmath,amssymb,amsbsy,amsfonts,amsthm}
+\\usepackage[landscape]{geometry}
 \\usepackage{cmbright}
 \\usepackage{tikz}
 \\pagestyle{empty}
