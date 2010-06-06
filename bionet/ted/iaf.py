@@ -579,7 +579,8 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
 
     # Compute the values of the matrix that must be inverted to obtain
     # the reconstruction coefficients:
-    Nsh_sum = sum(Nsh_list)
+    Nsh_cumsum = cumsum([0.0]+Nsh_list)
+    Nsh_sum = Nsh_cumsum[-1]
     G = empty((Nsh_sum, Nsh_sum), float)
     q = empty((Nsh_sum, 1), float)
     if all(isinf(R_list)):
@@ -592,15 +593,14 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
                 # the integrals between spike times:
                 for k in xrange(Nsh_list[m]):
                     temp = sici(bw*(ts_list[l]-tsh_list[m][k]))[0]/pi
-                    for n in xrange(Nsh_list[l]):
-                        G_block[n, k] = temp[n+1]-temp[n]
+                    G_block[:, k] = temp[1:]-temp[:-1]
 
-                G[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]),
-                  sum(Nsh_list[:m]):sum(Nsh_list[:m+1])] = G_block
-
+                G[Nsh_cumsum[l]:Nsh_cumsum[l+1],
+                  Nsh_cumsum[m]:Nsh_cumsum[m+1]] = G_block
+                
             # Compute the quanta:
-            q[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]), 0] = \
-                       C_list[l]*d_list[l]-b_list[l]*s_list[l][1:]
+            q[Nsh_cumsum[l]:Nsh_cumsum[l+1], 0] = \
+                        C_list[l]*d_list[l]-b_list[l]*s_list[l][1:]            
     else:
         for l in xrange(M):
             for m in xrange(M):
@@ -636,11 +636,11 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
                                              ei((1+1j*RC*bw)*(ts[n]-tsh[k])/RC)+
                                              ei((1+1j*RC*bw)*(ts[n+1]-tsh[k])/RC))/pi   
 
-                G[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]),
-                  sum(Nsh_list[:m]):sum(Nsh_list[:m+1])] = G_block
+                G[Nsh_cumsum[l]:Nsh_cumsum[l+1],
+                  Nsh_cumsum[m]:Nsh_cumsum[m+1]] = G_block
 
             # Compute the quanta:
-            q[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]), 0] = \
+            q[Nsh_cumsum[l]:Nsh_cumsum[l+1], 0] = \
                        C_list[l]*(d_list[l]+b_list[l]*R_list[l]* \
                                   (exp(-s_list[l][1:]/(R_list[l]*C_list[l]))-1))
     
@@ -652,7 +652,7 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
     u_rec = zeros(len(t), float)
     for m in xrange(M):
         for k in xrange(Nsh_list[m]):
-            u_rec += sinc(bwpi*(t-tsh_list[m][k]))*bwpi*c[sum(Nsh_list[:m])+k, 0]
+            u_rec += sinc(bwpi*(t-tsh_list[m][k]))*bwpi*c[Nsh_cumsum[m]+k, 0]
     return u_rec
 
 def iaf_decode_spline(s, dur, dt, b, d, R=inf, C=1.0):
@@ -840,7 +840,8 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
 
     # Compute the values of the matrix that must be inverted to obtain
     # the reconstruction coefficients:
-    n_sum = sum(n_list)
+    n_cumsum = cumsum([0.0]+n_list)
+    n_sum = n_cumsum[-1]
     Gpr = zeros((n_sum+2, n_sum+2), float)
     qz = zeros(n_sum+2, float)    
     if all(isinf(R_list)):
@@ -849,14 +850,14 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
             # Compute p and r:
             s = s_list[i]
             ts = ts_list[i]
-            Gpr[n_sum, sum(n_list[:i]):sum(n_list[:i+1])] = \
-                       Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum] = s[1:]
-            Gpr[n_sum+1, sum(n_list[:i]):sum(n_list[:i+1])] = \
-                         Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum+1] = \
+            Gpr[n_sum, n_cumsum[i]:n_cumsum[i+1]] = \
+                       Gpr[n_cumsum[i]:n_cumsum[i+1], n_sum] = s[1:]
+            Gpr[n_sum+1, n_cumsum[i]:n_cumsum[i+1]] = \
+                         Gpr[n_cumsum[i]:n_cumsum[i+1], n_sum+1] = \
                          (ts[1:]**2-ts[:-1]**2)/2
 
             # Compute the quanta:
-            qz[sum(n_list[:i]):sum(n_list[:i+1])] = \
+            qz[n_cumsum[i]:n_cumsum[i+1]] = \
                 C_list[i]*d_list[i]-b_list[i]*s[1:]
             
             # Compute the G matrix:
@@ -899,8 +900,8 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
                                          0.05*(((b3-ts_list[j][l])**5-(b3-ts_list[j][l+1])**5)\
                                                -((a3-ts_list[j][l])**5-(a3-ts_list[j][l+1])**5))
                             
-                Gpr[sum(n_list[:i]):sum(n_list[:i+1]),
-                    sum(n_list[:j]):sum(n_list[:j+1])] = Gpr_block
+                Gpr[n_cumsum[i]:n_cumsum[i+1],
+                    n_cumsum[j]:n_cumsum[j+1]] = Gpr_block
 
     else:
         for i in xrange(M):
@@ -909,15 +910,15 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
             RCi = R_list[i]*C_list[i]
             s = s_list[i]
             ts = ts_list[i]
-            Gpr[n_sum, sum(n_list[:i]):sum(n_list[:i+1])] = \
-                       Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum] = \
+            Gpr[n_sum, n_cumsum[i]:n_cumsum[i+1]] = \
+                       Gpr[n_cumsum[i]:n_cumsum[i+1], n_sum] = \
                        RCi*(1-exp(-s[1:]/RCi))
-            Gpr[n_sum+1, sum(n_list[:i]):sum(n_list[:i+1])] = \
-                         Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum+1] = \
+            Gpr[n_sum+1, n_cumsum[i]:n_cumsum[i+1]] = \
+                         Gpr[n_cumsum[i]:n_cumsum[i+1], n_sum+1] = \
                          RCi**2*((ts[1:]/RCi-1)-(ts[:-1]/RCi-1)*exp(-s[1:]/RCi))
 
             # Compute the quanta:
-            qz[sum(n_list[:i]):sum(n_list[:i+1])] = \
+            qz[n_cumsum[i]:n_cumsum[i+1]] = \
                 C_list[i]*d_list[i]-b_list[i]*RCi*(1-exp(-s[1:]/RCi))
 
             # Compute the G matrix:
@@ -987,8 +988,8 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
                                                 F(b3, RCi, RCj, ts_list[i][k+1], ts_list[j][l+1])+\
                                                 F(a3, RCi, RCj, ts_list[i][k+1], ts_list[j][l+1]))
 
-                Gpr[sum(n_list[:i]):sum(n_list[:i+1]),
-                    sum(n_list[:j]):sum(n_list[:j+1])] = Gpr_block
+                Gpr[n_cumsum[i]:n_cumsum[i+1],
+                    n_cumsum[j]:n_cumsum[j+1]] = Gpr_block
                 
     # Compute the reconstruction coefficients:
     cd = dot(pinv(Gpr), qz)
@@ -1005,7 +1006,7 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
                                    ((t-ts[k+1])**4+(t-ts[k])**4),
                                    ((t-ts[k])**4-(t-ts[k+1])**4)))
             for k in xrange(n_list[j]):
-                u_rec += cd[sum(n_list[:j])+k]*psi(t, k)                
+                u_rec += cd[n_cumsum[j]+k]*psi(t, k)                
     else:
         for j in xrange(M):
             RC = R_list[j]*C_list[j]
@@ -1018,7 +1019,7 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
                                       f((ts[k]-t)/RC)*exp(-(ts[k+1]-ts[k])/RC),
                                       f((ts[k]-t)/RC)*exp(-(ts[k+1]-ts[k])/RC)-f((ts[k+1]-t)/RC)))
             for k in xrange(n_list[j]):
-                u_rec += cd[sum(n_list[:j])+k]*psi(t, k)                
+                u_rec += cd[n_cumsum[j]+k]*psi(t, k)                
 
     return u_rec
 
@@ -1144,7 +1145,8 @@ def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
 
     # Compute the values of the matrix that must be inverted to obtain
     # the reconstruction coefficients:
-    n_sum = sum(n_list)
+    n_cumsum = cumsum([0.0]+n_list)
+    n_sum = n_cumsum[-1]
     Gpr = zeros((n_sum+2, n_sum+2), float)
     qz = zeros(n_sum+2, float)    
 
@@ -1153,11 +1155,11 @@ def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
         # Compute p and r:
         ts = ts_list[i]
         s = array(s_list[i][1:])
-        Gpr[n_sum, sum(n_list[:i]):sum(n_list[:i+1])] = \
-                   Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum] = \
+        Gpr[n_sum, n_cumsum[i]:n_cumsum[i+1]] = \
+                   Gpr[n_cumsum[i]:n_cumsum[i+1], n_sum] = \
                    ts[1:]-ts[:-1]
-        Gpr[n_sum+1, sum(n_list[:i]):sum(n_list[:i+1])] = \
-                     Gpr[sum(n_list[:i]):sum(n_list[:i+1]), n_sum+1] = \
+        Gpr[n_sum+1, n_cumsum[i]:n_cumsum[i+1]] = \
+                     Gpr[n_cumsum[i]:n_cumsum[i+1], n_sum+1] = \
                      (ts[1:]**2-ts[:-1]**2)/2
 
         # Compute the quanta:
@@ -1169,7 +1171,7 @@ def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
                         break
                     temp -= quad(lambda t: h_list[j][i](t-ts_list[j][l]), ts[k], ts[k+1])[0]
 
-            qz[sum(n_list[:i])+k] = temp
+            qz[n_cumsum[i]+k] = temp
         
         # Compute the G matrix:
         for j in xrange(M):
@@ -1196,8 +1198,8 @@ def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
                                      0.05*(((b3-ts_list[j][l])**5-(b3-ts_list[j][l+1])**5)\
                                            -((a3-ts_list[j][l])**5-(a3-ts_list[j][l+1])**5))
                             
-            Gpr[sum(n_list[:i]):sum(n_list[:i+1]),
-                sum(n_list[:j]):sum(n_list[:j+1])] = Gpr_block
+            Gpr[n_cumsum[i]:n_cumsum[i+1],
+                n_cumsum[j]:n_cumsum[j+1]] = Gpr_block
 
     cd = dot(pinv(Gpr), qz)
 
@@ -1212,7 +1214,7 @@ def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
                                ((t-ts[k+1])**4+(t-ts[k])**4),
                                ((t-ts[k])**4-(t-ts[k+1])**4)))
         for k in xrange(n_list[j]):
-            u_rec += cd[sum(n_list[:j])+k]*psi(t, k)                
+            u_rec += cd[n_cumsum[j]+k]*psi(t, k)                
 
     return u_rec
 
@@ -1388,13 +1390,14 @@ def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
 
     # Compute the values of the matrix that must be inverted to obtain
     # the reconstruction coefficients:
-    n_sum = sum(n_list)
+    n_cumsum = cumsum([0.0]+n_list)
+    n_sum = n_cumsum[-1]
     Gpr = zeros((n_sum+2*M, n_sum+2*M), float)
     qz = zeros(n_sum+2*M, float)
     for j in xrange(N):
 
         # Compute the quanta:
-        qz[sum(n_list[:j]):sum(n_list[:j+1])] = \
+        qz[n_cumsum[j]:n_cumsum[j+1]] = \
             k_list[j]*d_list[j]-b_list[j]*array(s_list[j][1:])
 
         # Compute p and r:
@@ -1413,10 +1416,10 @@ def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
                 else:
                      p[k] = 0.0
                      r[k] = 0.0
-            Gpr[sum(n_list[:j]):sum(n_list[:j+1]), n_sum+i] = \
-                Gpr[n_sum+i, sum(n_list[:j]):sum(n_list[:j+1])] = p
-            Gpr[sum(n_list[:j]):sum(n_list[:j+1]), n_sum+i+M] = \
-                Gpr[n_sum+i+M, sum(n_list[:j]):sum(n_list[:j+1])] = r
+            Gpr[n_cumsum[j]:n_cumsum[j+1], n_sum+i] = \
+                Gpr[n_sum+i, n_cumsum[j]:n_cumsum[j+1]] = p
+            Gpr[n_cumsum[j]:n_cumsum[j+1], n_sum+i+M] = \
+                Gpr[n_sum+i+M, n_cumsum[j]:n_cumsum[j+1]] = r
 
     for i in xrange(N):                
         for j in xrange(N):
@@ -1475,8 +1478,8 @@ def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
                                  (tau_im[k]-tau_jm[l])**5+(tau_im[k+1]-tau_jm[l+1])**5
                         Gpr_block[k, l] += temp*w_list[i][m]*w_list[j][m]/20.0
             
-            Gpr[sum(n_list[:i]):sum(n_list[:i+1]),
-                sum(n_list[:j]):sum(n_list[:j+1])] = Gpr_block
+            Gpr[n_cumsum[i]:n_cumsum[i+1],
+                n_cumsum[j]:n_cumsum[j+1]] = Gpr_block
 
     # Compute the reconstruction coefficients:
     cd = dot(pinv(Gpr), qz)

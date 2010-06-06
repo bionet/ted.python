@@ -288,15 +288,14 @@ def asdm_decode(s, dur, dt, bw, b, d, k=1.0, sgn=-1):
         # need to each be recomputed when determining the integrals
         # between spike times:
         temp = sici(bw*(ts-tsh[j]))[0]/pi
-        for i in xrange(Nsh):
-            G[i, j] = temp[i+1]-temp[i]
+        G[:, j] = temp[1:]-temp[:-1]
     G_inv = pinv(G, __pinv_rcond__)
 
     # Compute quanta:
     if sgn == -1:
-        q = array([(-1)**i for i in xrange(1, Nsh+1)])*(2*k*d-b*s[1:])
+        q = (-1)**arange(1, Nsh+1)*(2*k*d-b*s[1:])
     else:
-        q = array([(-1)**i for i in xrange(0, Nsh)])*(2*k*d-b*s[1:])
+        q = (-1)**arange(0, Nsh)*(2*k*d-b*s[1:])
         
     # Reconstruct signal by adding up the weighted sinc functions. The
     # weighted sinc functions are computed on the fly here to save
@@ -364,15 +363,14 @@ def asdm_decode_ins(s, dur, dt, bw, b, sgn=-1):
         # they do not need to each be recomputed when determining the
         # integrals between spike times:
         temp = sici(bw*(ts-tsh[j]))[0]/pi
-        for i in xrange(Nsh):
-            G[i, j] = temp[i+1]-temp[i]
+        G[:, j] = temp[1:]-temp[:-1]
     
     # Apply compensation principle:
     B = diag(ones(Nsh-1), -1)+eye(Nsh)
     if sgn == -1:
-        Bq = array([(-1)**i for i in xrange(Nsh)])*b*(s[1:]-s[:-1])
+        Bq = (-1)**arange(Nsh)*b*(s[1:]-s[:-1])
     else:
-        Bq = array([(-1)**i for i in xrange(1, Nsh+1)])*b*(s[1:]-s[:-1])
+        Bq = (-1)**arange(1, Nsh+1)*b*(s[1:]-s[:-1])
         
     # Reconstruct signal by adding up the weighted sinc functions; the
     # first row of B is removed to eliminate boundary issues. The
@@ -439,9 +437,9 @@ def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0, sgn=-1):
 
     # Compute quanta:
     if sgn == -1:
-        q = array([(-1)**i for i in xrange(1, Nsh+1)])*(2*k*d-b*s[1:])
+        q = (-1)**arange(1, Nsh+1)*(2*k*d-b*s[1:])
     else:
-        q = array([(-1)**i for i in xrange(0, Nsh)])*(2*k*d-b*s[1:])
+        q = (-1)**arange(0, Nsh)*(2*k*d-b*s[1:])
         
     # Compute approximation coefficients:
     a = bw/(pi*(2*M+1))
@@ -522,7 +520,8 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
         
     # Compute the values of the matrix that must be inverted to obtain
     # the reconstruction coefficients:
-    Nsh_sum = sum(Nsh_list)
+    Nsh_cumsum = cumsum([0.0]+Nsh_list)
+    Nsh_sum = Nsh_cumsum[-1]
     G = empty((Nsh_sum, Nsh_sum), float)
     q = empty((Nsh_sum, 1), float)
     for l in xrange(M):
@@ -534,20 +533,19 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
             # the integrals between spike times:
             for k in xrange(Nsh_list[m]):
                 temp = sici(bw*(ts_list[l]-tsh_list[m][k]))[0]/pi
-                for n in xrange(Nsh_list[l]):
-                    G_block[n, k] = temp[n+1]-temp[n]
+                G_block[:, k] = temp[1:]-temp[:-1]
 
-            G[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]),
-              sum(Nsh_list[:m]):sum(Nsh_list[:m+1])] = G_block
+            G[Nsh_cumsum[l]:Nsh_cumsum[l+1],
+              Nsh_cumsum[m]:Nsh_cumsum[m+1]] = G_block
 
         # Compute the quanta:
         if sgn_list[l] == -1:
-            q[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]), 0] = \
-                array([(-1)**i for i in xrange(1, Nsh_list[l]+1)])* \
+            q[Nsh_cumsum[l]:Nsh_cumsum[l+1], 0] = \
+                (-1)**arange(1, Nsh_list[l]+1)* \
                 (2*k_list[l]*d_list[l]-b_list[l]*s_list[l][1:])
         else:
-            q[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]), 0] = \
-                array([(-1)**i for i in xrange(0, Nsh_list[l])])* \
+            q[Nsh_cumsum[l]:Nsh_cumsum[l+1], 0] = \
+                (-1)**arange(0, Nsh_list[l])* \
                 (2*k_list[l]*d_list[l]-b_list[l]*s_list[l][1:])
             
     # Compute the reconstruction coefficients:
@@ -558,7 +556,7 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
     u_rec = zeros(len(t), float)
     for m in xrange(M):
         for k in xrange(Nsh_list[m]):
-            u_rec += sinc(bwpi*(t-tsh_list[m][k]))*bwpi*c[sum(Nsh_list[:m])+k, 0]
+            u_rec += sinc(bwpi*(t-tsh_list[m][k]))*bwpi*c[Nsh_cumsum[m]+k, 0]
     return u_rec
 
 def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
@@ -620,7 +618,8 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
     
     # Compute the values of the matrix that must be inverted to obtain
     # the reconstruction coefficients:
-    Nsh_sum = sum(Nsh_list)
+    Nsh_cumsum = cumsum([0.0]+Nsh_list)
+    Nsh_sum = Nsh_cumsum[-1]
     G = empty((Nsh_sum, Nsh_sum), float)
     Bq = empty((Nsh_sum, 1), float)
     for l in xrange(M):
@@ -632,20 +631,19 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
             # the integrals between spike times:
             for k in xrange(Nsh_list[m]):
                 temp = sici(bw*(ts_list[l]-tsh_list[m][k]))[0]/pi
-                for n in xrange(Nsh_list[l]):
-                    G_block[n, k] = temp[n+2]-temp[n]
+                G_block[:, k] = temp[2:]-temp[:-2]
 
-            G[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]),
-              sum(Nsh_list[:m]):sum(Nsh_list[:m+1])] = G_block
+            G[Nsh_cumsum[l]:Nsh_cumsum[l+1],
+              Nsh_cumsum[m]:Nsh_cumsum[m+1]] = G_block
 
         # Compute the quanta:
         if sgn_list[l] == -1:
-            Bq[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]), 0] = \
-                array([(-1)**i for i in xrange(1, Nsh_list[l]+1)])* \
+            Bq[Nsh_cumsum[l]:Nsh_cumsum[l+1], 0] = \
+                (-1)**arange(1, Nsh_list[l]+1)* \
                 b_list[l]*(s_list[l][2:]-s_list[l][1:-1])
         else:
-            Bq[sum(Nsh_list[:l]):sum(Nsh_list[:l+1]), 0] = \
-                array([(-1)**i for i in xrange(0, Nsh_list[l])])* \
+            Bq[Nsh_cumsum[l]:Nsh_cumsum[l+1], 0] = \
+                (-1)**arange(0, Nsh_list[l])* \
                 b_list[l]*(s_list[l][2:]-s_list[l][1:-1])
 
     # Compute the reconstruction coefficients:
@@ -656,6 +654,6 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
     u_rec = zeros(len(t), float)
     for m in xrange(M):
         for k in xrange(Nsh_list[m]):
-            u_rec += sinc(bwpi*(t-tsh_list[m][k]))*bwpi*c[sum(Nsh_list[:m])+k, 0]
+            u_rec += sinc(bwpi*(t-tsh_list[m][k]))*bwpi*c[Nsh_cumsum[m]+k, 0]
     return u_rec
 
