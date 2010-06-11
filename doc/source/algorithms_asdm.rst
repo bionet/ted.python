@@ -62,7 +62,7 @@ Single-Input Single-Output Algorithms
       :scale: 70
       :align: center
 
-Multiple-Input Single-Output Algorithms
+Multi-Input Single-Output Algorithms
 ---------------------------------------
 
 :func:`Time Decoding Machine - MISO Decoder <bionet.ted.asdm.asdm_decode_pop>` |lazar_information_2007|_

@@ -28,6 +28,7 @@ Contents
    overview
    algorithms
    reference
+   changes
    license
 
 Index

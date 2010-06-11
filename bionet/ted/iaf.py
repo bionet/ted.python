@@ -211,7 +211,7 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
 def iaf_encode_pop(u_list, dt, b_list, d_list, R_list, C_list, dte=0, y=None, interval=None,
                quad_method='trapz', full_output=False):
     """
-    Multiple input multiple output IAF time encoding machine.
+    Multi-input multi-output IAF time encoding machine.
     
     Encode several signals with an ensemble of Integrate-and-Fire neurons.
 
@@ -523,7 +523,7 @@ def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
 
 def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
     """
-    Multiple input single output IAF time decoding machine.
+    Multi-input single-output IAF time decoding machine.
     
     Decode a signal encoded with an ensemble of Integrate-and-Fire neurons.
 
@@ -790,7 +790,7 @@ def iaf_decode_spline(s, dur, dt, b, d, R=inf, C=1.0):
 def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
                           C_list):
     """
-    Multiple input single output spline interpolation IAF time
+    Multi-input single-output spline interpolation IAF time
     decoding machine.
                           
     Decode a signal encoded with an ensemble of Integrate-and-Fire
@@ -1025,7 +1025,7 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
 
 def iaf_encode_coupled(u, dt, b_list, d_list, k_list, h_list, type_list):
     """
-    Single input multiple output coupled IAF time encoding
+    Single-input multi-output coupled IAF time encoding
     machine.
     
     Encode a signal with an ensemble of coupled ideal ON-OFF
@@ -1096,7 +1096,7 @@ def iaf_encode_coupled(u, dt, b_list, d_list, k_list, h_list, type_list):
 
 def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
     """
-    Multiple input single output coupled IAF time decoding machine.
+    Multi-input single-output coupled IAF time decoding machine.
     
     Decode a signal encoded with an ensemble of coupled ON-OFF
     Integrate-and-Fire neurons.
@@ -1222,7 +1222,7 @@ def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list,
                      w_list, y_list=None, interval_list=None,
                      u_list_prev=None, full_output=False):
     """
-    Multiple input multiple output delayed IAF time encoding
+    Multi-input multi-output delayed IAF time encoding
     machine.
                      
     Encode several signals with an ensemble of ideal
@@ -1341,7 +1341,7 @@ def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list,
 
 def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
     """
-    Multiple input multiple output delayed IAF time decoding machine.
+    Multi-input multi-output delayed IAF time decoding machine.
     
     Decode several signals encoded with an ensemble of ideal
     Integrate-and-Fire neurons with delays.

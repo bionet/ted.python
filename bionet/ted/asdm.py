@@ -457,7 +457,7 @@ def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0, sgn=-1):
 
 def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
     """
-    Multiple input single output ASDM time decoding machine.
+    Multi-input single-output ASDM time decoding machine.
     
     Decode a signal encoded by an ensemble of Asynchronous Sigma-Delta
     Modulators.
@@ -561,7 +561,7 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
 
 def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
     """
-    Threshold-insensitive multiple input single output time decoding
+    Threshold-insensitive multi-input single-output time decoding
     machine.
     
     Decode a signal encoded by an ensemble of ASDM encoders using a

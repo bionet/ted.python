@@ -5,7 +5,7 @@
 Asynchronous Sigma-Delta Modulator Routines
 ===========================================
 
-Single Input Single Output Routines
+Single-Input Single-Output Routines
 -----------------------------------
 .. autosummary::
    :toctree: generated/
@@ -16,7 +16,7 @@ Single Input Single Output Routines
    asdm_decode_ins
    asdm_encode
 
-Multiple Input Single Output Routines
+Multi-Input Single-Output Routines
 -------------------------------------
 
 .. autosummary::

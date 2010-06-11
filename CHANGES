@@ -3,8 +3,12 @@
 Change Log
 ==========
 
-Releast 0.05 - (June 1, 2010)
+Release 0.051 - (June 9, 2010)
 ------------------------------
+* Eliminate various unnecessary loops and summations.
+
+Release 0.05 - (June 1, 2010)
+-----------------------------
 * Add documentation.
 * Add more efficient concurrent IAF encoder.
 * Fix bug in MIMO spline interpolation decoders.
