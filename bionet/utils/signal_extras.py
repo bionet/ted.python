@@ -71,6 +71,7 @@ def snr(u, u_rec, *args):
     k_min, k_max : int
         Lower and upper indicies into the signals over which to compute
         the SNR.
+        
     """
 
     k_min = 0
@@ -82,7 +83,7 @@ def snr(u, u_rec, *args):
     if len(args) == 2:
         k_max = args[1]
         
-    return db(rms(u))-db(mean((u[k_min:k_max]-u_rec[k_min:k_max])**2))
+    return db(mean(u**2))-db(mean((u[k_min:k_max]-u_rec[k_min:k_max])**2))
 
 # --- Sampling functions ---
 
