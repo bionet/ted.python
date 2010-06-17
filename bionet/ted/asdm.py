@@ -195,8 +195,11 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
     if dte < 0:
         raise ValueError('encoding time resolution must be nonnegative')
     if dte != 0 and dte != dt:
-        u = resample(u, len(u)*int(dt/dte))
-        Nu = len(u)
+
+        # Resample signal and adjust signal length accordingly:
+        M = int(dt/dte)
+        u = resample(u, len(u)*M)
+        Nu *= M
         dt = dte
         
     # Use a list rather than an array to save the spike intervals

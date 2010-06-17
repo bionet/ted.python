@@ -166,8 +166,12 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
         raise ValueError('encoding time resolution must not exceeed original signal resolution')
     if dte < 0:
         raise ValueError('encoding time resolution must be nonnegative')
-    if dte != 0:        
-        u = resample(u, len(u)*int(dt/dte))
+    if dte != 0 and dte != dt:
+
+        # Resample signal and adjust signal length accordingly:
+        M = int(dt/dte)
+        u = resample(u, len(u)*M)
+        Nu *= M
         dt = dte
 
     # Use a list rather than an array to save the spike intervals
@@ -284,8 +288,10 @@ def iaf_encode_pop(u_list, dt, b_list, d_list, R_list, C_list, dte=0, y=None, in
         raise ValueError('encoding time resolution must not exceeed original signal resolution')
     if dte < 0:
         raise ValueError('encoding time resolution must be nonnegative')
-    if dte != 0:        
-        u_array = array([resample(u, len(u)*int(dt/dte)) for u in u_list])
+    if dte != 0 and dte != dt:        
+        M = int(dt/dte)
+        u_array = array([resample(u, len(u)*M) for u in u_list])
+        Nu *= M
         dt = dte
 
     # Use a list rather than an array to save the spike intervals
