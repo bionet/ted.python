@@ -55,7 +55,7 @@ def rms(x):
 
     return sqrt(mean(abs(x)**2))
 
-def snr(u, u_rec, *args):
+def snr(u, u_rec, k_min=0, k_max=None):
     """Compute the signal-to-noise ratio (in dB) of a signal given its
     reconstruction.
 
@@ -74,16 +74,10 @@ def snr(u, u_rec, *args):
         
     """
 
-    k_min = 0
-    k_max = len(u)
-    if len(args) == 0 and len(u) != len(u_rec):
+    if len(u) != len(u_rec):
         raise ValueError('u and u_rec must be the same length')
-    if len(args) == 1:
-        k_min = args[0]
-    if len(args) == 2:
-        k_max = args[1]
         
-    return db(mean(u**2))-db(mean((u[k_min:k_max]-u_rec[k_min:k_max])**2))
+    return db(mean(u[k_min:k_max]**2))-db(mean((u[k_min:k_max]-u_rec[k_min:k_max])**2))
 
 # --- Sampling functions ---
 
