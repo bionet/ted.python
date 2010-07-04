@@ -1,11 +1,10 @@
 .. -*- rst -*-
 
-Integrate-and-Fire Neuron Algorithms
-====================================
+Integrate-and-Fire Neuron Machines
+==================================
 
-Single-Input Single-Output Algorithms
--------------------------------------
-
+Single-Input Single-Output Machines
+-----------------------------------
 
 :func:`Time Encoding Machine <bionet.ted.iaf.iaf_encode>` |lazar_perfect_2004|_
    Encodes a bandlimited signal using an Integrate-and-Fire neuron.
@@ -49,8 +48,8 @@ Single-Input Single-Output Algorithms
       :scale: 70
       :align: center
 
-Single-Input Multi-Output Algorithms
----------------------------------------
+Single-Input Multi-Output Machines
+----------------------------------
 
 :func:`Time Encoding Machine - SIMO Coupled IAF Encoder <bionet.ted.iaf.iaf_encode_coupled>` |lazar_consistent_2009|_
    Encodes a finite energy signal encoded by with multiple coupled
@@ -60,8 +59,8 @@ Single-Input Multi-Output Algorithms
       :scale: 70
       :align: center
 
-Multi-Input Single-Output Algorithms
----------------------------------------
+Multi-Input Single-Output Machines
+----------------------------------
 
 :func:`Time Decoding Machine - MISO IAF Decoder <bionet.ted.iaf.iaf_decode_pop>` |lazar_information_2007|_
    Decodes a bandlimited signal encoded by multiple Integrate-and-Fire
@@ -79,8 +78,8 @@ Multi-Input Single-Output Algorithms
       :scale: 70
       :align: center
 
-Multi-Input Multi-Output Algorithms
------------------------------------------
+Multi-Input Multi-Output Machines
+---------------------------------
 
 :func:`Time Encoding Machine - MIMO Delayed IAF Encoder <bionet.ted.iaf.iaf_encode_delay>` |lazar_consistent_2009|_
    Encodes several finite energy signals encoded by multiple

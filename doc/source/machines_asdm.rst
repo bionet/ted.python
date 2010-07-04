@@ -1,10 +1,10 @@
 .. -*- rst -*-
 
-Asynchronous Sigma-Delta Modulator Algorithms
-=============================================
+Asynchronous Sigma-Delta Modulator Machines
+===========================================
 
-Single-Input Single-Output Algorithms
--------------------------------------
+Single-Input Single-Output Machines
+-----------------------------------
 
 :func:`Time Encoding Machine <bionet.ted.asdm.asdm_encode>` |lazar_perfect_2004|_
    Encodes a bandlimited signal using an Asynchronous Sigma-Delta
@@ -62,8 +62,8 @@ Single-Input Single-Output Algorithms
       :scale: 70
       :align: center
 
-Multi-Input Single-Output Algorithms
----------------------------------------
+Multi-Input Single-Output Machines
+----------------------------------
 
 :func:`Time Decoding Machine - MISO Decoder <bionet.ted.asdm.asdm_decode_pop>` |lazar_information_2007|_
    Decodes a bandlimited signal encoded by multiple Asynchronous

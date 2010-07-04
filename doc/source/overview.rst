@@ -44,15 +44,15 @@ What is Time Decoding?
 
 Under appropriate conditions |lazar_time_2004|_, a signal that has
 been time encoded as a sequence of spikes can be faithfully recovered
-using a *time decoding* algorithm. The circuit below uses sinc kernels
+using a *time decoding machine*. The circuit below uses sinc kernels
 to reconstruct the encoded signal:
 
 .. image:: images/tdm-sinc.png
    :scale: 70
    :align: center
 
-Processing a time encoded signal with the above algorithm results in
-the following reconstruction. Although the actual input signal is
+Processing a time encoded signal with the above circuit results in the
+following reconstruction. Although the actual input signal is
 discretely represented with traditional computational models, the
 reconstruction can be made arbitrarily precise for bandlimited
 stimuli.

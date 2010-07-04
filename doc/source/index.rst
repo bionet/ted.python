@@ -26,7 +26,7 @@ Contents
 
    install
    overview
-   algorithms
+   machines
    reference
    changes
    license
