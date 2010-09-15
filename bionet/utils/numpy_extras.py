@@ -18,13 +18,17 @@ numpy [1]_.
 
 __all__ = ['mdot', 'rank', 'mpower', 'hilb']
 
-from numpy import dot, eye, asarray, abs, shape, diag, \
+from numpy import dot, empty, eye, asarray, abs, shape, diag, \
      complex, float, zeros, arange, real, imag, iscomplexobj, any
 from numpy.linalg import svd, eig, inv
 
 def mdot(*args):
-    """Compute the matrix product of several multidimensional arrays
-    evaluated left to right."""
+    """
+    Dot product of several arrays.
+
+    Compute the dot product of several arrays in the order they are
+    listed.
+    """
 
     ret = args[0]
     for a in args[1:]:
@@ -32,11 +36,20 @@ def mdot(*args):
     return ret
 
 def rank(x, *args):
-    """Estimate the number of linearly independent rows or columns of the
-    matrix x. If the tolerance is not specified, the default tolerance
-    max(svd(x)[1])*max(shape(x))*1e-13 is used. Shamelessly adapted from
-    the rank() function in pylab."""
+    """
+    Compute matrix rank.
+    
+    Estimate the number of linearly independent rows or columns of the
+    matrix x.
+    
+    Parameters
+    ----------
+    x : array_like, shape (M, N) 
+        Matrix to analyze.
+    tol : float
+        Tolerance; the default is max(svd(x)[1])*max(shape(x))*1e-13
 
+    """
     x = asarray(x)
     s = svd(x, compute_uv=False)
     if args:
@@ -46,8 +59,17 @@ def rank(x, *args):
     return sum(s > tol)
 
 def mpower(x, y):
-    """Compute x raised to the power y when x is a square matrix and y
-    is a scalar. The matrix x must be non-defective."""
+    """
+    Matrix power function.
+
+    Compute `x` raised to the power `y` where `x` is a square matrix and `y`
+    is a scalar.
+
+    Notes
+    -----
+    The matrix `x` must be non-defective.
+
+    """
 
     s = shape(x)
     if len(s) != 2 or s[0] != s[1]:
@@ -73,11 +95,14 @@ def mpower(x, y):
     else:
         return result
     
-
 def hilb(n):
-    """Construct a Hilbert matrix of size n x n."""
+    """
+    Construct a Hilbert matrix.
 
-    h = zeros((n, n), float)
+    Construct a Hilbert matrix of size `n` x `n`.
+    """
+
+    h = empty((n, n), float)
     r = arange(1, n+1)
     for i in xrange(n):
         h[i, :] = 1.0/(i+r)

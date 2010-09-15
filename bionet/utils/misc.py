@@ -14,22 +14,41 @@ This module contains various unclassified utility functions and classes.
 __all__ = ['chunks', 'SerialBuffer']
 
 def chunks(seq, n):
-    """Return a generator whose .next() method returns length n
-    subsequences of the given sequence.  If len(seq) % n != 0, the
-    last subsequence returned will contain fewer than n entries."""
+    """Return a generator whose `next()` method returns length n
+    subsequences of the given sequence.  If `len(seq)` % `n` != 0, the
+    last subsequence returned will contain fewer than `n` entries."""
     
     for i in xrange(0, len(seq), n):
         yield seq[i:i+n]
 
 class SerialBuffer:
-    """This class implements a buffer that automatically replenishes
+    """
+    Serial buffer class.
+    
+    This class implements a buffer that automatically replenishes
     its contents from a specified serial data source when it contains
-    too little data to honor a read request."""
+    too little data to honor a read request.
+
+    Parameters
+    ----------
+    get : function
+        Data retrieval function. Must return an empty sequence or None
+        when it can no longer retrieve any data.
+    n : int
+        Number of initial entries to load into buffer.
+
+    Methods
+    -------
+    clear()
+        Empty buffer.
+    read(n=1)
+        Read `n` elements from buffer.
+    replenish(n=1)
+        Replenish buffer to contain at least `n` elements.
+
+    """
     
     def __init__(self, get, n=1):
-        """Initialize a serial buffer with n initial entries. The data
-        retrieval function get() must return an empty sequence or None
-        when it can no longer retrieve any data."""
 
         if not callable(get):
             raise ValueError('get() must be callable')
@@ -45,7 +64,7 @@ class SerialBuffer:
         return repr(self.data)
     
     def __iterable(self, y):
-        """Check whether y is iterable."""
+        """Check whether `y` is iterable."""
         
         try:
             iter(y)
@@ -55,7 +74,7 @@ class SerialBuffer:
 
     def replenish(self, n=1):
         """Attempt to replenish the buffer such that it contains at
-        least n entries (but do not throw any exception if
+        least `n` entries (but do not throw any exception if
         insufficient data can be obtained)."""
 
         while True:

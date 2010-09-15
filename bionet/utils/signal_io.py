@@ -35,7 +35,10 @@ class MissingDataError(AttributeError, LookupError):
     pass
     
 class ReadArray:    
-    """A class for reading arrays of some elementary type saved in
+    """
+    Read data array from HDF5 file.
+    
+    A class for reading arrays of some elementary type saved in
     an HDF5 file. More than one array may be stored in the file; the
     class assumes that each array is stored as a child of a group with
     an integer name.
@@ -145,7 +148,10 @@ class ReadArray:
             self.pos[id] = offset
                     
 class WriteArray:
-    """A class for writing arrays of some elementary type to an HDF
+    """
+    Write data array to HDF5 file.
+    
+    A class for writing arrays of some elementary type to an HDF
     file. More than one array may be stored in the file; the class
     assumes that each array is stored as a child of a group with an
     integer name.
@@ -332,7 +338,10 @@ def get_desc_types(desc):
     return types
 
 class ReadSignal(ReadArray):
-    """A class for reading signals stored in an HDF5 file. A single
+    """
+    Read signal from HDF5 file.
+    
+    A class for reading signals stored in an HDF5 file. A single
     file may contain multiple signals. Each signal contains a data
     array and a descriptor.
 
@@ -407,7 +416,10 @@ class ReadSignal(ReadArray):
         return desc_node_list
 
 class WriteSignal(WriteArray):
-    """A class for writing signals to an HDF5 file. A single file may
+    """
+    Write signal to HDF5 file.
+    
+    A class for writing signals to an HDF5 file. A single file may
     contain multiple signals. Each array is stored as a child of a
     group with an integer name.
 
@@ -546,7 +558,10 @@ class TimeEncodedSignalDescriptor(t.IsDescription):
     k            = t.FloatCol(pos=6, dflt=1.0) # integration constant
     
 class ReadSampledSignal(ReadSignal):
-    """A class for reading sampled signals stored in an HDF5 file. A
+    """
+    Read a sampled signal from an HDF5 file.
+    
+    A class for reading sampled signals stored in an HDF5 file. A
     single file may contain multiple signals. Each signal contains a
     data array and a descriptor.
 
@@ -589,7 +604,10 @@ class ReadSampledSignal(ReadSignal):
                                            "an unrecognized descriptor" % filename)
 
 class WriteSampledSignal(WriteSignal):
-    """A class for writing sampled signals to an HDF5 file. A single
+    """
+    Write a sampled signal to an HDF5 file.
+    
+    A class for writing sampled signals to an HDF5 file. A single
     file may contain multiple signals. Each signal is stored as a
     child of a group with an integer name.
 
@@ -648,7 +666,10 @@ class WriteSampledSignal(WriteSignal):
                 raise WrongDescriptorError("descriptor values do not match format")
 
 class ReadTimeEncodedSignal(ReadSignal):
-    """A class for reading time-encoded signals stored in an HDF5
+    """
+    Read a time-encoded signal from an HDF5 file.
+    
+    A class for reading time-encoded signals stored in an HDF5
     file. A single file may contain multiple signals. Each signal
     contains a data array and a descriptor.
 
@@ -691,7 +712,10 @@ class ReadTimeEncodedSignal(ReadSignal):
                                            "an unrecognized descriptor" % filename)
             
 class WriteTimeEncodedSignal(WriteSignal):
-    """A class for writing time-encoded signals to HDF5 files. A
+    """
+    Write a time-encoded signal to an HDF5 file.
+    
+    A class for writing time-encoded signals to HDF5 files. A
     single file may contain multiple signals. Each signal is stored as
     a child of a group with an integer name.
 

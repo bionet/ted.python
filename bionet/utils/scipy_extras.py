@@ -24,7 +24,7 @@ from numpy import pi, inf, log, array, asarray, complex, iscomplexobj, real, \
 from scipy.special import exp1
 
 def ei(z):
-    """Compute the exponential integral of a complex value."""
+    """Exponential integral of a complex value."""
 
     if iterable(z):
         zc = asarray(z, complex)
@@ -45,7 +45,7 @@ def ei(z):
         return asscalar(res)
 
 def si(z):
-    """Compute the sine integral of a complex value."""
+    """Sine integral of a complex value."""
 
     if iterable(z):
         zc = asarray(z, complex)
@@ -66,7 +66,7 @@ def si(z):
         return asscalar(res)
 
 def ci(z):
-    """Compute the cosine integral of a complex value."""
+    """Cosine integral of a complex value."""
 
     if iterable(z):
         zc = asarray(z, complex)
@@ -88,7 +88,7 @@ def ci(z):
         return asscalar(res)
 
 def li(z):
-    """Compute the logarithmic integral of a complex value."""
+    """Logarithmic integral of a complex value."""
 
     if iterable(z):
         zc = asarray(z, complex)
@@ -109,7 +109,7 @@ def li(z):
         return asscalar(res)
 
 def shi(z):
-    """Compute the hyperbolic sine integral of a complex value."""
+    """Hyperbolic sine integral of a complex value."""
 
     if iterable(z):
         zc = asarray(z, complex)
@@ -130,7 +130,7 @@ def shi(z):
         return asscalar(res)
 
 def chi(z):
-    """Compute the hyperbolic cosine integral of a complex value."""
+    """Hyperbolic cosine integral of a complex value."""
 
     if iterable(z):
         zc = asarray(z, complex)

@@ -53,7 +53,7 @@ def gen_test_signal(dur, dt, fmax, np=None, nc=3):
     # Determine number of entries in generated signal. This
     # corresponds to the length of arange(0, dur, dt):
     n = int(ceil(dur/dt))
-    
+
     # Randomly set nc distinct frequency components:    
     f = zeros(int(n/2)+1, complex) # only one side of the spectrum is needed
     fmaxi = int(n*fmax/fs)
