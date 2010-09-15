@@ -8,6 +8,10 @@ import sys
 import numpy as np
 import matplotlib as mp
 
+# Set matplotlib backend so that plots can be generated without a
+# display:
+mp.use('AGG')
+
 import bionet.utils.gen_test_signal as g
 import bionet.utils.test_utils as tu
 import bionet.ted.iaf as iaf
