@@ -6,7 +6,12 @@ integrate-and-fire neuron model.
 
 These functions make use of CUDA.
 
+- iaf_decode            - IAF time decoding machine.
+- iaf_encode            - IAF time encoding machine.
+
 """
+
+__all__ = ['iaf_encode', 'iaf_decode']
 
 from string import Template
 from pycuda.compiler import SourceModule
@@ -14,6 +19,7 @@ import pycuda.gpuarray as gpuarray
 import pycuda.driver as drv
 import numpy as np
 from numpy import inf
+from scipy.signal import resample
 
 import scikits.cuda.linalg as culinalg
 import scikits.cuda.misc as cumisc
@@ -95,12 +101,57 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
                quad_method='trapz', full_output=False, dev=None):
     """
     IAF time encoding machine.
+    
+    Encode a finite length signal with an Integrate-and-Fire neuron.
 
+    Parameters
+    ----------
+    u : array_like of floats
+        Signal to encode.
+    dt : float
+        Sampling resolution of input signal; the sampling frequency
+        is 1/dt Hz.
+    b : float
+        Encoder bias.
+    d : float
+        Encoder threshold.
+    R : float
+        Neuron resistance.
+    C : float
+        Neuron capacitance.
+    dte : float
+        Sampling resolution assumed by the encoder (s).
+        This may not exceed `dt`.
+    y : float
+        Initial value of integrator.
+    interval : float
+        Time since last spike (in s).
+    quad_method : {'rect', 'trapz'}
+        Quadrature method to use (rectangular or trapezoidal) when the
+        neuron is ideal; exponential Euler integration is used
+        when the neuron is leaky.
+    full_output : bool
+        If set, the function returns the encoded data block followed
+        by the given parameters (with updated values for `y` and `interval`).
+        This is useful when the function is called repeatedly to
+        encode a long signal.
+    dev : pycuda.driver.Device
+        Device object to be used.        
+        
+    Returns
+    -------
+    s : ndarray of floats
+        If `full_output` == False, returns the signal encoded as an
+        array of time intervals between spikes.
+    [s, dt, b, d, R, C, dte, y, interval, quad_method, full_output] : list
+        If `full_output` == True, returns the encoded signal
+        followed by updated encoder parameters.
+        
     Notes
     -----
-    This function assumes that no context is active on the specified
-    device.
-    
+    When trapezoidal integration is used, the value of the integral
+    will not be computed for the very last entry in `u`.
+
     """
 
     # Input sanity check:
@@ -112,6 +163,29 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
         np_type = np.float64
     else:
         raise ValueError('unsupported data type')
+
+    # Handle empty input:
+    Nu = len(u)
+    if Nu == 0:
+        if full_output:
+            return array((),float), dt, b, d, R, C, dte, y, interval, \
+                   quad_method, full_output
+        else:
+            return array((),float)
+    
+    # Check whether the encoding resolution is finer than that of the
+    # original sampled signal:
+    if dte > dt:
+        raise ValueError('encoding time resolution must not exceeed original signal resolution')
+    if dte < 0:
+        raise ValueError('encoding time resolution must be nonnegative')
+    if dte != 0 and dte != dt:
+
+        # Resample signal and adjust signal length accordingly:
+        M = int(dt/dte)
+        u = resample(u, len(u)*M)
+        Nu *= M
+        dt = dte
     
     # Configure kernel:
     iaf_encode_mod = \
@@ -119,7 +193,7 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
     iaf_encode = iaf_encode_mod.get_function("iaf_encode")
 
     # XXX: A very long s array might cause memory problems:
-    s = np.zeros(len(u), np_type)
+    s = np.zeros(Nu, np_type)
     i_s_0 = np.zeros(1, np.uint32)
     y_0 = np.asarray([y], np_type)
     interval_0 = np.asarray([interval], np_type)
@@ -128,7 +202,7 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
                np_type(d), np_type(R), np_type(C), 
                drv.InOut(y_0), drv.InOut(interval_0),
                np.uint32(True if quad_method == 'trapz' else False),
-               np.uint32(len(u)),
+               np.uint32(Nu),
                block=(1, 1, 1))
 
     if full_output:
@@ -137,8 +211,7 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
     else:
         return s[0:i_s_0[0]]
 
-# Kernel template for computing q in the pseudoinverse-based time
-# decoder of a signal encoded by an ideal IAF neuron:
+# Kernel template for computing q for the ideal IAF time decoder:
 compute_q_ideal_mod_template = Template("""
 #define USE_DOUBLE ${use_double}
 #if USE_DOUBLE == 0
@@ -159,7 +232,7 @@ __global__ void compute_q(FLOAT *s, FLOAT *q, FLOAT b,
 }
 """)
 
-# Kernel template for computing spike times:
+# Kernel template for computing spike times for the ideal IAF time decoder:
 compute_ts_ideal_mod_template = Template("""
 #define USE_DOUBLE ${use_double}
 #if USE_DOUBLE == 0
@@ -181,7 +254,8 @@ __global__ void compute_ts(FLOAT *s, FLOAT *ts, unsigned int N) {
 }
 """)
 
-# Kernel template for computing midpoints between spikes:
+# Kernel template for computing midpoints between spikes for the ideal
+# IAF time decoder:
 compute_tsh_ideal_mod_template = Template("""
 #define USE_DOUBLE ${use_double}
 #if USE_DOUBLE == 0
@@ -201,7 +275,8 @@ __global__ void compute_tsh(FLOAT *ts, FLOAT *tsh, unsigned int Nsh) {
 }   
 """)
 
-# Kernel template for computing the recovery matrix:
+# Kernel template for computing the recovery matrix for the ideal IAF
+# time decoder:
 compute_G_ideal_mod_template = Template("""
 #include <cuConstants.h>    // needed to provide PI
 #include <cuSpecialFuncs.h> // needed to provide sici()
@@ -231,7 +306,8 @@ __global__ void compute_G(FLOAT *ts, FLOAT *tsh, FLOAT *G, FLOAT bw, unsigned in
 }
 """)
 
-# Kernel template for reconstructing the encoded signal:
+# Kernel template for reconstructing the encoded signal for the ideal
+# IAF time decoder:
 compute_u_ideal_mod_template = Template("""
 #include <cuConstants.h>    // needed to provide PI
 #include <cuSpecialFuncs.h> // needed to provide sinc()
@@ -265,7 +341,41 @@ __global__ void compute_u(FLOAT *u_rec, FLOAT *t, FLOAT *tsh, FLOAT *c,
 """)
 
 def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0, dev=None):
+    """
+    IAF time decoding machine.
+    
+    Decode a finite length signal encoded with an Integrate-and-Fire
+    neuron.
 
+    Parameters
+    ----------
+    s : ndarray of floats
+        Encoded signal. The values represent the time between spikes (in s).
+    dur : float
+        Duration of signal (in s).
+    dt : float
+        Sampling resolution of original signal; the sampling frequency
+        is 1/dt Hz.
+    bw : float
+        Signal bandwidth (in rad/s).
+    b : float
+        Encoder bias.
+    d : float
+        Encoder threshold.
+    R : float
+        Neuron resistance.
+    C : float
+        Neuron capacitance.
+    dev : pycuda.driver.Device
+        Device object to be used.
+        
+    Returns
+    -------
+    u_rec : ndarray of floats
+        Recovered signal.
+
+    """
+    
     # Use single precision for all of the computations:
     stype = np.float32
     if s.dtype != stype:

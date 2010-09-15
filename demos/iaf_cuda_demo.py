@@ -10,19 +10,19 @@ import numpy as np
 import atexit
 import pycuda.driver as drv
 
+# Set matplotlib backend so that plots can be generated without a
+# display:
+import matplotlib
+matplotlib.use('AGG')
+
 import bionet.utils.gen_test_signal as g
 import bionet.utils.test_utils as tu
 import bionet.ted.iaf as iaf
 import bionet.ted.iaf_cuda as iaf_cuda
 
 # Get the automatically selected GPU device:
-#import pycuda.autoinit
-#dev = pycuda.autoinit.device
-
-drv.init()
-dev = drv.Device(0) # Set this accordingly
-ctx = dev.make_context()
-atexit.register(ctx.pop)
+import pycuda.autoinit
+dev = pycuda.autoinit.device
 
 import scikits.cuda.autoinit
 import scikits.cuda.linalg as culinalg
