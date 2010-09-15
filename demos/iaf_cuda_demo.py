@@ -24,8 +24,8 @@ dev = drv.Device(0) # Set this accordingly
 ctx = dev.make_context()
 atexit.register(ctx.pop)
 
-import cuda_utils.autoinit
-import cuda_utils.linalg as culinalg
+import scikits.cuda.autoinit
+import scikits.cuda.linalg as culinalg
 
 # For determining output plot file names:
 output_name = 'iaf_cuda_demo_'
