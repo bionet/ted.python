@@ -7,6 +7,11 @@ neurons with delays.
 
 import numpy as np
 
+# Set matplotlib backend so that plots can be generated without a
+# display:
+import matplotlib
+matplotlib.use('AGG')
+
 import bionet.utils.gen_test_signal as g
 import bionet.utils.test_utils as tu
 import bionet.ted.iaf as iaf
