@@ -15,11 +15,11 @@ import pycuda.driver as drv
 import numpy as np
 from numpy import inf
 
-import cuda_utils.linalg as culinalg
-import cuda_utils.misc as cumisc
+import scikits.cuda.linalg as culinalg
+import scikits.cuda.misc as cumisc
 
 # Get installation location of C headers:
-from cuda_utils import install_headers
+from scikits.cuda import install_headers
 
 # Pseudoinverse singular value cutoff:
 __pinv_rcond__ = 1e-6
