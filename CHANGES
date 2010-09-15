@@ -6,6 +6,7 @@ Change Log
 Release 0.015 - ()
 ------------------
 * Add video IO tools.
+* Fix bug in snr() function.
 
 Release 0.014 - (April 20, 2010)
 --------------------------------

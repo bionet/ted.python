@@ -19,9 +19,9 @@ some modules.
 * `OpenCV 2.1.0 <http://opencv.willowgarage.com/>`_
 * `MEncoder 1.0 <http://www.mplayerhq.hu/>`_
 
-This software has been tested on Linux and MacOSX. Although not tested
-on Windows, it should work on that platform given that all of the
-above prerequisites are available for Windows.
+This software has been tested on Linux. Although not tested on
+Windows or MacOSX, it should work on those platforms if all of the
+above packages are properly installed.
 
 Building and Installation
 -------------------------
