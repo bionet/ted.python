@@ -15,8 +15,13 @@ been tested):
 * `Cython <http://www.cython.org>`_ 0.11.2 or later.
 * `Numpy <http://numpy.scipy.org>`_ 1.2.0 or later.
 * `Scipy <http://www.scipy.org>`_ 0.7.0 or later.
-* `PyTables <http://www.pytables.org>`_ 2.0.0 or later.
 * `Bionet Python Utilities <http://bionet.ee.columbia.edu/code>`_ 0.014 or later.
+
+To run the CUDA-dependent implementations, you will also need
+
+* `NVIDIA CUDA Toolkit <www.nvidia.com/object/cuda_get.html>`_ 3.0 or later.
+* `PyCUDA <http://mathema.tician.de/software/pycuda>`_ 0.94rc or later.
+* `scikit.cuda <http://bionet.ee.columbia.edu/code>`_ 0.01 or later.
 
 To run the demo code and generate plots, the following package 
 is also required:
@@ -26,11 +31,11 @@ is also required:
 To build the documentation, the following packages are also required:
 
 * `Docutils <http://docutils.sourceforge.net>`_ 0.5 or later.
-* `Sphinx <http://sphinx.pocoo.org>`_ 0.6.3 or later.
+* `Sphinx <http://sphinx.pocoo.org>`_ 1.0.1 or later.
 
-This software has been tested on Linux and MacOSX. Although not tested
-on Windows, it should work on that platform given that all of the
-above prerequisites are available for Windows.
+This software has been tested on Linux. Although not tested on
+Windows or MacOSX, it should work on those platforms if all of the
+above packages are properly installed.
 
 Building and Installation
 -------------------------

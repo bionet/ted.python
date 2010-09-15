@@ -18,11 +18,11 @@ Group's online code repository [1]_.
 Authors & Acknowledgments
 --------------------------
 
-The implementations in this package were written by Lev Givon,
-currently at the Bionet Group at Columbia University. Some parts
-of the code are based (in part) on previous implementations written by
-the following members of the Bionet Group under the supervision of
-Prof. Aurel A. Lazar [2]_:
+The implementations in this package were written and packaged by Lev
+Givon, currently at the Bionet Group at Columbia University. Some
+parts of the code are based (in part) on previous implementations
+written by the following members and alumni of the Bionet Group under
+the supervision of Prof. Aurel A. Lazar [2]_:
 
 * Eftychios Pnevmatikakis
 * Yevgeniy Slutskiy
@@ -33,8 +33,6 @@ reviewing the code and providing useful suggestions:
 
 * Robert Turetsky
 * Yiyin Zhou
-
-The software in this toolbox was packaged by Lev Givon.
 
 License
 -------
