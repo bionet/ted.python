@@ -12,8 +12,9 @@ import numpy as np
 import matplotlib
 matplotlib.use('AGG')
 
+from bionet.utils.misc import func_timer
 import bionet.utils.gen_test_signal as g
-import bionet.utils.test_utils as tu
+import bionet.utils.plotting as pl
 import bionet.ted.iaf as iaf
 
 # For determining output plot file names:
@@ -37,9 +38,9 @@ if noise_power == None:
 else:
     fig_title = 'IAF Input Signal with %d dB of Noise' % noise_power
 print fig_title
-u = tu.func_timer(g.gen_test_signal)(dur, dt, f, noise_power, comps)
+u = func_timer(g.gen_test_signal)(dur, dt, f, noise_power, comps)
 u /= max(u)
-tu.plot_signal(t, u, fig_title,
+pl.plot_signal(t, u, fig_title,
                output_name + str(output_count) + output_ext)
 
 b = 4
@@ -66,22 +67,22 @@ h_list[1][1] = lambda t : 0
 
 fig_title = 'Signal Encoded Using Coupled IAF Encoder'
 print fig_title
-s_list = tu.func_timer(iaf.iaf_encode_coupled)(u, dt, [b1, b2], [d1, d2],
+s_list = func_timer(iaf.iaf_encode_coupled)(u, dt, [b1, b2], [d1, d2],
                                                [k1, k2], h_list, [type1, type2])
 output_count += 1
-tu.plot_encoded(t, u, s_list[0], fig_title + ' #1',
+pl.plot_encoded(t, u, s_list[0], fig_title + ' #1',
                 output_name + str(output_count) + output_ext)
 output_count += 1
-tu.plot_encoded(t, u, s_list[1], fig_title + ' #2',
+pl.plot_encoded(t, u, s_list[1], fig_title + ' #2',
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'Signal Decoded Using Coupled IAF Decoder'
 print fig_title
-u_rec = tu.func_timer(iaf.iaf_decode_coupled)(s_list, dur, dt, 
+u_rec = func_timer(iaf.iaf_decode_coupled)(s_list, dur, dt, 
                                               [b1, b2], [d1, d2], [k1, k2],
                                               h_list)
-tu.plot_compare(t, u, u_rec, fig_title,
+pl.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 
 

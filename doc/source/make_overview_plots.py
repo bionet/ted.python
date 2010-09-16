@@ -12,8 +12,9 @@ import matplotlib as mp
 # display:
 mp.use('AGG')
 
+from bionet.utils.misc import func_timer
 import bionet.utils.gen_test_signal as g
-import bionet.utils.test_utils as tu
+import bionet.utils.plotting as pl
 import bionet.ted.iaf as iaf
 
 # Set plot generation DPI:
@@ -33,8 +34,8 @@ np.random.seed(0)
 noise_power = None
 fig_title = 'IAF input signal';
 print fig_title
-u = tu.func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
-tu.plot_signal(t, u, fig_title, output_dir + 'overview_input' + output_ext)
+u = func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
+pl.plot_signal(t, u, fig_title, output_dir + 'overview_input' + output_ext)
 
 b = 3.5     # bias
 d = 0.7     # threshold
@@ -48,14 +49,14 @@ except ValueError('reconstruction condition not satisfied'):
 
 fig_title = 'Signal encoded by IAF neuron'
 print fig_title
-s = tu.func_timer(iaf.iaf_encode)(u, dt, b, d, R, C)
-tu.plot_encoded(t, u, s, fig_title,
+s = func_timer(iaf.iaf_encode)(u, dt, b, d, R, C)
+pl.plot_encoded(t, u, s, fig_title,
                 output_dir + 'overview_encoded' + output_ext)
 
 fig_title = 'Decoded signal and reconstruction error'
 print fig_title
-u_rec = tu.func_timer(iaf.iaf_decode)(s, dur, dt, bw, b, d, R, C)
-tu.plot_compare(t, u, u_rec, fig_title,
+u_rec = func_timer(iaf.iaf_decode)(s, dur, dt, bw, b, d, R, C)
+pl.plot_compare(t, u, u_rec, fig_title,
                 output_dir + 'overview_decoded' + output_ext)
 
 

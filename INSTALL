@@ -15,7 +15,7 @@ been tested):
 * `Cython <http://www.cython.org>`_ 0.11.2 or later.
 * `Numpy <http://numpy.scipy.org>`_ 1.2.0 or later.
 * `Scipy <http://www.scipy.org>`_ 0.7.0 or later.
-* `Bionet Python Utilities <http://bionet.ee.columbia.edu/code>`_ 0.014 or later.
+* `Bionet Python Utilities <http://bionet.ee.columbia.edu/code>`_ 0.015 or later.
 
 To run the CUDA-dependent implementations, you will also need
 

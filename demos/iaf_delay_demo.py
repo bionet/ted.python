@@ -12,8 +12,9 @@ import numpy as np
 import matplotlib
 matplotlib.use('AGG')
 
+from bionet.util.misc import func_timer
 import bionet.utils.gen_test_signal as g
-import bionet.utils.test_utils as tu
+import bionet.utils.plotting as pl
 import bionet.ted.iaf as iaf
 
 # For determining output plot file names:
@@ -46,10 +47,10 @@ u_list = []
 for i in xrange(M):
     fig_title_in = fig_title + ' (Signal #' + str(i+1) + ')'
     print fig_title_in
-    u = tu.func_timer(g.gen_test_signal)(dur, dt, f, noise_power, comps)
+    u = func_timer(g.gen_test_signal)(dur, dt, f, noise_power, comps)
     u /= max(u)
     u *= 1.5
-    tu.plot_signal(t, u[0:len(t)], fig_title_in,
+    pl.plot_signal(t, u[0:len(t)], fig_title_in,
                    output_name + str(output_count) + output_ext)
     u_list.append(u)
     output_count += 1
@@ -71,24 +72,24 @@ w_list = map(list, np.reshape(randu(0.5, 1.0, N*M), (N, M)))
 
 fig_title = 'Signal Encoded Using Delayed IAF Encoder'
 print fig_title
-s_list = tu.func_timer(iaf.iaf_encode_delay)(u_list, T, dt, b_list, d_list,
+s_list = func_timer(iaf.iaf_encode_delay)(u_list, T, dt, b_list, d_list,
                                            k_list, a_list, w_list)
 
 for i in xrange(M):
     for j in xrange(N):
         fig_title_out = fig_title + '\n(Signal #' + str(i+1) + \
                         ', Neuron #' + str(j+1) + ')'
-        tu.plot_encoded(t, u_list[i][0:len(t)], s_list[j], fig_title_out,
+        pl.plot_encoded(t, u_list[i][0:len(t)], s_list[j], fig_title_out,
                         output_name + str(output_count) + output_ext)
         output_count += 1
     
 fig_title = 'Signal Decoded Using Delayed IAF Decoder'
 print fig_title
-u_rec_list = tu.func_timer(iaf.iaf_decode_delay)(s_list, T, dt, b_list, d_list, k_list,
+u_rec_list = func_timer(iaf.iaf_decode_delay)(s_list, T, dt, b_list, d_list, k_list,
                                                  a_list, w_list)
 
 for i in xrange(M):
     fig_title_out = fig_title + ' (Signal #' + str(i+1) + ')'
-    tu.plot_compare(t, u_list[i][0:len(t)], u_rec_list[i], fig_title_out, 
+    pl.plot_compare(t, u_list[i][0:len(t)], u_rec_list[i], fig_title_out, 
                     output_name + str(output_count) + output_ext)
     output_count += 1
