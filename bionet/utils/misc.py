@@ -7,11 +7,12 @@ Miscellaneous Functions
 This module contains various unclassified utility functions and classes.
 
 - chunks           Return a generator that splits a sequence into chunks.
+- func_timer       Function execution timer. Can be used as a decorator.
 - SerialBuffer     Buffer interface to a serial data source.
 
 """
 
-__all__ = ['chunks', 'SerialBuffer']
+__all__ = ['chunks', 'func_timer', 'SerialBuffer']
 
 def chunks(seq, n):
     """Return a generator whose `next()` method returns length n
@@ -20,6 +21,18 @@ def chunks(seq, n):
     
     for i in xrange(0, len(seq), n):
         yield seq[i:i+n]
+
+def func_timer(f):
+    """Time the execution of function f. If arguments are specified,
+    they are passed to the function being timed."""
+
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        res = f(*args, **kwargs)
+        stop = time.time()
+        print 'execution time = %.3f s' % (stop-start)
+        return res
+    return wrapper
 
 class SerialBuffer:
     """

@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
 """
-Testing Utilities
-=================
+Plotting Utilities
+==================
 
-This module contains functions for testing the performance and results
-of functions that produce numerical data.
+This module contains functions for plotting the results of functions
+that produce numerical data.
 
-- func_timer      Function execution timer. Can be used as a decorator.
 - plot_encoded    Plot a time-encoded signal.
 - plot_compare    Display two superimposed signals and their difference.
 - plot_fourier    Plot the Discrete Time Fourier transform of a signal.
@@ -16,7 +15,7 @@ of functions that produce numerical data.
 
 """
 
-__all__ = ['func_timer', 'plot_compare', 'plot_encoded',
+__all__ = ['plot_compare', 'plot_encoded',
            'plot_fourier','plot_raster', 'plot_signal']
 
 import time
@@ -30,18 +29,6 @@ try:
     from scipy.fftpack import fft
 except ImportError:
     from numpy.fft import fft
-
-def func_timer(f):
-    """Time the execution of function f. If arguments are specified,
-    they are passed to the function being timed."""
-
-    def wrapper(*args, **kwargs):
-        start = time.time()
-        res = f(*args, **kwargs)
-        stop = time.time()
-        print 'execution time = %.3f s' % (stop-start)
-        return res
-    return wrapper
 
 def plot_signal(t, u, fig_title='', file_name=''):
     """Plot a signal.
