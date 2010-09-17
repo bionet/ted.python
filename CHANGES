@@ -3,10 +3,11 @@
 Change Log
 ==========
 
-Release 0.015 - ()
-------------------
+Release 0.015 - (September 17, 2010)
+------------------------------------
 * Add video IO tools.
 * Fix bug in snr() function.
+* Put plotting functions in separate module.
 
 Release 0.014 - (April 20, 2010)
 --------------------------------
