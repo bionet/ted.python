@@ -18,8 +18,6 @@ that produce numerical data.
 __all__ = ['plot_compare', 'plot_encoded',
            'plot_fourier','plot_raster', 'plot_signal']
 
-import time
-    
 import numpy as np
 import pylab as p
 

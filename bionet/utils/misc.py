@@ -14,6 +14,8 @@ This module contains various unclassified utility functions and classes.
 
 __all__ = ['chunks', 'func_timer', 'SerialBuffer']
 
+import time
+
 def chunks(seq, n):
     """Return a generator whose `next()` method returns length n
     subsequences of the given sequence.  If `len(seq)` % `n` != 0, the
