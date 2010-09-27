@@ -3,6 +3,10 @@
 Change Log
 ==========
 
+Release 0.016 - (September 20, 2010)
+------------------------------------
+* Fix missing import.
+
 Release 0.015 - (September 17, 2010)
 ------------------------------------
 * Add video IO tools.
