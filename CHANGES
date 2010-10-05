@@ -3,6 +3,17 @@
 Change Log
 ==========
 
+Release 0.061 - (September 21, 2010)
+------------------------------------
+* Update installation information.
+* Update copyright information.
+
+Release 0.06 - (September 17, 2010)
+-----------------------------------
+* Add SISO PyCUDA-based IAF TEM/TDM implementations.
+* Fix encoder resampling.
+* Update docs.
+
 Release 0.051 - (June 9, 2010)
 ------------------------------
 * Eliminate various unnecessary loops and summations.

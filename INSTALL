@@ -3,6 +3,12 @@
 Installation Instructions
 =========================
 
+Obtaining the Latest Software
+-----------------------------
+The latest version of the Time Encoding and Decoding Toolbox can be
+downloaded from the `Bionet Code Repository
+<http://bionet.ee.columbia.edu/code/>`_.
+
 Prerequisites
 -------------
 
@@ -32,10 +38,11 @@ To build the documentation, the following packages are also required:
 
 * `Docutils <http://docutils.sourceforge.net>`_ 0.5 or later.
 * `Sphinx <http://sphinx.pocoo.org>`_ 1.0.1 or later.
+* `Jinja2 <htt://jinja.pocoo.org>`_ 2.2 or later
+* `Pygments <http://pygments.org>`_ 0.8 or later
 
-This software has been tested on Linux. Although not tested on
-Windows or MacOSX, it should work on those platforms if all of the
-above packages are properly installed.
+This software has been tested on Linux; it should also work
+on other platforms supported by the above packages.
 
 Building and Installation
 -------------------------
@@ -49,8 +56,9 @@ from within the main directory in the release. Sample code
 demonstrating how to use the toolbox is located in the
 ``demos/`` subdirectory.
 
-To build the documentation in HTML format, run::
+To rebuild the documentation, run::
 
-   make -C doc html
+   make
 
+from within the ``doc/`` subdirectory and follow the directions.
 

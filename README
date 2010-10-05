@@ -12,27 +12,13 @@ to and from a time-domain representation consisting of a series of
 time intervals between fixed-amplitude spikes. Sample code
 demonstrating the use of the implementations is included.
 
-Future releases of this package may be obtained from the Bionet
-Group's online code repository [1]_.
-
 Authors & Acknowledgments
 --------------------------
 
-The implementations in this package were written and packaged by Lev
-Givon, currently at the Bionet Group at Columbia University. Some
-parts of the code are based (in part) on previous implementations
-written by the following members and alumni of the Bionet Group under
-the supervision of Prof. Aurel A. Lazar [2]_:
-
-* Eftychios Pnevmatikakis
-* Yevgeniy Slutskiy
-* Robert Turetsky
-
-Special thanks are due to the following Bionet Group members for 
-reviewing the code and providing useful suggestions:
-
-* Robert Turetsky
-* Yiyin Zhou
+This software written and packaged by Lev Givon, currently at the
+Bionet Group [1]_ at Columbia University. 
+See the included AUTHORS file for more information and
+acknowledgments.
 
 License
 -------
@@ -54,10 +40,9 @@ References
 The algorithms implemented in this toolbox are described in the papers
 listed in the attached BibTeX bibliography. Further research on
 time domain coding and processing may be obtained from the Bionet Group
-publication server [3]_.
+publication server [2]_.
 
 .. [1] http://bionet.ee.columbia.edu/
-.. [2] http://www.ee.columbia.edu/~aurel
-.. [3] http://bionet.ee.columbia.edu/publications.html
+.. [2] http://bionet.ee.columbia.edu/publications/
 
 
