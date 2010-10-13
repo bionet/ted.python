@@ -13,8 +13,9 @@ import numpy as np
 import matplotlib
 matplotlib.use('AGG')
 
+from bionet.utils.misc import func_timer
 import bionet.utils.gen_test_signal as g
-import bionet.utils.test_utils as tu
+import bionet.utils.plotting as pl
 import bionet.ted.iaf as iaf
 
 # For determining output plot file names:
@@ -37,8 +38,8 @@ if noise_power == None:
 else:
     fig_title = 'IAF Input Signal with %d dB of Noise' % noise_power
 print fig_title
-u = tu.func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
-tu.plot_signal(t, u, fig_title,
+u = func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
+pl.plot_signal(t, u, fig_title,
                output_name + str(output_count) + output_ext)
 
 # Test leaky IAF algorithms:
@@ -71,20 +72,20 @@ C_list = np.array([C1, C2])
 output_count += 1
 fig_title = 'Signal Encoded Using Leaky IAF Encoder'
 print fig_title
-s_list = tu.func_timer(iaf.iaf_encode_pop)([u, u], dt, b_list, d_list, R_list, C_list)
-tu.plot_encoded(t, u, s_list[0], fig_title + ' #1',
+s_list = func_timer(iaf.iaf_encode_pop)([u, u], dt, b_list, d_list, R_list, C_list)
+pl.plot_encoded(t, u, s_list[0], fig_title + ' #1',
                 output_name + str(output_count) + output_ext)
 output_count += 1
-tu.plot_encoded(t, u, s_list[1], fig_title + ' #2',
+pl.plot_encoded(t, u, s_list[1], fig_title + ' #2',
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'Signal Decoded Using Leaky IAF Population Decoder'
 print fig_title
-u_rec = tu.func_timer(iaf.iaf_decode_pop)(s_list, dur, dt, bw,
+u_rec = func_timer(iaf.iaf_decode_pop)(s_list, dur, dt, bw,
                                           b_list, d_list, R_list,
                                           C_list)
-tu.plot_compare(t, u, u_rec, fig_title,
+pl.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 
 # Test ideal IAF algorithms:
@@ -117,19 +118,19 @@ C_list = [C1, C2]
 output_count += 1
 fig_title = 'Signal Encoded Using Ideal IAF Encoder'
 print fig_title
-s_list = tu.func_timer(iaf.iaf_encode_pop)([u, u], dt, b_list, d_list, R_list, C_list)
-tu.plot_encoded(t, u, s_list[0], fig_title + ' #1',
+s_list = func_timer(iaf.iaf_encode_pop)([u, u], dt, b_list, d_list, R_list, C_list)
+pl.plot_encoded(t, u, s_list[0], fig_title + ' #1',
                 output_name + str(output_count) + output_ext)
 output_count += 1
-tu.plot_encoded(t, u, s_list[1], fig_title + ' #2',
+pl.plot_encoded(t, u, s_list[1], fig_title + ' #2',
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'Signal Decoded Using Ideal IAF Population Decoder'
 print fig_title
-u_rec = tu.func_timer(iaf.iaf_decode_pop)(s_list, dur, dt, bw,
+u_rec = func_timer(iaf.iaf_decode_pop)(s_list, dur, dt, bw,
                                           b_list, d_list, R_list,
                                           C_list)
-tu.plot_compare(t, u, u_rec, fig_title,
+pl.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 

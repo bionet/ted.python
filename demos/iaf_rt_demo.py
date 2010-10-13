@@ -13,8 +13,9 @@ import numpy as np
 import matplotlib
 matplotlib.use('AGG')
 
+from bionet.utils.misc import func_timer
 import bionet.utils.gen_test_signal as g
-import bionet.utils.test_utils as tu
+import bionet.utils.plotting as pl
 import bionet.ted.iaf as iaf
 import bionet.ted.rt as rt
 
@@ -39,8 +40,8 @@ if noise_power == None:
 else:
     fig_title = 'IAF Input Signal with %d dB of Noise' % noise_power
 print fig_title
-u = tu.func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
-tu.plot_signal(t, u, fig_title,
+u = func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
+pl.plot_signal(t, u, fig_title,
                output_name + str(output_count) + output_ext)
 
 b = 3.5   # bias
@@ -64,17 +65,17 @@ output_count += 1
 fig_title = 'Signal Encoded Using Leaky Real-Time IAF Encoder'
 print fig_title
 encoder = rt.IAFRealTimeEncoder(dt, b, d, R, C)
-s = tu.func_timer(encoder)(u)
-tu.plot_encoded(t, u, s, fig_title,
+s = func_timer(encoder)(u)
+pl.plot_encoded(t, u, s, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'Signal Decoded Using Leaky Real-Time IAF Decoder'
 print fig_title
 decoder = rt.IAFRealTimeDecoder(dt, bw, b, d, R, C, N, M, K)
-u_rec = tu.func_timer(decoder)(s)
+u_rec = func_timer(decoder)(s)
 end = min(len(u), len(u_rec))
-tu.plot_compare(t[:end], u[:end], u_rec[:end], fig_title,
+pl.plot_compare(t[:end], u[:end], u_rec[:end], fig_title,
                 output_name + str(output_count) + output_ext)
 
 
@@ -86,16 +87,16 @@ output_count += 1
 fig_title = 'Signal Encoded Using Ideal Real-Time IAF Encoder'
 print fig_title
 encoder = rt.IAFRealTimeEncoder(dt, b, d, R, C)
-s = tu.func_timer(encoder)(u)
-tu.plot_encoded(t, u, s, fig_title,
+s = func_timer(encoder)(u)
+pl.plot_encoded(t, u, s, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'Signal Decoded Using Ideal Real-Time IAF Decoder'
 print fig_title
 decoder = rt.IAFRealTimeDecoder(dt, bw, b, d, R, C, N, M, K)
-u_rec = tu.func_timer(decoder)(s)
+u_rec = func_timer(decoder)(s)
 end = min(len(u), len(u_rec))
-tu.plot_compare(t[:end], u[:end], u_rec[:end], fig_title,
+pl.plot_compare(t[:end], u[:end], u_rec[:end], fig_title,
                 output_name + str(output_count) + output_ext)
 

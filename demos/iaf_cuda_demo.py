@@ -7,6 +7,8 @@ IAF neurons.
 
 import sys
 import numpy as np
+import atexit
+import pycuda.driver as drv
 
 # Set matplotlib backend so that plots can be generated without a
 # display:
@@ -17,14 +19,22 @@ from bionet.utils.misc import func_timer
 import bionet.utils.gen_test_signal as g
 import bionet.utils.plotting as pl
 import bionet.ted.iaf as iaf
+import bionet.ted.iaf_cuda as iaf_cuda
+
+# Get the automatically selected GPU device:
+import pycuda.autoinit
+dev = pycuda.autoinit.device
+
+import scikits.cuda.autoinit
+import scikits.cuda.linalg as culinalg
 
 # For determining output plot file names:
-output_name = 'iaf_demo_'
+output_name = 'iaf_cuda_demo_'
 output_count = 0
 output_ext = '.png'
 
 # Define algorithm parameters and input signal:
-dur = 0.1
+dur = 0.10
 dt = 1e-6
 f = 32
 bw = 2*np.pi*f
@@ -42,64 +52,28 @@ u = func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
 pl.plot_signal(t, u, fig_title,
                output_name + str(output_count) + output_ext)
 
-b = 3.5   # bias
-d = 0.7   # threshold
-R = 10.0  # resistance
-C = 0.01  # capacitance
+b = 3.5    # bias
+d = 0.7    # threshold
+R = np.inf # resistance
+C = 0.01   # capacitance
 
 try:
     iaf.iaf_recoverable(u, bw, b, d, R, C)
 except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
-M = 5 # number of bins for fast decoding algorithm
-L = 5 # number of recursions for recursive decoding algorithm
-
-# Test leaky algorithms:
-
-output_count += 1
-fig_title = 'Signal Encoded Using Leaky IAF Encoder'
-print fig_title
-s = func_timer(iaf.iaf_encode)(u, dt, b, d, R, C)
-pl.plot_encoded(t, u, s, fig_title,
-                output_name + str(output_count) + output_ext)
-
-output_count += 1
-fig_title = 'Signal Decoded Using Leaky IAF Decoder'
-print fig_title
-u_rec = func_timer(iaf.iaf_decode)(s, dur, dt, bw, b, d, R, C)
-pl.plot_compare(t, u, u_rec, fig_title,
-                output_name + str(output_count) + output_ext)
-
-output_count += 1
-fig_title = 'Signal Decoded Using Leaky Fast IAF Decoder'
-print fig_title
-u_rec = func_timer(iaf.iaf_decode_fast)(s, dur, dt, bw, M, b, d, R, C)
-pl.plot_compare(t, u, u_rec, fig_title,
-                output_name + str(output_count) + output_ext)
-
-# Test ideal algorithms:
-
-R = np.inf
-
 output_count += 1
 fig_title = 'Signal Encoded Using Ideal IAF Encoder'
 print fig_title
-s = func_timer(iaf.iaf_encode)(u, dt, b, d, R, C)
+s = func_timer(iaf_cuda.iaf_encode)(np.asarray(u, np.float32), dt, b, d, R, C, dev=dev)
 pl.plot_encoded(t, u, s, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'Signal Decoded Using Ideal IAF Decoder'
 print fig_title
-u_rec = func_timer(iaf.iaf_decode)(s, dur, dt, bw, b, d, R, C)
-pl.plot_compare(t, u, u_rec, fig_title,
-                output_name + str(output_count) + output_ext)
-
-output_count += 1
-fig_title = 'Signal Decoded Using Ideal Fast IAF Decoder'
-print fig_title
-u_rec = func_timer(iaf.iaf_decode_fast)(s, dur, dt, bw, M, b, d, R, C)
+u_rec = func_timer(iaf_cuda.iaf_decode)(np.asarray(s, np.float32), dur, dt, bw, b, d, R, C,
+                                           dev=dev)
 pl.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 

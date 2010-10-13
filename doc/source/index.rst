@@ -28,8 +28,9 @@ Contents
    overview
    machines
    reference
-   changes
+   authors
    license
+   changes
 
 Index
 -----
