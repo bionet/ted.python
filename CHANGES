@@ -5,6 +5,7 @@ Change Log
 
 Release 0.061 - (November 24, 2010)
 -----------------------------------
+* Add docs for PyCUDA-based functions.
 * Update installation information.
 * Update copyright information.
 
