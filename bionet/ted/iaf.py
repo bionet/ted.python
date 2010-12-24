@@ -204,7 +204,7 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
         if y >= d:
             s.append(interval)
             interval = 0.0
-            y = 0.0
+            y -= d
 
     if full_output:
         return [array(s), dt, b, d, R, C, dte, y, interval, \
@@ -343,7 +343,7 @@ def iaf_encode_pop(u_list, dt, b_list, d_list, R_list, C_list, dte=0, y=None, in
         exceeded = where(y >= d_array)[0]
         for i in exceeded:
             s_list[i].append(interval[i])
-        y[exceeded] = 0.0
+        y[exceeded] -= d_array[exceeded]
         interval[exceeded] = 0.0
 
     s_list = [array(s) for s in s_list]
@@ -1096,7 +1096,7 @@ def iaf_encode_coupled(u, dt, b_list, d_list, k_list, h_list, type_list):
                 ## potentially cause an overflow for very long signals:
                 ts_list[i].append(interval_list[i]+ts_list[i][-1])
                 interval_list[i] = 0.0
-                y_list[i] = 0.0
+                y_list[i] -= d_list[i]
 
     return [asarray(s) for s in s_list]
 
@@ -1332,7 +1332,7 @@ def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list,
             if y_list[j] >= d_list[j]:
                 s_list[j].append(interval_list[j])
                 interval_list[j] = 0.0
-                y_list[j] = 0.0
+                y_list[j] -= d_list[j]
 
     # u_list_prev is set to contain the values in u_list that occur
     # after time T:
