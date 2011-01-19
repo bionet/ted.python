@@ -160,6 +160,10 @@ class WriteArray:
     ----------
     filename : str
         Output file name.
+    atom_shape : tuple
+        Atom shape.
+    atom_type : dtype
+        Data type to use in array (e.g., `numpy.float64`).
     num_arrays : int
         Number of data arrays to write to file.
     complevel : int, 0..9
@@ -167,8 +171,6 @@ class WriteArray:
         maximum compression.
     complib : {'zlib', 'lzo', 'bzip2'}
         Compression filter used by pytables.
-    datatype : dtype
-        Data type to use in array (e.g., `numpy.float64`).
 
     Methods
     -------
@@ -187,8 +189,8 @@ class WriteArray:
     
     """
     
-    def __init__(self, filename, num_arrays=1, complevel=1, complib='lzo',
-                 datatype=np.float64): 
+    def __init__(self, filename, atom_shape=(), atom_type=np.float64,
+                 num_arrays=1, complevel=1, complib='lzo'):
 
         self.h5file = t.openFile(filename, 'a')
 
@@ -201,19 +203,20 @@ class WriteArray:
         if len(self.data_node_list) < num_arrays:            
             filters = t.Filters(complevel=complevel, complib=complib)
             for i in xrange(len(self.data_node_list), num_arrays):
-                self.__add_data(str(i), datatype, filters)
+                self.__add_data(str(i), atom_shape, atom_type, filters)
                 
     def __del__(self):
         """Close the opened file before cleaning up."""
         
         self.close()    
 
-    def __add_data(self, name, datatype, filters):
+    def __add_data(self, name, atom_shape, atom_type, filters):
         """Add a new data array to the file."""
 
         group_node = self.h5file.createGroup(self.h5file.root, name)
         data_node = self.h5file.createEArray(group_node, 'data',
-                                             t.Atom.from_sctype(datatype),
+                                             t.Atom.from_sctype(atom_type,
+                                                                shape=atom_shape),
                                              (0, ), filters=filters)
         self.data_node_list.append(data_node)
 
@@ -433,13 +436,13 @@ class WriteSignal(WriteArray):
     desc_defs : list of descriptor classes
         Descriptor classes. Each class must be a child of
         `tables.IsDescription`.
+    atom_type : dtype
+        Data type to use in array (e.g., `numpy.float64`).
     complevel : int, 0..9
         Compression level; 0 disables compression, 9 corresponds to
         maximum compression.
     complib : {'zlib', 'lzo', 'bzip2'}
         Compression filter used by pytables.
-    datatype : dtype
-        Data type to use in array (e.g., `numpy.float64`).
 
     Methods
     -------
@@ -464,7 +467,8 @@ class WriteSignal(WriteArray):
     def __init__(self, filename,
                  desc_vals=[get_desc_defaults(SignalDescriptor)],
                  desc_defs=[SignalDescriptor],
-                 complevel=1, complib='lzo', datatype=np.float64): 
+                 atom_type=np.float64,
+                 complevel=1, complib='lzo'): 
         """Open the specified file for writing. If the file already
         contains data arrays, new arrays are added to bring the total
         number up to the number of specified signal descriptors."""
@@ -478,8 +482,9 @@ class WriteSignal(WriteArray):
         self.__validate_descs(desc_vals, desc_defs)
         
         # Create the data arrays:
-        WriteArray.__init__(self, filename, len(desc_vals),
-                            complevel, complib, datatype)
+        WriteArray.__init__(self, filename, (), atom_type,
+                            len(desc_vals),
+                            complevel, complib)
         
         # When the number of specified descriptors exceeds the number
         # actually in the file..
@@ -618,13 +623,13 @@ class WriteSampledSignal(WriteSignal):
     desc_vals : list of lists
         Default descriptor values. Each descriptor's default values
         must be specified as a separate list.
+    atom_type : dtype
+        Data type to use in array (e.g., `numpy.float64`).
     complevel : int, 0..9
         Compression level; 0 disables compression, 9 corresponds to
         maximum compression.
     complib : {'zlib', 'lzo', 'bzip2'}
         Compression filter used by pytables.
-    datatype : dtype
-        Data type to use in array (e.g., `numpy.float64`).
 
     Methods
     -------
@@ -648,14 +653,15 @@ class WriteSampledSignal(WriteSignal):
 
     def __init__(self, filename, 
                  desc_vals=[get_desc_defaults(SampledSignalDescriptor)],
-                 complevel=1, complib='lzo', datatype=np.float64): 
+                 atom_type=np.float64,
+                 complevel=1, complib='lzo'): 
         """Open the specified file for writing. If the file already
         contains data arrays, new arrays are added to bring the total
         number up to the number of specified signal descriptors. """
 
         WriteSignal.__init__(self, filename, desc_vals,
                              [SampledSignalDescriptor]*len(desc_vals),
-                             complevel, complib, datatype)
+                             atom_type, complevel, complib)                             
 
     def __validate_descs(self, desc_vals, desc_defs):
         """Validate the specified signal descriptors and values by
@@ -726,13 +732,13 @@ class WriteTimeEncodedSignal(WriteSignal):
     desc_vals : list of lists
         Default descriptor values. Each descriptor's default values
         must be specified as a separate list.
+    atom_type : dtype
+        Data type to use in array (e.g., `numpy.float64`).
     complevel : int, 0..9
         Compression level; 0 disables compression, 9 corresponds to
         maximum compression.
     complib : {'zlib', 'lzo', 'bzip2'}
         Compression filter used by pytables.
-    datatype : dtype
-        Data type to use in array (e.g., `numpy.float64`).
 
     Methods
     -------
@@ -756,14 +762,14 @@ class WriteTimeEncodedSignal(WriteSignal):
     
     def __init__(self, filename, 
                  desc_vals=[get_desc_defaults(TimeEncodedSignalDescriptor)],
-                 complevel=1, complib='lzo', datatype=np.float64): 
+                 atom_type=np.float64, complevel=1, complib='lzo'): 
         """Open the specified file for writing. If the file already
         contains data arrays, new arrays are added to bring the total
         number up to the number of specified signal descriptors. """
 
         WriteSignal.__init__(self, filename, desc_vals,
                              [TimeEncodedSignalDescriptor]*len(desc_vals),
-                             complevel, complib, datatype)
+                             atom_type, complevel, complib)
 
     def __validate_descs(self, desc_vals, desc_defs):
         """Validate the specified signal descriptors and values by
@@ -785,7 +791,7 @@ if __name__ == '__main__':
     N = 1000
     x1 = np.random.rand(N)
     x2 = np.random.rand(N)
-    w = WriteArray(file_name, 2)
+    w = WriteArray(file_name, num_arrays=2)
     w.write(x1)
     w.write(x2,id=1)
     w.close()
