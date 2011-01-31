@@ -83,7 +83,7 @@ __global__ void iaf_encode(FLOAT *u, FLOAT *s,
             if (y >= d) {
                 s[i_s] = interval;
                 interval = 0;
-                y = 0;
+                y -= d;
                 i_s++;
             }
         }

@@ -28,11 +28,11 @@ __all__ = ['iaf_recoverable', 'iaf_encode', 'iaf_decode',
 
 # Import max() as amax() because the builtin max() function is needed
 # by iaf_decode_spline_pop():
-from numpy import abs, all, amax, arange, array, asarray, complex, \
-     conjugate, cumsum, diag, diff, dot, empty, exp, eye, float, \
-     hstack, imag, inf, isinf, isreal, log, newaxis, nonzero, ones, \
-     pi, ravel, real, round, shape, sinc, sqrt, sum, triu, where, zeros
-from numpy.linalg import cond, inv, pinv
+from numpy import abs, all, amax, arange, array, asarray, conjugate, cumsum, \
+     diag, diff, dot, empty, exp, eye, float, hstack, imag, inf, \
+     isinf, isreal, log, newaxis, nonzero, ones, pi, ravel, \
+     real, shape, sinc, sum, triu, where, zeros
+from numpy.linalg import pinv
 from scipy.integrate import quad
 from scipy.signal import resample
 
@@ -204,7 +204,7 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0, y=0.0, interval=0.0,
         if y >= d:
             s.append(interval)
             interval = 0.0
-            y = 0.0
+            y -= d
 
     if full_output:
         return [array(s), dt, b, d, R, C, dte, y, interval, \
@@ -343,7 +343,7 @@ def iaf_encode_pop(u_list, dt, b_list, d_list, R_list, C_list, dte=0, y=None, in
         exceeded = where(y >= d_array)[0]
         for i in exceeded:
             s_list[i].append(interval[i])
-        y[exceeded] = 0.0
+        y[exceeded] -= d_array[exceeded]
         interval[exceeded] = 0.0
 
     s_list = [array(s) for s in s_list]
@@ -449,79 +449,6 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     u_rec = zeros(len(t), float)
     for i in xrange(Nsh):
         u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
-    return u_rec
-
-def iaf_decode_trig(s, dur, dt, W, M, b, d, R=inf, C=1.0, smoothing=0.0):
-    """
-    IAF time decoding machine using trigonometric polynomials.
-
-    Decode a finite length signal encoded with an Integrate-and-Fire
-    neuron assuming that the encoded signal is representable in terms
-    of trigonometric polynomials.
-
-    Parameters
-    ----------
-    s : ndarray of floats
-        Encoded signal. The values represent the time between spikes (in s).
-    dur : float
-        Duration of signal (in s).
-    dt : float
-        Sampling resolution of original signal; the sampling frequency
-        is 1/dt Hz.
-    bw : float
-        Signal bandwidth (in rad/s).
-    M : int
-        2*M+1 coefficients are used for reconstructing the signal.
-    b : float
-        Encoder bias.
-    d : float
-        Encoder threshold.
-    R : float
-        Neuron resistance.
-    C : float
-        Neuron capacitance.
-
-    Returns
-    -------
-    u_rec : ndarray of floats
-        Recovered signal.
-
-    """
-    
-    N = len(s)
-
-    T = 2*pi*M/W
-    if T < dur:
-        raise ValueError('2*pi*M/W must exceed the signal length')
-
-    wM = W/M
-    em = lambda m, t: exp(1j*m*wM*t)
-
-    RC = R*C
-    ts = cumsum(s)
-    G = empty((N-1, 2*M+1), complex)
-    if isinf(R):        
-        for k in xrange(N-1):
-            for m in xrange(-M, M+1):
-                if m == 0:
-                    G[k, m+M] = s[k+1]
-                else:
-                    G[k, m+M] = conjugate((em(-m, ts[k+1])-em(-m, ts[k]))/(-1j*m*wM)) 
-        q = C*d-b*s[1:]        
-    else:
-        for k in xrange(N-1):
-            for m in xrange(-M, M+1):
-                yk = RC*(1-exp(-s[k+1]/RC))
-                G[k, m+M] = conjugate((RC*em(-m, ts[k+1])+(yk-RC)*em(-m, ts[k]))/(1-1j*m*wM*RC))
-        q = C*(d+b*R*(exp(-s[1:]/RC)-1))
-
-    GH = G.conj().T
-    c = dot(dot(pinv(dot(GH, G)+(N-1)*smoothing*eye(2*M+1)), GH), q)
-    t = arange(0, dur, dt)
-    u_rec = zeros(len(t))
-    for m in xrange(-M, M+1):
-        u_rec += c[m+M]*em(m, t)
-
     return u_rec
 
 def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=inf, C=1.0):
@@ -1169,7 +1096,7 @@ def iaf_encode_coupled(u, dt, b_list, d_list, k_list, h_list, type_list):
                 ## potentially cause an overflow for very long signals:
                 ts_list[i].append(interval_list[i]+ts_list[i][-1])
                 interval_list[i] = 0.0
-                y_list[i] = 0.0
+                y_list[i] -= d_list[i]
 
     return [asarray(s) for s in s_list]
 
@@ -1405,7 +1332,7 @@ def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list,
             if y_list[j] >= d_list[j]:
                 s_list[j].append(interval_list[j])
                 interval_list[j] = 0.0
-                y_list[j] = 0.0
+                y_list[j] -= d_list[j]
 
     # u_list_prev is set to contain the values in u_list that occur
     # after time T:
