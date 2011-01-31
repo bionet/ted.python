@@ -5,7 +5,8 @@ Time decoding algorithms that use the trigonometric polynomial
 approximation.
 """
 
-from numpy import arange, conj, cumsum, dot, empty, exp, eye, zeros
+from numpy import arange, conj, cumsum, dot, empty, exp, eye, inf, \
+     isinf, pi, zeros     
 from numpy.linalg import pinv
 
 def iaf_decode_trig(s, dur, dt, bw, b, d, R=inf, C=1.0, M=5, smoothing=0.0):
