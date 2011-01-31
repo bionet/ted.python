@@ -12,9 +12,10 @@ import numpy as np
 import bionet.utils.gen_test_signal as g
 import bionet.utils.test_utils as tu
 import bionet.ted.iaf as iaf
+import bionet.ted.iaf_trig as iaf_trig
 
 # For determining output plot file names:
-output_name = 'iaf_demo_'
+output_name = 'iaf_trig_demo_'
 output_count = 0
 output_ext = '.png'
 
@@ -61,7 +62,8 @@ tu.plot_encoded(t, u, s, fig_title,
 output_count += 1
 fig_title = 'Signal Decoded Using Leaky Trigonometric IAF Decoder'
 print fig_title
-u_rec = tu.func_timer(iaf.iaf_decode_trig)(s, dur, dt, bw, M, b, d, R, C)
+u_rec = tu.func_timer(iaf_trig.iaf_decode_trig)(s, dur, dt, bw, b, d, R,
+                                                C, M)                                           
 tu.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 
@@ -79,7 +81,8 @@ tu.plot_encoded(t, u, s, fig_title,
 output_count += 1
 fig_title = 'Signal Decoded Using Ideal Trigonometric IAF Decoder'
 print fig_title
-u_rec = tu.func_timer(iaf.iaf_decode_trig)(s, dur, dt, bw, M, b, d, R, C)
+u_rec = tu.func_timer(iaf.iaf_decode_trig)(s, dur, dt, bw, b, d, R,
+                                           C, M)
 tu.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 
