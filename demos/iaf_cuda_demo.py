@@ -65,15 +65,14 @@ except ValueError('reconstruction condition not satisfied'):
 output_count += 1
 fig_title = 'Signal Encoded Using Ideal IAF Encoder'
 print fig_title
-s = func_timer(iaf_cuda.iaf_encode)(np.asarray(u, np.float32), dt, b, d, R, C, dev=dev)
+s = func_timer(iaf_cuda.iaf_encode)(np.asarray(u, np.float32), dt, b, d, R, C)
 pl.plot_encoded(t, u, s, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'Signal Decoded Using Ideal IAF Decoder'
 print fig_title
-u_rec = func_timer(iaf_cuda.iaf_decode)(np.asarray(s, np.float32), dur, dt, bw, b, d, R, C,
-                                           dev=dev)
+u_rec = func_timer(iaf_cuda.iaf_decode)(np.asarray(s, np.float32), dur, dt, bw, b, d, R, C)
 pl.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 

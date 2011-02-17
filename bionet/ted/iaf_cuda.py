@@ -98,7 +98,7 @@ __global__ void iaf_encode(FLOAT *u, FLOAT *s,
 """)
 
 def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
-               quad_method='trapz', full_output=False, dev=None):
+               quad_method='trapz', full_output=False):
     """
     IAF time encoding machine.
     
@@ -135,9 +135,7 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
         by the given parameters (with updated values for `y` and `interval`).
         This is useful when the function is called repeatedly to
         encode a long signal.
-    dev : pycuda.driver.Device
-        Device object to be used.        
-        
+
     Returns
     -------
     s : ndarray of floats
@@ -186,6 +184,8 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
         u = resample(u, len(u)*M)
         Nu *= M
         dt = dte
+
+    dev = cumisc.get_current_device()
     
     # Configure kernel:
     iaf_encode_mod = \
@@ -340,7 +340,7 @@ __global__ void compute_u(FLOAT *u_rec, FLOAT *t, FLOAT *tsh, FLOAT *c,
 }
 """)
 
-def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0, dev=None):
+def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     """
     IAF time decoding machine.
     
@@ -366,8 +366,6 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0, dev=None):
         Neuron resistance.
     C : float
         Neuron capacitance.
-    dev : pycuda.driver.Device
-        Device object to be used.
         
     Returns
     -------
@@ -384,6 +382,8 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0, dev=None):
     if not np.isinf(R):
         raise ValueError('decoding for leaky neuron not implemented yet')
 
+    dev = cumisc.get_current_device()
+                                    
     # Count total number of spike intervals:
     N = len(s)
     
@@ -466,7 +466,7 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0, dev=None):
     ts_gpu.gpudata.free()
     
     # Compute pseudoinverse of G:
-    G_inv_gpu = culinalg.pinv(G_gpu, dev, __pinv_rcond__)    
+    G_inv_gpu = culinalg.pinv(G_gpu, __pinv_rcond__)    
     
     # Compute the reconstruction coefficients:
     c_gpu = culinalg.dot(G_inv_gpu, q_gpu)
