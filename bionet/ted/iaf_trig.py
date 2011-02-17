@@ -6,7 +6,7 @@ approximation.
 """
 
 from numpy import arange, conj, cumsum, dot, empty, exp, eye, inf, \
-     isinf, pi, zeros     
+     isinf, pi, real, zeros     
 from numpy.linalg import pinv
 
 def iaf_decode_trig(s, dur, dt, bw, b, d, R=inf, C=1.0, M=5, smoothing=0.0):
@@ -78,8 +78,8 @@ def iaf_decode_trig(s, dur, dt, bw, b, d, R=inf, C=1.0, M=5, smoothing=0.0):
     GH = G.conj().T
     c = dot(dot(pinv(dot(GH, G)+(N-1)*smoothing*eye(2*M+1)), GH), q)
     t = arange(0, dur, dt)
-    u_rec = zeros(len(t))
+    u_rec = zeros(len(t), complex)
     for m in xrange(-M, M+1):
         u_rec += c[m+M]*em(m, t)
 
-    return u_rec
+    return real(u_rec)
