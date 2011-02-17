@@ -5,4 +5,4 @@ exclude doc/source/*pgf*
 exclude doc/source/images/*.pgf
 exclude doc/source/make_*.py
 prune doc/source/generated/
-prune doc/build/
+exclude MANIFEST.in

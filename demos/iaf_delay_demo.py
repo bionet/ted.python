@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('AGG')
 
-from bionet.util.misc import func_timer
+from bionet.utils.misc import func_timer
 import bionet.utils.gen_test_signal as g
 import bionet.utils.plotting as pl
 import bionet.ted.iaf as iaf
