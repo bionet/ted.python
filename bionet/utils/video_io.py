@@ -106,20 +106,28 @@ class ReadVideo:
         # height, i.e., the number of rows in the image:
         a.shape = (img.height, img.width, img.nChannels)
         return a
+
+    def __get_frame(self, n):
+        """Retrieve the specified frame from the video."""
+
+        if n != None:
+            cv.SetCaptureProperty(self.capture,
+                                  cv.CV_CAP_PROP_POS_FRAMES, n)
+        return cv.QueryFrame(self.capture)
     
-    def read_np_frame(self):
+    def read_np_frame(self, n=None):
         """Read a frame as a numpy array from the video."""
         
-        frame = cv.QueryFrame(self.capture)
+        frame = self.__get_frame(n)
         if frame != None:
             return self.__cv2array(frame)
         else:
             return None
 
-    def read_cv_frame(self):
+    def read_cv_frame(self, n=None):
         """Read a frame as an OpenCV image from the video."""
         
-        frame = cv.QueryFrame(self.capture)
+        frame = self.__get_frame(n)
         return frame
 
 class WriteVideo:
