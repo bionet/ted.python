@@ -59,6 +59,12 @@ class ReadVideo:
     -------
     get_frame_count()
         Return the number of frames in the video.
+    get_frame_dims()
+        Return the dimensions of a frame in the video.
+    get_frame_height()
+        Return the height of a frame in the video.
+    get_frame_width()
+        Return the width of a frame in the video.
     get_prop_fps()
         Return the frame rate of the video.
     read_cv_frame()
@@ -77,14 +83,23 @@ class ReadVideo:
         return int(cv.GetCaptureProperty(self.capture,
                                          cv.CV_CAP_PROP_FRAME_COUNT))
 
+    def get_frame_width(self):
+        """Return the width of a frame in the file in pixels."""
+
+        return int(cv.GetCaptureProperty(self.capture,
+                                         cv.CV_CAP_PROP_FRAME_WIDTH))
+
+    def get_frame_height(self):
+        """Return the height of a frame in the file in pixels."""
+
+        return int(cv.GetCaptureProperty(self.capture,
+                                         cv.CV_CAP_PROP_FRAME_HEIGHT))
+
     def get_frame_dims(self):
         """Return the dimensions of a frame in the file as
         (height, width)."""
 
-        return (int(cv.GetCaptureProperty(self.capture,
-                                      cv.CV_CAP_PROP_FRAME_HEIGHT)),
-                int(cv.GetCaptureProperty(self.capture,
-                                      cv.CV_CAP_PROP_FRAME_WIDTH)))
+        return self.get_frame_height(), self.get_frame_width()
     
     def get_prop_fps(self):
         """Return the frame rate of the video file."""
