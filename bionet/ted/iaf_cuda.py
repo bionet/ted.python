@@ -18,7 +18,7 @@ from pycuda.compiler import SourceModule
 import pycuda.gpuarray as gpuarray
 import pycuda.driver as drv
 import numpy as np
-from numpy import inf
+from numpy import ceil, inf
 from scipy.signal import resample
 
 import scikits.cuda.linalg as culinalg
@@ -153,12 +153,11 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
     """
 
     # Input sanity check:
-    if u.dtype == np.float32:
+    float_type = u.dtype.type
+    if float_type == np.float32:
         use_double = 0
-        np_type = np.float32
-    elif u.dtype == np.float64:
+    elif float_type == np.float64:
         use_double = 1
-        np_type = np.float64
     else:
         raise ValueError('unsupported data type')
 
@@ -193,13 +192,13 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
     iaf_encode = iaf_encode_mod.get_function("iaf_encode")
 
     # XXX: A very long s array might cause memory problems:
-    s = np.zeros(Nu, np_type)
+    s = np.zeros(Nu, float_type)
     i_s_0 = np.zeros(1, np.uint32)
-    y_0 = np.asarray([y], np_type)
-    interval_0 = np.asarray([interval], np_type)
+    y_0 = np.asarray([y], float_type)
+    interval_0 = np.asarray([interval], float_type)
     iaf_encode(drv.In(u), drv.Out(s), drv.InOut(i_s_0),
-               np_type(dt), np_type(b),
-               np_type(d), np_type(R), np_type(C), 
+               float_type(dt), float_type(b),
+               float_type(d), float_type(R), float_type(C), 
                drv.InOut(y_0), drv.InOut(interval_0),
                np.uint32(True if quad_method == 'trapz' else False),
                np.uint32(Nu),
@@ -323,8 +322,8 @@ compute_u_ideal_mod_template = Template("""
 
 // Nt == len(t)
 // Nsh == len(tsh)
-__global__ void compute_u(FLOAT *u_rec, FLOAT *t, FLOAT *tsh, FLOAT *c,
-                          FLOAT bw, unsigned Nt, unsigned int Nsh) {
+__global__ void compute_u(FLOAT *u_rec, FLOAT *tsh, FLOAT *c,
+                          FLOAT bw, FLOAT dt, unsigned Nt, unsigned int Nsh) {
     unsigned int idx = blockIdx.y*${max_threads_per_block}*${max_blocks_per_grid}+
                        blockIdx.x*${max_threads_per_block}+threadIdx.x;
     FLOAT bwpi = bw/PI;
@@ -333,7 +332,7 @@ __global__ void compute_u(FLOAT *u_rec, FLOAT *t, FLOAT *tsh, FLOAT *c,
     // Each thread reconstructs the signal at time t[idx]:
     if (idx < Nt) {
         for (unsigned int i = 0; i < Nsh; i++) {
-            u_temp += SINC(bwpi*(t[idx]-tsh[i]))*bwpi*c[i];
+            u_temp += SINC(bwpi*(idx*dt-tsh[i]))*bwpi*c[i];
         }
         u_rec[idx] = u_temp;
     }
@@ -373,20 +372,23 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
         Recovered signal.
 
     """
+
+    # Input sanity check:
+    float_type = s.dtype.type
+    if float_type == np.float32:
+        use_double = 0
+    elif float_type == np.float64:
+        use_double = 1
+    else:
+        raise ValueError('unsupported data type')        
+
+    N = len(s)
     
-    # Use single precision for all of the computations:
-    stype = np.float32
-    if s.dtype != stype:
-        raise ValueError('unsupported data type')
-        
     if not np.isinf(R):
         raise ValueError('decoding for leaky neuron not implemented yet')
 
     dev = cumisc.get_current_device()
                                     
-    # Count total number of spike intervals:
-    N = len(s)
-    
     # Get device constraints:
     max_threads_per_block, max_block_dim, max_grid_dim = cumisc.get_dev_attrs(dev)
     max_blocks_per_grid = max(max_grid_dim)
@@ -397,21 +399,21 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     
     # Prepare kernels:
     compute_q_ideal_mod = \
-                        SourceModule(compute_q_ideal_mod_template.substitute(use_double=0,
+                        SourceModule(compute_q_ideal_mod_template.substitute(use_double=use_double,
                                      max_threads_per_block=max_threads_per_block,
                                      max_blocks_per_grid=max_blocks_per_grid))
     compute_q_ideal = \
                     compute_q_ideal_mod.get_function('compute_q')
 
     compute_ts_ideal_mod = \
-                         SourceModule(compute_ts_ideal_mod_template.substitute(use_double=0,
+                         SourceModule(compute_ts_ideal_mod_template.substitute(use_double=use_double,
                                      max_threads_per_block=max_threads_per_block,
                                      max_blocks_per_grid=max_blocks_per_grid))    
     compute_ts_ideal = \
                      compute_ts_ideal_mod.get_function('compute_ts')
 
     compute_tsh_ideal_mod = \
-                          SourceModule(compute_tsh_ideal_mod_template.substitute(use_double=0,
+                          SourceModule(compute_tsh_ideal_mod_template.substitute(use_double=use_double,
                                      max_threads_per_block=max_threads_per_block,
                                      max_blocks_per_grid=max_blocks_per_grid)) 
     compute_tsh_ideal = \
@@ -419,7 +421,7 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
                           
 
     compute_G_ideal_mod = \
-                        SourceModule(compute_G_ideal_mod_template.substitute(use_double=0,
+                        SourceModule(compute_G_ideal_mod_template.substitute(use_double=use_double,
                                      max_threads_per_block=max_threads_per_block,
                                      max_blocks_per_grid=max_blocks_per_grid,
                                      cols=(N-1)),
@@ -427,20 +429,20 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     compute_G_ideal = compute_G_ideal_mod.get_function('compute_G') 
 
     compute_u_ideal_mod = \
-                        SourceModule(compute_u_ideal_mod_template.substitute(use_double=0,
+                        SourceModule(compute_u_ideal_mod_template.substitute(use_double=use_double,
                                      max_threads_per_block=max_threads_per_block,
                                      max_blocks_per_grid=max_blocks_per_grid),
                                      options=["-I", install_headers])
     compute_u_ideal = compute_u_ideal_mod.get_function('compute_u') 
 
-    # Set up GPUArrays for intermediary data:
-    ts_gpu = gpuarray.empty(N, stype)
-    tsh_gpu = gpuarray.empty(N-1, stype)
-    q_gpu = gpuarray.empty((N-1, 1), stype)
-    G_gpu = gpuarray.empty((N-1, N-1), stype) 
-
     # Load data into device memory:
     s_gpu = gpuarray.to_gpu(s)
+
+    # Set up GPUArrays for intermediary data:
+    ts_gpu = gpuarray.empty(N, float_type)
+    tsh_gpu = gpuarray.empty(N-1, float_type)
+    q_gpu = gpuarray.empty((N-1, 1), float_type)
+    G_gpu = gpuarray.empty((N-1, N-1), float_type) 
 
     # Get required block/grid sizes for constructing ts, tsh, and q:
     block_dim_s, grid_dim_s = cumisc.select_block_grid_sizes(dev,
@@ -452,18 +454,18 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     
     # Run the kernels:
     compute_q_ideal(s_gpu, q_gpu,
-                    stype(b), stype(d), stype(C), np.uint32(N-1),
+                    float_type(b), float_type(d), float_type(C), np.uint32(N-1),
                     block=block_dim_s, grid=grid_dim_s)
     compute_ts_ideal(s_gpu, ts_gpu, np.uint32(N),
                      block=block_dim_s, grid=grid_dim_s)
     compute_tsh_ideal(ts_gpu, tsh_gpu, np.uint32(N-1),
                       block=block_dim_s, grid=grid_dim_s)
     compute_G_ideal(ts_gpu, tsh_gpu, G_gpu,
-                    stype(bw), np.uint32((N-1)**2),
+                    float_type(bw), np.uint32((N-1)**2),
                     block=block_dim_G, grid=grid_dim_G)
 
-    # Free ts:
-    ts_gpu.gpudata.free()
+    # Free unneeded s and ts to provide more memory to the pinv computation:
+    del s_gpu, ts_gpu
     
     # Compute pseudoinverse of G:
     G_inv_gpu = culinalg.pinv(G_gpu, __pinv_rcond__)    
@@ -471,30 +473,21 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     # Compute the reconstruction coefficients:
     c_gpu = culinalg.dot(G_inv_gpu, q_gpu)
     
-    # Free G, G_inv and q:
-    G_gpu.gpudata.free()
-    del G_gpu
-    G_inv_gpu.gpudata.free()
-    del G_inv_gpu
-    q_gpu.gpudata.free()
-    del q_gpu
+    # Free unneeded G, G_inv and q:
+    del G_gpu, G_inv_gpu, q_gpu
 
-    # Allocate arrays needed for reconstruction; notice that dur+dt is
-    # used as the upper bound for t because gpuarray.arange() seems to
-    # behave slightly differently than np.arange():
-    # XXX: t_gpu could be dispensed with if the kernel were to compute
-    # the times explicitly:
-    t_gpu = gpuarray.arange(0, dur+dt, dt, dtype=stype) 
-    u_rec_gpu = gpuarray.zeros_like(t_gpu)
+    # Allocate array for reconstructed signal:
+    Nt = int(ceil(dur/dt))
+    u_rec_gpu = gpuarray.zeros(Nt, float_type)
 
     # Get required block/grid sizes for constructing u:
     block_dim_t, grid_dim_t = cumisc.select_block_grid_sizes(dev,
-                              t_gpu.shape, max_threads_per_block)
+                              Nt, max_threads_per_block)
 
     # Reconstruct signal:
-    compute_u_ideal(u_rec_gpu, t_gpu, tsh_gpu,
-                    c_gpu, stype(bw),
-                    np.uint32(t_gpu.size), np.uint32(N-1),
+    compute_u_ideal(u_rec_gpu, tsh_gpu,
+                    c_gpu, float_type(bw), float_type(dt),
+                    np.uint32(Nt), np.uint32(N-1),
                     block=block_dim_t, grid=grid_dim_t)
     u_rec = u_rec_gpu.get()
 
