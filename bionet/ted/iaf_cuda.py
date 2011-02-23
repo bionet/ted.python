@@ -42,27 +42,36 @@ iaf_encode_mod_template = Template("""
 #define EXP(x) exp(x)
 #endif
 
-// Nu must contain the length of u:
+// u: input signal
+// s: returned array of spike times
+// ns: initial length of spike train
+// dt: time resolution
+// b: neuron biases
+// d: neuron thresholds
+// R: neuron resistances
+// C: neuron capacitances
+// y: initial value of integrator
+// interval: initial value of the neuron time interval
+// use_trapz: use trapezoidal integration if set to 1
+// Nu: length of u:
 __global__ void iaf_encode(FLOAT *u, FLOAT *s,
-                           unsigned int *i_s_0, FLOAT dt,
+                           unsigned int *ns, FLOAT dt,
                            FLOAT b, FLOAT d,
                            FLOAT R, FLOAT C,
-                           FLOAT *y_0, FLOAT *interval_0,
+                           FLOAT *y, FLOAT *interval,
                            unsigned int use_trapz,
                            unsigned int Nu)
 {
     unsigned int idx = threadIdx.x;
 
-    FLOAT y;
-    FLOAT interval;
-    unsigned int i_s;
+    FLOAT y_curr, interval_curr;
+    unsigned int ns_curr, last;
     FLOAT RC = R*C;
-    unsigned int last;
     
     if (idx == 0) {
-        y = y_0[0];
-        interval = interval_0[0];
-        i_s = i_s_0[0];           // index into spike array
+        y_curr = y[0];
+        interval_curr = interval[0];
+        ns_curr = ns[0];
 
         // Use the exponential Euler method when the neuron resistance
         // is not infinite:
@@ -74,25 +83,25 @@ __global__ void iaf_encode(FLOAT *u, FLOAT *s,
         for (unsigned int i = 0; i < last; i++) {
             if isinf(R)
                 if (use_trapz == 1)
-                    y += dt*(b+(u[i]+u[i+1])/2)/C;
+                    y_curr += dt*(b+(u[i]+u[i+1])/2)/C;
                 else
-                    y += dt*(b+u[i])/C;
+                    y_curr += dt*(b+u[i])/C;
             else
-                y = y*EXP(-dt/RC)+R*(1.0-EXP(-dt/RC))*(b+u[i]);
-            interval += dt;
-            if (y >= d) {
-                s[i_s] = interval;
-                interval = 0;
-                y -= d;
-                i_s++;
+                y_curr = y_curr*EXP(-dt/RC)+R*(1.0-EXP(-dt/RC))*(b+u[i]);
+            interval_curr += dt;
+            if (y_curr >= d) {
+                s[ns_curr] = interval_curr;
+                interval_curr = 0;
+                y_curr -= d;
+                ns_curr++;
             }
         }
 
         // Save the integrator and interval values for the next
         // iteration:
-        y_0[0] = y;
-        interval_0[0] = interval;
-        i_s_0[0] = i_s;
+        y[0] = y_curr;
+        interval[0] = interval_curr;
+        ns[0] = ns_curr;
     }                     
 }
 """)
@@ -139,10 +148,10 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
     Returns
     -------
     s : ndarray of floats
-        If `full_output` == False, returns the signal encoded as an
-        array of time intervals between spikes.
+        If `full_output` is false, returns the signal encoded as an
+        array of interspike intervals.
     [s, dt, b, d, R, C, dte, y, interval, quad_method, full_output] : list
-        If `full_output` == True, returns the encoded signal
+        If `full_output` is true, returns the encoded signal
         followed by updated encoder parameters.
         
     Notes
