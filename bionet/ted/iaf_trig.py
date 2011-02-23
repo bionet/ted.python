@@ -191,7 +191,7 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list,
 
             F[Fi[i]:Fi[i+1], :] = F_temp
             q[Fi[i]:Fi[i+1], 0] = \
-                C_list[i]*d_list[i]-b_list[i]*s_list[i][1:]            
+                C_list[i]*d_list[i]-b_list[i]*RC*(1-exp(-s_list[i][1:]/RC))
 
     FH = F.conj().T
     c = dot(dot(pinv(dot(FH, F)+(N-1)*smoothing*eye(2*M+1)), FH), q)
