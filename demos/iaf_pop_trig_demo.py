@@ -44,6 +44,9 @@ u = func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
 pl.plot_signal(t, u, fig_title,
                output_name + str(output_count) + output_ext)
 
+# Trigonometric polynomial order:
+M = 32
+
 # Test leaky IAF algorithms:
 
 b1 = 3.5   # bias
@@ -65,11 +68,6 @@ try:
     iaf.iaf_recoverable(u, bw, b2, d2, R2, C2)
 except ValueError('reconstruction condition not satisfied'):
     sys.exit()
-
-# Trigonometric polynomial order:
-M = 32
-
-# Test leaky algorithms:
 
 b_list = np.array([b1, b2])
 d_list = np.array([d1, d2])

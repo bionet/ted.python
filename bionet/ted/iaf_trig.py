@@ -9,6 +9,9 @@ from numpy import arange, array, conj, cumsum, dot, empty, exp, eye, float, \
      hstack, inf, isinf, pi, real, sqrt, sum, zeros     
 from numpy.linalg import pinv
 
+# Pseudoinverse singular value cutoff:
+__pinv_rcond__ = 1e-8
+
 def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0, M=5, smoothing=0.0):
     """
     IAF time decoding machine using trigonometric polynomials.
@@ -76,7 +79,7 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0, M=5, smoothing=0.0):
         q = C*(d+b*R*(exp(-s[1:]/RC)-1))
 
     FH = F.conj().T
-    c = dot(dot(pinv(dot(FH, F)+(N-1)*smoothing*eye(2*M+1)), FH), q)
+    c = dot(dot(pinv(dot(FH, F)+(N-1)*smoothing*eye(2*M+1), __pinv_rcond__), FH), q)
     t = arange(0, dur, dt)
     u_rec = zeros(len(t), complex)
     for m in xrange(-M, M+1):
@@ -194,7 +197,7 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list,
                 C_list[i]*d_list[i]-b_list[i]*RC*(1-exp(-s_list[i][1:]/RC))
 
     FH = F.conj().T
-    c = dot(dot(pinv(dot(FH, F)+(N-1)*smoothing*eye(2*M+1)), FH), q)
+    c = dot(dot(pinv(dot(FH, F)+(N-1)*smoothing*eye(2*M+1), __pinv_rcond__), FH), q)
 
     t = arange(0, dur, dt)
     u_rec = zeros(len(t), complex)
