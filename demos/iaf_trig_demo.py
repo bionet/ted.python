@@ -68,8 +68,7 @@ pl.plot_encoded(t, u, s, fig_title,
 output_count += 1
 fig_title = 'Signal Decoded Using Leaky Trigonometric IAF Decoder'
 print fig_title
-u_rec = func_timer(iaf_trig.iaf_decode_trig)(s, dur, dt, bw, b, d, R,
-                                                C, M)                                           
+u_rec = func_timer(iaf_trig.iaf_decode)(s, dur, dt, bw, b, d, R, C, M)     
 pl.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 
@@ -87,8 +86,7 @@ pl.plot_encoded(t, u, s, fig_title,
 output_count += 1
 fig_title = 'Signal Decoded Using Ideal Trigonometric IAF Decoder'
 print fig_title
-u_rec = func_timer(iaf_trig.iaf_decode_trig)(s, dur, dt, bw, b, d, R,
-                                           C, M)
+u_rec = func_timer(iaf_trig.iaf_decode)(s, dur, dt, bw, b, d, R, C, M)
 pl.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
 
