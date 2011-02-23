@@ -9,7 +9,7 @@ from numpy import arange, array, conj, cumsum, dot, empty, exp, eye, float, \
      hstack, inf, isinf, pi, real, sqrt, sum, zeros     
 from numpy.linalg import pinv
 
-def iaf_decode_trig(s, dur, dt, bw, b, d, R=inf, C=1.0, M=5, smoothing=0.0):
+def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0, M=5, smoothing=0.0):
     """
     IAF time decoding machine using trigonometric polynomials.
 
@@ -84,8 +84,8 @@ def iaf_decode_trig(s, dur, dt, bw, b, d, R=inf, C=1.0, M=5, smoothing=0.0):
 
     return real(u_rec)
 
-def iaf_decode_trig_pop(s_list, dur, dt, bw, b_list, d_list, R_list,
-                        C_list, M=5, smoothing=0.0):
+def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list,
+                   C_list, M=5, smoothing=0.0):
     """
     Multi-input single-output IAF time decoding machine.
     
