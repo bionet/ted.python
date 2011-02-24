@@ -36,7 +36,7 @@ output_ext = '.png'
 # Define algorithm parameters and input signal:
 dur = 0.1
 dt = 1e-6
-f = 32
+f = 64
 bw = 2*np.pi*f
 t = np.arange(0, dur, dt)
 
@@ -53,11 +53,11 @@ pl.plot_signal(t, u, fig_title,
                output_name + str(output_count) + output_ext)
 
 # Trigonometric polynomial order:
-M = 32
+M = 75
 
 # Test leaky IAF algorithms:
 
-b1 = 3.5   # bias
+b1 = 7.5   # bias
 d1 = 0.7   # threshold
 R1 = 10.0  # resistance
 C1 = 0.01  # capacitance
@@ -67,7 +67,7 @@ try:
 except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
-b2 = 3.4   # bias
+b2 = 6.4   # bias
 d2 = 0.8   # threshold
 R2 = 9.0   # resistance
 C2 = 0.01  # capacitance
@@ -107,7 +107,7 @@ pl.plot_compare(t, u, u_rec, fig_title,
 
 # Test ideal IAF algorithms:
 
-b1 = 3.5     # bias
+b1 = 7.5     # bias
 d1 = 0.7     # threshold
 R1 = np.inf  # resistance
 C1 = 0.01    # capacitance
@@ -117,7 +117,7 @@ try:
 except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
-b2 = 3.4     # bias
+b2 = 6.4     # bias
 d2 = 0.8     # threshold
 R2 = np.inf  # resistance
 C2 = 0.01    # capacitance

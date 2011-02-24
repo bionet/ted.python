@@ -19,6 +19,10 @@ import scikits.cuda.misc as cumisc
 import scikits.cuda.linalg as culinalg
 
 from iaf_cuda import iaf_encode
+from prodtrans import prodtrans
+
+# Pseudoinverse singular value cutoff:
+__pinv_rcond__ = 1e-8
 
 compute_F_template = Template("""
 #include <pycuda/pycuda-complex.hpp>
@@ -252,14 +256,22 @@ def iaf_decode_trig(s, dur, dt, bw, b, d, R=inf, C=1.0, M=5, smoothing=0.0):
                         np.int32(M), np.uint32((N-1)*(2*M+1)),
                         block=block_dim_F, grid=grid_dim_F)
 
+    # Compute the product of F^H and q first so that both F^H and q
+    # can be dropped from memory:
     FH_gpu = culinalg.hermitian(F_gpu)
+    FHq_gpu = culinalg.dot(FH_gpu, q_gpu)
+    del FH_gpu, q_gpu
+    
     if smoothing == 0:
-        c_gpu = culinalg.mdot(culinalg.pinv(culinalg.dot(FH_gpu, F_gpu)),                              
-                              FH_gpu, q_gpu)
+        c_gpu = culinalg.dot(culinalg.pinv(prodtrans(F_gpu),
+                                           __pinv_rcond__),
+                             FHq_gpu)
     else:
-        c_gpu = culinalg.mdot(culinalg.pinv(culinalg.dot(FH_gpu,
-                              F_gpu)+(N-1)*smoothing*culinalg.eye(2*M+1, float_type)),
-                              FH_gpu, q_gpu)
+        c_gpu = culinalg.dot(culinalg.pinv(prodtrans(F_gpu)+
+                                           (N-1)*smoothing*culinalg.eye(2*M+1,
+                                                                        float_type),
+                                           __pinv_rcond__),
+                             FHq_gpu)
         
     # Allocate array for reconstructed signal:
     Nt = int(ceil(dur/dt))

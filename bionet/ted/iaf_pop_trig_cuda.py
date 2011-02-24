@@ -19,6 +19,8 @@ import scikits.cuda.misc as cumisc
 import scikits.cuda.linalg as culinalg
 from scikits.cuda import install_headers
 
+from prodtrans import prodtrans
+
 # Pseudoinverse singular value cutoff:
 __pinv_rcond__ = 1e-8
 
@@ -673,17 +675,23 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu, R_gpu,
 
     # Free unneeded variables:
     del s_gpu, ts_gpu, idx_to_ni_gpu, idx_to_k_gpu
-    
+
+    # Compute the product of F^H and q first so that both F^H and q
+    # can be dropped from memory:
     FH_gpu = culinalg.hermitian(F_gpu)
+    FHq_gpu = culinalg.dot(FH_gpu, q_gpu)
+    del FH_gpu, q_gpu
+
     if smoothing == 0:
-        c_gpu = culinalg.mdot(culinalg.pinv(culinalg.dot(FH_gpu,
-                                            F_gpu), __pinv_rcond__),       
-                              FH_gpu, q_gpu)
+        c_gpu = culinalg.dot(culinalg.pinv(prodtrans(F_gpu),
+                                           __pinv_rcond__), 
+                             FHq_gpu)
     else:
-        c_gpu = culinalg.mdot(culinalg.pinv(culinalg.dot(FH_gpu,
-                              F_gpu)+(N-1)*smoothing*culinalg.eye(2*M+1,
-                              float_type), __pinv_rcond__),                                            
-                              FH_gpu, q_gpu)
+        c_gpu = culinalg.dot(culinalg.pinv(prodtrans(F_gpu)+
+                                           (N-1)*smoothing*culinalg.eye(2*M+1,
+                                                                        float_type),
+                                           __pinv_rcond__),                                            
+                             FHq_gpu)
         
     # Allocate array for reconstructed signal:
     Nt = int(ceil(dur/dt))
