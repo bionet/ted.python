@@ -307,6 +307,10 @@ compute_ts_template = Template("""
 #define INDEX(row,col,cols) row*cols+col
 
 // Assumes that ts is initially filled with zeros
+// s: interspike intervals; shape(s) == (N, s_cols)
+// ns: lengths of spike trains
+// ts: computed spike times
+// s_cols: number of columns in s
 // N: number of rows in s
 __global__ void compute_ts(FLOAT *s, unsigned int *ns, FLOAT *ts,
                            unsigned int s_cols,
@@ -346,6 +350,15 @@ compute_F_template = Template("""
 
 #define EM(m,t,bw,M) exp(COMPLEX(0, m*bw*t/M))
 
+// s: interspike intervals
+// ts: spike times
+// F: computed reconstruction matrix
+// bw: bandwidth (rad/s)
+// R: resistances
+// C: capacitances
+// idx_to_ni: map from linear index to neuron number
+// idx_to_k: map from linear index to spike time index
+// M: trigonometric polynomial order
 // s_cols: number of columns in s
 // N: Nq*(2*M+1), where Nq is the length of q
 __global__ void compute_F_ideal(FLOAT *s, FLOAT *ts, COMPLEX *F, FLOAT bw, 
@@ -421,11 +434,15 @@ compute_q_template = Template("""
 // linear index:
 #define INDEX(row,col,cols) row*cols+col
 
-// idx_to_ni: CUDA index to neuron index
-// idx_to_k: CUDA index to interspike interval index
+// s: interspike intervals
+// q: computed q array
 // b: neuron biases
 // d: neuron thresholds
+// R: neuron resistances
 // C: neuron capacitances
+// idx_to_ni: map from linear index to neuron index
+// idx_to_k: map from linear index to interspike interval index
+// s_cols: number of columns in s
 // N: the sum of the number of interspike intervals per neuron less 1
 // for each neuron with more than 1 spike time
 __global__ void compute_q_ideal(FLOAT *s, COMPLEX *q, FLOAT *b,
@@ -481,7 +498,12 @@ compute_u_template = Template("""
 
 #define EM(m,t,bw,M) exp(COMPLEX(0, m*bw*t/M))
 
-// Nt: length of t
+// u_rec: reconstructed signal
+// c: reconstruction coefficients
+// bw: bandwidth (rad/s)
+// dt: time resolution of reconstructed signal
+// M: trigonometric polynomial order
+// Nt: len(t)
 __global__ void compute_u(COMPLEX *u_rec, COMPLEX *c,
                           FLOAT bw, FLOAT dt, int M, unsigned Nt) {
     unsigned int idx = blockIdx.y*${max_threads_per_block}*${max_blocks_per_grid}+
@@ -708,5 +730,4 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu, R_gpu,
               np.uint32(Nt),
               block=block_dim_t, grid=grid_dim_t)
 
-#    raise ValueError
     return real(u_rec_gpu.get())

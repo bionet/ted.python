@@ -38,7 +38,14 @@ compute_F_template = Template("""
 
 #define EM(m,t,bw,M) exp(COMPLEX(0, m*bw*t/M))
 
-// In the kernels below, N == (len(s)-1)*(2*M+1)
+// s: interspike intervals
+// ts: spike times
+// F: computed F matrix
+// bw: bandwidth (rad/s)
+// R: resistance
+// C: capacitance
+// M: trigonometric polynomial order
+// N: (len(s)-1)*(2*M+1)
 __global__ void compute_F_ideal(FLOAT *s, FLOAT *ts, COMPLEX *F, FLOAT bw, int M,
                                 unsigned int N) {
     unsigned int idx = blockIdx.y*${max_threads_per_block}*${max_blocks_per_grid}+
@@ -84,7 +91,13 @@ compute_q_template = Template("""
 #define COMPLEX pycuda::complex<double>
 #endif
 
-// In the kernels below, N == (len(s)-1)
+// s: interspike intervals
+// q: computed q array
+// b: bias
+// d: threshold
+// R: resistance
+// C: capacitance
+// N: (len(s)-1)
 __global__ void compute_q_ideal(FLOAT *s, COMPLEX *q, FLOAT b,
                                 FLOAT d, FLOAT C, unsigned int N) {                          
     unsigned int idx = blockIdx.y*${max_threads_per_block}*${max_blocks_per_grid}+
@@ -120,7 +133,12 @@ compute_u_template = Template("""
 
 #define EM(m,t,bw,M) exp(COMPLEX(0, m*bw*t/M))
 
-// Nt: length of t
+// u_rec: reconstructed signal
+// c: reconstruction coefficients
+// bw: bandwidth (rad/s)
+// dt: time resolution of reconstructed signal
+// M: trigonometric polynomial order
+// Nt: len(t)
 __global__ void compute_u(COMPLEX *u_rec, COMPLEX *c,
                           FLOAT bw, FLOAT dt, int M, unsigned Nt) {
     unsigned int idx = blockIdx.y*${max_threads_per_block}*${max_blocks_per_grid}+
