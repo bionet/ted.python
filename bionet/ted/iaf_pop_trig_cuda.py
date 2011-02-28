@@ -710,9 +710,9 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu, R_gpu,
                              FHq_gpu)
     else:
         c_gpu = culinalg.dot(culinalg.pinv(prodtrans(F_gpu)+
-                                           (N-1)*smoothing*culinalg.eye(2*M+1,
+                                           np.sum(ns)*smoothing*culinalg.eye(2*M+1,
                                                                         float_type),
-                                           __pinv_rcond__),                                            
+                                           __pinv_rcond__),   
                              FHq_gpu)
         
     # Allocate array for reconstructed signal:
