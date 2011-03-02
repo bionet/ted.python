@@ -27,13 +27,12 @@ __pinv_rcond__ = 1e-8
 compute_F_template = Template("""
 #include <pycuda/pycuda-complex.hpp>
 
-#define USE_DOUBLE ${use_double}
-#if USE_DOUBLE == 0
-#define FLOAT float
-#define COMPLEX pycuda::complex<float>
-#else
+#if ${use_double}
 #define FLOAT double
 #define COMPLEX pycuda::complex<double>
+#else
+#define FLOAT float
+#define COMPLEX pycuda::complex<float>
 #endif
 
 #define EM(m,t,bw,M) exp(COMPLEX(0, m*bw*t/M))
@@ -82,13 +81,12 @@ __global__ void compute_F_leaky(FLOAT *s, FLOAT *ts, COMPLEX *F, FLOAT bw,
 compute_q_template = Template("""
 #include <pycuda/pycuda-complex.hpp>
 
-#define USE_DOUBLE ${use_double}
-#if USE_DOUBLE == 0
-#define FLOAT float
-#define COMPLEX pycuda::complex<float>
-#else
+#if ${use_double}
 #define FLOAT double
 #define COMPLEX pycuda::complex<double>
+#else
+#define FLOAT float
+#define COMPLEX pycuda::complex<float>
 #endif
 
 // s: interspike intervals
@@ -121,14 +119,13 @@ __global__ void compute_q_leaky(FLOAT *s, COMPLEX *q, FLOAT b,
 
 compute_u_template = Template("""
 #include <pycuda/pycuda-complex.hpp>
-
-#define USE_DOUBLE ${use_double}
-#if USE_DOUBLE == 0
-#define FLOAT float
-#define COMPLEX pycuda::complex<float>
-#else
+ 
+#if ${use_double}
 #define FLOAT double
 #define COMPLEX pycuda::complex<double>
+#else
+#define FLOAT float
+#define COMPLEX pycuda::complex<float>
 #endif
 
 #define EM(m,t,bw,M) exp(COMPLEX(0, m*bw*t/M))

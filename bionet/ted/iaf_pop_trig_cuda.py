@@ -27,8 +27,7 @@ __pinv_rcond__ = 1e-8
 # Kernel template for performing ideal/leaky time encoding a
 # 1D signal using N encoders:
 iaf_encode_pop_template = Template("""
-#define USE_DOUBLE ${use_double}
-#if USE_DOUBLE == 1
+#if ${use_double}
 #define FLOAT double
 #define EXP(x) exp(x)
 #else
@@ -295,11 +294,10 @@ def _compute_idx_map(ns):
     return idx_to_ni, idx_to_k
 
 compute_ts_template = Template("""
-#define USE_DOUBLE ${use_double}
-#if USE_DOUBLE == 0
-#define FLOAT float
-#else
+#if ${use_double}
 #define FLOAT double
+#else
+#define FLOAT float
 #endif
 
 // Macro for accessing multidimensional arrays with cols columns by
@@ -333,15 +331,14 @@ compute_F_template = Template("""
 #include <pycuda/pycuda-complex.hpp>
 #include "cuConstants.h"
 
-#define USE_DOUBLE ${use_double}
-#if USE_DOUBLE == 0
-#define FLOAT float
-#define COMPLEX pycuda::complex<float>
-#define SQRT(x) sqrtf(x)
-#else
+#if ${use_double}
 #define FLOAT double
 #define COMPLEX pycuda::complex<double>
 #define SQRT(x) sqrt(x)
+#else
+#define FLOAT float
+#define COMPLEX pycuda::complex<float>
+#define SQRT(x) sqrtf(x)
 #endif
 
 // Macro for accessing multidimensional arrays with cols columns by
@@ -421,13 +418,12 @@ __global__ void compute_F_leaky(FLOAT *s, FLOAT *ts, COMPLEX *F, FLOAT bw,
 compute_q_template = Template("""
 #include <pycuda/pycuda-complex.hpp>
 
-#define USE_DOUBLE ${use_double}
-#if USE_DOUBLE == 0
-#define FLOAT float
-#define COMPLEX pycuda::complex<float>
-#else
+#if ${use_double}
 #define FLOAT double
 #define COMPLEX pycuda::complex<double>
+#else
+#define FLOAT float
+#define COMPLEX pycuda::complex<float>
 #endif
 
 // Macro for accessing multidimensional arrays with cols columns by
@@ -485,15 +481,14 @@ compute_u_template = Template("""
 #include <pycuda/pycuda-complex.hpp>
 #include "cuConstants.h"
 
-#define USE_DOUBLE ${use_double}
-#if USE_DOUBLE == 0
-#define FLOAT float
-#define COMPLEX pycuda::complex<float>
-#define SQRT(x) sqrtf(x)
-#else
+#if ${use_double}
 #define FLOAT double
 #define COMPLEX pycuda::complex<double>
 #define SQRT(x) sqrt(x)
+#else
+#define FLOAT float
+#define COMPLEX pycuda::complex<float>
+#define SQRT(x) sqrtf(x)
 #endif
 
 #define EM(m,t,bw,M) exp(COMPLEX(0, m*bw*t/M))
