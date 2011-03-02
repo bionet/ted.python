@@ -33,13 +33,12 @@ __pinv_rcond__ = 1e-6
 # Kernel template for performing ideal/leaky IAF time encoding using a
 # single encoder:
 iaf_encode_mod_template = Template("""
-#define USE_DOUBLE ${use_double}
-#if USE_DOUBLE == 0
-#define FLOAT float
-#define EXP(x) expf(x)
-#else
+#if ${use_double}
 #define FLOAT double
 #define EXP(x) exp(x)
+#else
+#define FLOAT float
+#define EXP(x) expf(x)
 #endif
 
 // u: input signal
@@ -221,11 +220,10 @@ def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
 
 # Kernel template for computing q for the ideal IAF time decoder:
 compute_q_ideal_mod_template = Template("""
-#define USE_DOUBLE ${use_double}
-#if USE_DOUBLE == 0
-#define FLOAT float
-#else
+#if ${use_double}
 #define FLOAT double
+#else
+#define FLOAT float
 #endif
 
 // N must equal one less the length of s:
@@ -242,11 +240,10 @@ __global__ void compute_q(FLOAT *s, FLOAT *q, FLOAT b,
 
 # Kernel template for computing spike times for the ideal IAF time decoder:
 compute_ts_ideal_mod_template = Template("""
-#define USE_DOUBLE ${use_double}
-#if USE_DOUBLE == 0
-#define FLOAT float
-#else
+#if ${use_double}
 #define FLOAT double
+#else
+#define FLOAT float
 #endif
 
 // N == len(s)
@@ -265,11 +262,10 @@ __global__ void compute_ts(FLOAT *s, FLOAT *ts, unsigned int N) {
 # Kernel template for computing midpoints between spikes for the ideal
 # IAF time decoder:
 compute_tsh_ideal_mod_template = Template("""
-#define USE_DOUBLE ${use_double}
-#if USE_DOUBLE == 0
-#define FLOAT float
-#else
+#if ${use_double}
 #define FLOAT double
+#else
+#define FLOAT float
 #endif
 
 // Nsh == len(ts)-1
@@ -289,13 +285,12 @@ compute_G_ideal_mod_template = Template("""
 #include <cuConstants.h>    // needed to provide PI
 #include <cuSpecialFuncs.h> // needed to provide sici()
 
-#define USE_DOUBLE ${use_double}
-#if USE_DOUBLE == 0
-#define FLOAT float
-#define SICI(x, si, ci) sicif(x, si, ci)
-#else
+#if ${use_double}
 #define FLOAT double
 #define SICI(x, si, ci) sici(x, si, ci)
+#else
+#define FLOAT float
+#define SICI(x, si, ci) sicif(x, si, ci)
 #endif
 
 // N must equal the square of one less than the length of ts:
@@ -320,13 +315,12 @@ compute_u_ideal_mod_template = Template("""
 #include <cuConstants.h>    // needed to provide PI
 #include <cuSpecialFuncs.h> // needed to provide sinc()
 
-#define USE_DOUBLE ${use_double}
-#if USE_DOUBLE == 0
-#define FLOAT float
-#define SINC(x) sincf(x)
-#else
+#if ${use_double}
 #define FLOAT double
 #define SINC(x) sinc(x)
+#else
+#define FLOAT float
+#define SINC(x) sincf(x)
 #endif
 
 // Nt == len(t)
