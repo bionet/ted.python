@@ -13,13 +13,24 @@ that produce numerical data.
 - plot_raster     Display several time sequences as a raster plot.
 - plot_signal     Plot a signal over some time interval.
 
+The module also contains several wrappers for matplotlib's 3D plotting
+facilities.
+
+- contour         Create a 3D contour plot.
+- contourf        Create a filled 3D contour plot.
+- surf            Create a 3D surface plot.
+- wireframe       Create a 3D wireframe plot.
+
 """
 
 __all__ = ['plot_compare', 'plot_encoded',
-           'plot_fourier','plot_raster', 'plot_signal']
+           'plot_fourier','plot_raster', 'plot_signal',
+           'contour', 'contourf', 'surf', 'wireframe']
 
 import numpy as np
 import pylab as p
+
+from mpl_toolkits.mplot3d import axes3d
 
 # Since the fft function in scipy is faster than that in numpy, try to
 # import the former before falling back to the latter:
@@ -237,3 +248,56 @@ def plot_raster(ts_list, plot_stems=True, fig_title='', file_name=''):
     p.draw_if_interactive()
     if file_name:
         p.savefig(file_name)
+
+def contour(X, Y, Z, *args):    
+
+    # For some reason, this is necessary to prevent clf() from raising
+    # an exception:
+    try:
+        p.clf()
+    except ValueError:
+        p.clf()
+    ax = p.gca(projection='3d')
+    ax.contour(X, Y, Z, *args)
+    p.draw_if_interactive()
+contour.__doc__ = axes3d.Axes3D.contour.__doc__
+
+def contourf(X, Y, Z, *args):    
+
+    # For some reason, this is necessary to prevent clf() from raising
+    # an exception:
+    try:
+        p.clf()
+    except ValueError:
+        p.clf()
+    ax = p.gca(projection='3d')
+    ax.contourf(X, Y, Z, *args)
+    p.draw_if_interactive()
+contourf.__doc__ = axes3d.Axes3D.contourf.__doc__
+
+def surf(X, Y, Z, *args):    
+
+    # For some reason, this is necessary to prevent clf() from raising
+    # an exception:
+    try:
+        p.clf()
+    except ValueError:
+        p.clf()
+    ax = p.gca(projection='3d')
+    ax.plot_surface(X, Y, Z, *args)
+    p.draw_if_interactive()
+surf.__doc__ = axes3d.Axes3D.plot_surface.__doc__
+
+def wireframe(X, Y, Z, *args):    
+
+    # For some reason, this is necessary to prevent clf() from raising
+    # an exception:
+    try:
+        p.clf()
+    except ValueError:
+        p.clf()
+    ax = p.gca(projection='3d')
+    ax.plot_wireframe(X, Y, Z, *args)
+    p.draw_if_interactive()
+wireframe.__doc__ = axes3d.Axes3D.plot_wireframe.__doc__
+
