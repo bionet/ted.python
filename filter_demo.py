@@ -108,10 +108,10 @@ def filter_trig_poly(u, h, dt, M):
     """
 
     # Get the Dirichlet coefficients of the signal:
-    am = get_dirichlet_coeffs_fft(u, dt, M)
+    am = get_dirichlet_coeffs(u, dt, M)
 
     # Get the Dirichlet coefficients of the filter:
-    hm = get_dirichlet_coeffs_fft(h, dt, M)
+    hm = get_dirichlet_coeffs(h, dt, M)
 
     # Construct the filtered signal using the above coefficients:
     T = dt*len(u)
@@ -162,24 +162,23 @@ if __name__ == '__main__':
     dt = 1e-5
     t = np.arange(0, T, dt)
 
-    am = tp.gen_dirichlet_coeffs(M)
-    u = tp.gen_trig_poly(t, am)
-
+    u = tp.gen_trig_poly(T, dt, M)
+    am_rec = tp.get_dirichlet_coeffs(u, dt, M)
+    
     # Try to recover the Dirichlet coefficients of the generated signal
     # using different methods. Note that this only works if u contains an
     # entire period of the signal (i.e., arange(0, T, dt)):
     print 'reconstructing signal from recovered coefficients..'
-    am_fft = tp.get_dirichlet_coeffs_fft(u, dt, M)
-    u_rec = tp.gen_trig_poly(t, am_fft)
-    pl.plot_compare(t, u, u_rec, 'Signal Reconstruction Error',
+    u_rec = tp.gen_trig_poly(T, dt, am_rec)
+    pl.plot_compare(t, u, u_rec, 'Signal Reconstruction',
                     output_name + str(output_count) + output_ext)
     output_count += 1 
 
     # Create a filter:
     h = make_gammatone(t, 16, 0)
-    hm = tp.get_dirichlet_coeffs_fft(h, dt, M)
-    h_rec = tp.gen_trig_poly(t, hm)
-    pl.plot_compare(t, h, h_rec, 'Filter Reconstruction Error',
+    hm = tp.get_dirichlet_coeffs(h, dt, M)
+    h_rec = tp.gen_trig_poly(T, dt, hm)
+    pl.plot_compare(t, h, h_rec, 'Filter Reconstruction',
                     output_name + str(output_count) + output_ext)
     output_count += 1 
       
