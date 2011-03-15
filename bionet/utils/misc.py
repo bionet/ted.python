@@ -7,13 +7,12 @@ Miscellaneous Functions
 This module contains various unclassified utility functions and classes.
 
 - chunks           Return a generator that splits a sequence into chunks.
-- crand            Generate complex uniformly distributed random values.
 - func_timer       Function execution timer. Can be used as a decorator.
 - SerialBuffer     Buffer interface to a serial data source.
 
 """
 
-__all__ = ['chunks', 'crand', 'func_timer', 'SerialBuffer']
+__all__ = ['chunks', 'func_timer', 'SerialBuffer']
 
 import time
 
@@ -41,28 +40,6 @@ def chunks(seq, n):
     
     for i in xrange(0, len(seq), n):
         yield seq[i:i+n]
-
-def crand(*args):
-    """
-    Complex random values in a given shape.
-
-    Create an array of the given shape whose entries are complex
-    numbers with real and imaginary parts sampled from a uniform
-    distribution over ``[0, 1)``.
-    
-    Parameters
-    ----------
-    d0, d1, ..., dn : int
-        Shape of the output.
-
-    Returns
-    -------
-    out : numpy.ndarray
-        Complex random variables.
-        
-    """
-    
-    return np.random.rand(*args)+1j*np.random.rand(*args)
 
 def func_timer(f):
     """

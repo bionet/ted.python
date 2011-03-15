@@ -3,6 +3,10 @@
 Change Log
 ==========
 
+Release 0.017 - ()
+------------------------------
+* Add trigonometric polynomial routines.
+
 Release 0.016 - (September 20, 2010)
 ------------------------------------
 * Fix missing import.

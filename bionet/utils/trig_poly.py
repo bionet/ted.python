@@ -19,7 +19,7 @@ __all__ = ['em', 'scale_down_coeffs', 'gen_dirichlet_coeffs',
 
 import numpy as np
 
-from misc import crand
+from numpy_extras import crand
 
 def em(m, t, Omega, M):
     """

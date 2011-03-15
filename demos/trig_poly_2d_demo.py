@@ -22,11 +22,9 @@ if __name__ == '__main__':
 
     Sx = Sy = 1.0
     dx = dy = 1/64.0
-    x = np.arange(-Sx/2, Sx/2, dx)
-    y = np.arange(-Sy/2, Sy/2, dy)
     Mx = My = 4
 
-    S = tp.gen_trig_poly_2d(x, y, Mx, My)
+    S = tp.gen_trig_poly_2d(Sx, Sy, dx, dy, Mx, My)
     S/np.max(np.abs(S))
     p.imshow(S)
     p.colorbar()
