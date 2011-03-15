@@ -5,7 +5,7 @@ Demo of how to construct real 2D trigonometric polynomials.
 """
 
 import numpy as np
-import trig_poly as tp
+import bionet.utils.trig_poly as tp
 
 # Set matplotlib backend so that plots can be generated without a
 # display:

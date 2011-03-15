@@ -1,17 +1,25 @@
 #!/usr/bin/env python
 
 """
-Routines for manipulating trigonometric polynomials.
+Routines for Manipulating Trigonometric Polynomials
+===================================================
+
+- em                    Trigonometric polynomial basis function.
+- gen_dirichlet_coeffs  Generate random Dirichlet coefficients.
+- gen_trig_poly         Generate a 1D trigonometric polynomial.
+- gen_trig_poly_2d      Generate a 2D trigonometric polynomial.
+- get_dirichlet_coeffs  Compute Dirichlet coefficients of a signal.
+- scale_down_coeffs     Scale down Dirichlet coefficients.
+
 """
+
+__all__ = ['em', 'scale_down_coeffs', 'gen_dirichlet_coeffs',
+           'gen_trig_poly', 'get_dirichlet_coeffs',
+           'gen_trig_poly_2d']
 
 import numpy as np
 
-def crand(*args):
-    """
-    Complex random values in a given shape.
-    """
-    
-    return np.random.rand(*args)+1j*np.random.rand(*args)
+from misc import crand
 
 def em(m, t, Omega, M):
     """

@@ -5,7 +5,7 @@ Demo of how to filter trigonometric polynomial signals.
 """
 
 import numpy as np
-import trig_poly as tp
+import bionet.utils.trig_poly as tp
 
 # Set matplotlib backend so that plots can be generated without a
 # display:

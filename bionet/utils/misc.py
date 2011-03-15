@@ -7,27 +7,74 @@ Miscellaneous Functions
 This module contains various unclassified utility functions and classes.
 
 - chunks           Return a generator that splits a sequence into chunks.
+- crand            Generate complex uniformly distributed random values.
 - func_timer       Function execution timer. Can be used as a decorator.
 - SerialBuffer     Buffer interface to a serial data source.
 
 """
 
-__all__ = ['chunks', 'func_timer', 'SerialBuffer']
+__all__ = ['chunks', 'crand', 'func_timer', 'SerialBuffer']
 
 import time
 
 def chunks(seq, n):
-    """Return a generator whose `next()` method returns length n
-    subsequences of the given sequence.  If `len(seq)` % `n` != 0, the
-    last subsequence returned will contain fewer than `n` entries."""
+    """
+    Chunk generator.
+    
+    Return a generator whose `next()` method returns length `n`
+    subsequences of the given sequence.  If `len(seq) % n != 0`, the
+    last subsequence returned will contain fewer than `n` entries.
+
+    Parameters
+    ----------
+    seq : iterable
+        Sequence to split into chunks.
+    n : int
+        Chunk size.
+
+    Returns
+    -------
+    g : generator
+        Generator that will return length `n` chunks of `seq`.
+        
+    """
     
     for i in xrange(0, len(seq), n):
         yield seq[i:i+n]
 
-def func_timer(f):
-    """Time the execution of function f. If arguments are specified,
-    they are passed to the function being timed."""
+def crand(*args):
+    """
+    Complex random values in a given shape.
 
+    Create an array of the given shape whose entries are complex
+    numbers with real and imaginary parts sampled from a uniform
+    distribution over ``[0, 1)``.
+    
+    Parameters
+    ----------
+    d0, d1, ..., dn : int
+        Shape of the output.
+
+    Returns
+    -------
+    out : numpy.ndarray
+        Complex random variables.
+        
+    """
+    
+    return np.random.rand(*args)+1j*np.random.rand(*args)
+
+def func_timer(f):
+    """
+    Time the execution of a function.
+
+    Parameters
+    ----------
+    f : function
+        Function to time.
+
+    """
+    
     def wrapper(*args, **kwargs):
         start = time.time()
         res = f(*args, **kwargs)
