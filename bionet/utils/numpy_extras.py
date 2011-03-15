@@ -21,10 +21,6 @@ __all__ = ['crand', 'mdot', 'rank', 'mpower', 'hilb']
 
 import numpy as np
 
-from numpy import dot, empty, eye, asarray, abs, shape, diag, \
-     complex, float, zeros, arange, real, imag, iscomplexobj, any
-from numpy.linalg import svd, eig, inv
-
 def crand(*args):
     """
     Complex random values in a given shape.
