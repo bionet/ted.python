@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Bionet utilities 
+Bionet Utilities 
 ================
 
 The functions and classes in these modules are used by other
@@ -17,5 +17,6 @@ Available modules
 - scipy_extras     Various functions not currently in scipy.
 - signal_extras    Signal processing functions not currently in scipy.
 - signal_io        I/O classes for reading/writing signals from/to HDF5.
+- trig_poly        Trigonometric polynomial routines.
 
 """
