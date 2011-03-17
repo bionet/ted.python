@@ -242,7 +242,7 @@ def gen_dirichlet_coeffs_2d(Mx, My):
 
     return c
 
-def gen_trig_poly_2d(Sx, Sy, dx, dy, Mx, My):
+def gen_trig_poly_2d(Sx, Sy, dx, dy, c):
     """
     Construct a 2D trigonometric polynomial.
 
@@ -256,10 +256,9 @@ def gen_trig_poly_2d(Sx, Sy, dx, dy, Mx, My):
         Resolution along the X-axis.
     dy : float
         Resolution along the Y-axis.
-    Mx : int
-        Trigonometric polynomial order along the X-axis.
-    My : int
-        Trigonometric polynomial order along the Y-axis.
+    c : tuple or numpy.ndarray
+        X-axis and Y-axis trigonometric polynomial orders or
+        an array of Dirichlet coefficients with shape `(2*My+1, 2*Mx+1)`.
 
     Returns
     -------
@@ -274,10 +273,23 @@ def gen_trig_poly_2d(Sx, Sy, dx, dy, Mx, My):
     for an example of a DFT of a real 2D discrete signal.
 
     """
-        
-    if Mx < 1 or My < 1:
-        raise ValueError('Mx and My must exceed 0')
 
+    if isinstance(c, tuple):
+        if len(c) != 2:
+            raise ValueError('invalid number of trigonometric polynomial orders')
+        Mx, My = c
+        if Mx < 1 or My < 1:
+            raise ValueError('Mx and My must exceed 0')
+    elif np.iterable(c):
+        if len(np.shape(c)) != 2:
+            raise ValueError('coefficient array must have 2 dimensions')
+        if np.shape(c)[0] % 2 == 0 or np.shape(c)[1] % 2 == 0:
+            raise ValueError('coefficient array must have odd number of rows and columns')
+        Mx = np.shape(c)[0]/2
+        My = np.shape(c)[1]/2
+    else:
+        raise ValueError('unrecognized parameter type')
+    
     Nx = int(np.ceil(Sx/dx))
     Ny = int(np.ceil(Sy/dy))
     S_fft = np.zeros((Ny, Nx), np.complex)
