@@ -85,7 +85,9 @@ def gen_dirichlet_coeffs(M):
     Returns
     -------
     am : numpy.ndarray
-        Array of `2*M+1` Dirichlet coefficients.
+        Array of Dirichlet coefficients with shape `(2*M+1)`. The
+        coefficients are ordered such that `am[0]` contains the
+        coefficient for `m == -M`.
         
     """
     
@@ -202,7 +204,44 @@ def get_dirichlet_coeffs(u, dt, M, method='fft'):
 
     else:
         raise ValueError('unrecognized method')
-    
+
+def gen_dirichlet_coeffs_2d(Mx, My):
+    """
+    Generate random Dirichlet coefficients for a 2d real signal.
+
+    Parameters
+    ----------
+    Mx : int
+        Trigonometric polynomial order along the X-axis.
+    My : int
+        Trigonometric polynomial order along the Y-axis.
+
+    Returns
+    -------
+    c : numpy.ndarray
+        Array of Dirichlet coefficients with shape `(2*My+1,
+        2*Mx+1)`. The coefficients are ordered such that `c[0,0]`
+        contains the coefficients for `mx == -Mx` and `my == -My`.
+        
+    """
+
+    c = np.empty((2*My+1, 2*Mx+1), np.complex)
+
+    c[0:My, 0:Mx] = crand(My, Mx)
+    c[My+1:, Mx+1:] = np.rot90(np.rot90(np.conj(c[0:My, 0:Mx])))
+
+    c[0:My, Mx+1:] = crand(My, Mx)
+    c[My+1:, 0:Mx] = np.rot90(np.rot90(np.conj(c[0:My, Mx+1:])))
+
+    c[My, Mx] = np.random.rand()
+
+    c[My, 0:Mx] = crand(Mx)
+    c[My, Mx+1:] = np.conj(c[My, 0:Mx][::-1])
+    c[0:My, Mx] = crand(My)
+    c[My+1:, Mx] = np.conj(c[0:My, Mx][::-1])
+
+    return c
+
 def gen_trig_poly_2d(Sx, Sy, dx, dy, Mx, My):
     """
     Construct a 2D trigonometric polynomial.
@@ -242,19 +281,12 @@ def gen_trig_poly_2d(Sx, Sy, dx, dy, Mx, My):
     Nx = int(np.ceil(Sx/dx))
     Ny = int(np.ceil(Sy/dy))
     S_fft = np.zeros((Ny, Nx), np.complex)
-    S_fft[0, 0] = np.random.rand()
-    S_fft[0, 1:Mx+1] = crand(Mx)
-    S_fft[0, -Mx:] = np.conj(S_fft[0, 1:Mx+1][::-1])
 
-    S_fft[1:My+1, 0] = crand(My)
-    S_fft[-My:, 0] = np.conj(S_fft[1:My+1, 0][::-1])
+    c = gen_dirichlet_coeffs_2d(Mx, My)
 
-    S_fft[1:My+1, 1:Mx+1] = crand(My, Mx)
-    S_fft[-My:, -Mx:] = np.rot90(np.rot90(np.conj(S_fft[1:My+1,
-                                                       1:Mx+1])))
-
-    S_fft[1:My+1, -Mx:] = crand(My, Mx)
-    S_fft[-My:, 1:Mx+1] = np.rot90(np.rot90(np.conj(S_fft[1:My+1,
-                                                          -Mx:])))
-
+    S_fft[0:My+1, 0:Mx+1] = c[My:, Mx:]
+    S_fft[-My:, -Mx:] = c[0:My, 0:Mx]
+    S_fft[0:My+1, -Mx:] = c[-My-1:, 0:Mx]
+    S_fft[-My:, 0:Mx+1] = c[0:My, -Mx-1:]
+    
     return np.real(np.fft.ifft2(S_fft))
