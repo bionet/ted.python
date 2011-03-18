@@ -280,6 +280,7 @@ def gen_trig_poly_2d(Sx, Sy, dx, dy, c):
         Mx, My = c
         if Mx < 1 or My < 1:
             raise ValueError('Mx and My must exceed 0')
+        c = gen_dirichlet_coeffs_2d(Mx, My)
     elif np.iterable(c):
         if len(np.shape(c)) != 2:
             raise ValueError('coefficient array must have 2 dimensions')
@@ -294,11 +295,53 @@ def gen_trig_poly_2d(Sx, Sy, dx, dy, c):
     Ny = int(np.ceil(Sy/dy))
     S_fft = np.zeros((Ny, Nx), np.complex)
 
-    c = gen_dirichlet_coeffs_2d(Mx, My)
-
     S_fft[0:My+1, 0:Mx+1] = c[My:, Mx:]
     S_fft[-My:, -Mx:] = c[0:My, 0:Mx]
     S_fft[0:My+1, -Mx:] = c[-My-1:, 0:Mx]
     S_fft[-My:, 0:Mx+1] = c[0:My, -Mx-1:]
     
     return np.real(np.fft.ifft2(S_fft))
+
+def get_dirichlet_coeffs_2d(S, dx, dy, Mx, My):
+    """
+    Compute the Dirichlet coefficients of a 2d trigonometric polynomial.
+
+    Parameters
+    ----------
+    S : numpy.ndarray
+        Input signal with shape `(Ny, Nx)`.
+    dx : float
+        Resolution along the X-axis.
+    dy : float
+        Resolution along the Y-axis.
+    Mx : int
+        Trigonometric polynomial order along the X-axis.
+    My : int
+        Trigonometric polynomial order along the Y-axis.
+
+    Returns
+    -------
+    c : numpy.ndarray
+        Array of Dirichlet coefficients with shape `(2*My+1,
+        2*Mx+1)`. The coefficients are ordered such that `c[0,0]`
+        contains the coefficients for `mx == -Mx` and `my == -My`.
+        
+    Notes
+    -----    
+    Assumes that `S` is defined over the X-axis range `dx*arange(0,
+    S.shape[1])` and Y-axis range `dy*arange(0, S.shape[0])` and
+    that `dx*S.shape[1]` and `dy*S.shape[0]` are equal to the X-axis
+    and Y-axis periods of the trigonometric polynomial, respectively.
+
+    """
+
+    S_fft = np.fft.fft2(S)
+
+    c = np.empty((2*My+1, 2*Mx+1), np.complex)
+
+    c[My:, Mx:] = S_fft[0:My+1, 0:Mx+1] 
+    c[0:My, 0:Mx] = S_fft[-My:, -Mx:] 
+    c[-My-1:, 0:Mx] = S_fft[0:My+1, -Mx:] 
+    c[0:My, -Mx-1:] = S_fft[-My:, 0:Mx+1] 
+
+    return c
