@@ -61,8 +61,8 @@ __global__ void iaf_encode_pop(FLOAT *u, FLOAT *s,
                            unsigned int Nu,
                            unsigned int N)
 {
-    unsigned int idx = blockIdx.y*${max_threads_per_block}*${max_blocks_per_grid}+
-                       blockIdx.x*${max_threads_per_block}+threadIdx.x;
+    unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
+                       blockIdx.x*blockDim.x+threadIdx.x;
 
     FLOAT y_curr, interval_curr;                       
     FLOAT u_curr, u_next, b_curr, d_curr, R_curr, C_curr, RC_curr;
@@ -188,9 +188,6 @@ def iaf_encode_pop(u_gpu, dt, b_gpu, d_gpu, R_gpu, C_gpu,
 
     dev = cumisc.get_current_device()
     
-    # Get device constraints:
-    max_threads_per_block, max_block_dim, max_grid_dim = cumisc.get_dev_attrs(dev)
-
     # Use a smaller block size than the maximum to prevent the kernels
     # from using too many registers:
     max_threads_per_block = 256
@@ -199,15 +196,13 @@ def iaf_encode_pop(u_gpu, dt, b_gpu, d_gpu, R_gpu, C_gpu,
     # the N signals:
     block_dim, grid_dim = cumisc.select_block_grid_sizes(dev, N,
                           max_threads_per_block)
-    max_blocks_per_grid = max(max_grid_dim)
 
     # Configure kernel:
+    cache_dir = None
     iaf_encode_pop_mod = \
-                   SourceModule(iaf_encode_pop_template.substitute(use_double=use_double,
-                                max_threads_per_block=max_threads_per_block,
-                                max_blocks_per_grid=max_blocks_per_grid),
+                   SourceModule(iaf_encode_pop_template.substitute(use_double=use_double),
                                 # options=['--ptxas-options=-v'],
-                                cache_dir=False)
+                                cache_dir=cache_dir)
     iaf_encode_pop = iaf_encode_pop_mod.get_function("iaf_encode_pop")
 
     # Initialize integrator variables if necessary:
@@ -313,8 +308,8 @@ compute_ts_template = Template("""
 __global__ void compute_ts(FLOAT *s, unsigned int *ns, FLOAT *ts,
                            unsigned int s_cols,
                            unsigned int N) {
-    unsigned int idx = blockIdx.y*${max_threads_per_block}*${max_blocks_per_grid}+
-                       blockIdx.x*${max_threads_per_block}+threadIdx.x;
+    unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
+                       blockIdx.x*blockDim.x+threadIdx.x;
     if (idx < N) {
         FLOAT temp = 0;
         unsigned int j;
@@ -364,8 +359,8 @@ __global__ void compute_F_ideal(FLOAT *s, FLOAT *ts, COMPLEX *F, FLOAT bw,
                                 int M,
                                 unsigned int s_cols,
                                 unsigned int N) {
-    unsigned int idx = blockIdx.y*${max_threads_per_block}*${max_blocks_per_grid}+
-                       blockIdx.x*${max_threads_per_block}+threadIdx.x;
+    unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
+                       blockIdx.x*blockDim.x+threadIdx.x;
     unsigned int row = idx/(2*M+1);
     int m = (idx%(2*M+1))-M;
     
@@ -391,8 +386,8 @@ __global__ void compute_F_leaky(FLOAT *s, FLOAT *ts, COMPLEX *F, FLOAT bw,
                                 int M,
                                 unsigned int s_cols,
                                 unsigned int N) {
-    unsigned int idx = blockIdx.y*${max_threads_per_block}*${max_blocks_per_grid}+
-                       blockIdx.x*${max_threads_per_block}+threadIdx.x;
+    unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
+                       blockIdx.x*blockDim.x+threadIdx.x;
     unsigned int row = idx/(2*M+1);
     int m = (idx%(2*M+1))-M;
     
@@ -447,8 +442,8 @@ __global__ void compute_q_ideal(FLOAT *s, COMPLEX *q, FLOAT *b,
                                 unsigned int *idx_to_k,
                                 unsigned int s_cols,
                                 unsigned int N) {                          
-    unsigned int idx = blockIdx.y*${max_threads_per_block}*${max_blocks_per_grid}+
-                       blockIdx.x*${max_threads_per_block}+threadIdx.x;
+    unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
+                       blockIdx.x*blockDim.x+threadIdx.x;
 
     if (idx < N) {
         unsigned int ni = idx_to_ni[idx];
@@ -464,8 +459,8 @@ __global__ void compute_q_leaky(FLOAT *s, COMPLEX *q, FLOAT *b,
                                 unsigned int *idx_to_k,
                                 unsigned int s_cols,
                                 unsigned int N) {                          
-    unsigned int idx = blockIdx.y*${max_threads_per_block}*${max_blocks_per_grid}+
-                       blockIdx.x*${max_threads_per_block}+threadIdx.x;
+    unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
+                       blockIdx.x*blockDim.x+threadIdx.x;
 
     if (idx < N) {
         unsigned int ni = idx_to_ni[idx];
@@ -501,8 +496,8 @@ compute_u_template = Template("""
 // Nt: len(t)
 __global__ void compute_u(COMPLEX *u_rec, COMPLEX *c,
                           FLOAT bw, FLOAT dt, int M, unsigned Nt) {
-    unsigned int idx = blockIdx.y*${max_threads_per_block}*${max_blocks_per_grid}+
-                       blockIdx.x*${max_threads_per_block}+threadIdx.x;
+    unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
+                       blockIdx.x*blockDim.x+threadIdx.x;
                        
     if (idx < Nt) {
         COMPLEX u_temp = COMPLEX(0);        
@@ -592,10 +587,7 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu, R_gpu,
     idx_to_ni_gpu = gpuarray.to_gpu(idx_to_ni)
     idx_to_k_gpu = gpuarray.to_gpu(idx_to_k)
 
-    # Get device constraints:
     dev = cumisc.get_current_device()
-    max_threads_per_block, max_block_dim, max_grid_dim = cumisc.get_dev_attrs(dev)
-    max_blocks_per_grid = max(max_grid_dim)
 
     # Use a smaller block size than the maximum to prevent the kernels
     # from using too many registers:
@@ -603,34 +595,25 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu, R_gpu,
 
     # Prepare kernels:
     cache_dir = None
-
-    compute_ts_mod = SourceModule(compute_ts_template.substitute(use_double=use_double,
-                                  max_threads_per_block=max_threads_per_block,
-                                  max_blocks_per_grid=max_blocks_per_grid),
+    compute_ts_mod = SourceModule(compute_ts_template.substitute(use_double=use_double),
                                   cache_dir=cache_dir)
     compute_ts = compute_ts_mod.get_function('compute_ts')
     
     compute_q_mod = \
-                  SourceModule(compute_q_template.substitute(use_double=use_double,
-                               max_threads_per_block=max_threads_per_block,
-                               max_blocks_per_grid=max_blocks_per_grid),
+                  SourceModule(compute_q_template.substitute(use_double=use_double),
                                cache_dir=cache_dir)
     compute_q_ideal = compute_q_mod.get_function('compute_q_ideal')
     compute_q_leaky = compute_q_mod.get_function('compute_q_leaky')
 
     compute_F_mod = \
-                  SourceModule(compute_F_template.substitute(use_double=use_double,
-                               max_threads_per_block=max_threads_per_block,
-                               max_blocks_per_grid=max_blocks_per_grid),
+                  SourceModule(compute_F_template.substitute(use_double=use_double),
                                cache_dir=cache_dir,
                                options=['-I', install_headers])
     compute_F_ideal = compute_F_mod.get_function('compute_F_ideal')
     compute_F_leaky = compute_F_mod.get_function('compute_F_leaky')
 
     compute_u_mod = \
-                  SourceModule(compute_u_template.substitute(use_double=use_double,
-                               max_threads_per_block=max_threads_per_block,
-                               max_blocks_per_grid=max_blocks_per_grid),
+                  SourceModule(compute_u_template.substitute(use_double=use_double),
                                cache_dir=cache_dir,
                                options=['-I', install_headers])
     compute_u = compute_u_mod.get_function('compute_u')
@@ -648,15 +631,15 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu, R_gpu,
     F_gpu = gpuarray.empty((Nq, 2*M+1), complex_type) 
 
     # Get required block/grid sizes:
-    block_dim_ts, grid_dim_ts = cumisc.select_block_grid_sizes(dev,
-                                                               N,
-                                                               max_threads_per_block)
-    block_dim_q, grid_dim_q = cumisc.select_block_grid_sizes(dev,
-                                                             q_gpu.shape,
-                                                             max_threads_per_block)
-    block_dim_F, grid_dim_F = cumisc.select_block_grid_sizes(dev,
-                                                             F_gpu.shape,
-                                                             max_threads_per_block)
+    block_dim_ts, grid_dim_ts = \
+                  cumisc.select_block_grid_sizes(dev, N,
+                                                 max_threads_per_block)
+    block_dim_q, grid_dim_q = \
+                 cumisc.select_block_grid_sizes(dev, q_gpu.shape,
+                                                max_threads_per_block)
+    block_dim_F, grid_dim_F = \
+                 cumisc.select_block_grid_sizes(dev, F_gpu.shape,
+                                                max_threads_per_block)
 
     # Launch kernels:
     compute_ts(s_gpu, ns_gpu, ts_gpu, np.uint32(s_gpu.shape[1]),
