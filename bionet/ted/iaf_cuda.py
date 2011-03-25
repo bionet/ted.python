@@ -229,8 +229,8 @@ compute_q_ideal_mod_template = Template("""
 // N must equal one less the length of s:
 __global__ void compute_q(FLOAT *s, FLOAT *q, FLOAT b,
                           FLOAT d, FLOAT C, unsigned int N) {                          
-    unsigned int idx = blockIdx.y*${max_threads_per_block}*${max_blocks_per_grid}+
-                       blockIdx.x*${max_threads_per_block}+threadIdx.x;
+    unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
+                       blockIdx.x*blockDim.x+threadIdx.x;
 
     if (idx < N) {
         q[idx] = C*d-b*s[idx+1];
@@ -248,8 +248,8 @@ compute_ts_ideal_mod_template = Template("""
 
 // N == len(s)
 __global__ void compute_ts(FLOAT *s, FLOAT *ts, unsigned int N) {
-    unsigned int idx = blockIdx.y*${max_threads_per_block}*${max_blocks_per_grid}+
-                       blockIdx.x*${max_threads_per_block}+threadIdx.x;
+    unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
+                       blockIdx.x*blockDim.x+threadIdx.x;
 
     if (idx < N) {
         ts[idx] = 0.0;
@@ -270,8 +270,8 @@ compute_tsh_ideal_mod_template = Template("""
 
 // Nsh == len(ts)-1
 __global__ void compute_tsh(FLOAT *ts, FLOAT *tsh, unsigned int Nsh) {
-    unsigned int idx = blockIdx.y*${max_threads_per_block}*${max_blocks_per_grid}+
-                       blockIdx.x*${max_threads_per_block}+threadIdx.x;
+    unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
+                       blockIdx.x*blockDim.x+threadIdx.x;
 
     if (idx < Nsh) {
         tsh[idx] = (ts[idx]+ts[idx+1])/2;
@@ -295,8 +295,8 @@ compute_G_ideal_mod_template = Template("""
 
 // N must equal the square of one less than the length of ts:
 __global__ void compute_G(FLOAT *ts, FLOAT *tsh, FLOAT *G, FLOAT bw, unsigned int N) {
-    unsigned int idx = blockIdx.y*${max_threads_per_block}*${max_blocks_per_grid}+
-                       blockIdx.x*${max_threads_per_block}+threadIdx.x;
+    unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
+                       blockIdx.x*blockDim.x+threadIdx.x;
     unsigned int ix = idx/${cols};
     unsigned int iy = idx%${cols};
     FLOAT si0, si1, ci;
@@ -327,8 +327,8 @@ compute_u_ideal_mod_template = Template("""
 // Nsh == len(tsh)
 __global__ void compute_u(FLOAT *u_rec, FLOAT *tsh, FLOAT *c,
                           FLOAT bw, FLOAT dt, unsigned Nt, unsigned int Nsh) {
-    unsigned int idx = blockIdx.y*${max_threads_per_block}*${max_blocks_per_grid}+
-                       blockIdx.x*${max_threads_per_block}+threadIdx.x;
+    unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
+                       blockIdx.x*blockDim.x+threadIdx.x;
     FLOAT bwpi = bw/PI;
     FLOAT u_temp = 0;
     
@@ -391,10 +391,6 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
         raise ValueError('decoding for leaky neuron not implemented yet')
 
     dev = cumisc.get_current_device()
-                                    
-    # Get device constraints:
-    max_threads_per_block, max_block_dim, max_grid_dim = cumisc.get_dev_attrs(dev)
-    max_blocks_per_grid = max(max_grid_dim)
 
     # Use a smaller block size than the maximum to prevent the kernels
     # from using too many registers:
@@ -402,39 +398,29 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     
     # Prepare kernels:
     compute_q_ideal_mod = \
-                        SourceModule(compute_q_ideal_mod_template.substitute(use_double=use_double,
-                                     max_threads_per_block=max_threads_per_block,
-                                     max_blocks_per_grid=max_blocks_per_grid))
+                        SourceModule(compute_q_ideal_mod_template.substitute(use_double=use_double))
     compute_q_ideal = \
                     compute_q_ideal_mod.get_function('compute_q')
 
     compute_ts_ideal_mod = \
-                         SourceModule(compute_ts_ideal_mod_template.substitute(use_double=use_double,
-                                     max_threads_per_block=max_threads_per_block,
-                                     max_blocks_per_grid=max_blocks_per_grid))    
+                         SourceModule(compute_ts_ideal_mod_template.substitute(use_double=use_double))
     compute_ts_ideal = \
                      compute_ts_ideal_mod.get_function('compute_ts')
 
     compute_tsh_ideal_mod = \
-                          SourceModule(compute_tsh_ideal_mod_template.substitute(use_double=use_double,
-                                     max_threads_per_block=max_threads_per_block,
-                                     max_blocks_per_grid=max_blocks_per_grid)) 
+                          SourceModule(compute_tsh_ideal_mod_template.substitute(use_double=use_double))
     compute_tsh_ideal = \
                       compute_tsh_ideal_mod.get_function('compute_tsh')
                           
 
     compute_G_ideal_mod = \
                         SourceModule(compute_G_ideal_mod_template.substitute(use_double=use_double,
-                                     max_threads_per_block=max_threads_per_block,
-                                     max_blocks_per_grid=max_blocks_per_grid,
                                      cols=(N-1)),
                                      options=['-I', install_headers])
     compute_G_ideal = compute_G_ideal_mod.get_function('compute_G') 
 
     compute_u_ideal_mod = \
-                        SourceModule(compute_u_ideal_mod_template.substitute(use_double=use_double,
-                                     max_threads_per_block=max_threads_per_block,
-                                     max_blocks_per_grid=max_blocks_per_grid),
+                        SourceModule(compute_u_ideal_mod_template.substitute(use_double=use_double),
                                      options=["-I", install_headers])
     compute_u_ideal = compute_u_ideal_mod.get_function('compute_u') 
 
@@ -448,12 +434,12 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     G_gpu = gpuarray.empty((N-1, N-1), float_type) 
 
     # Get required block/grid sizes for constructing ts, tsh, and q:
-    block_dim_s, grid_dim_s = cumisc.select_block_grid_sizes(dev,
-                              s_gpu.shape, max_threads_per_block)
-
+    block_dim_s, grid_dim_s = \
+                 cumisc.select_block_grid_sizes(dev, s_gpu.shape)
+    
     # Get required block/grid sizes for constructing G:
-    block_dim_G, grid_dim_G = cumisc.select_block_grid_sizes(dev,
-                              G_gpu.shape, max_threads_per_block)
+    block_dim_G, grid_dim_G = \
+                 cumisc.select_block_grid_sizes(dev, G_gpu.shape)                              
     
     # Run the kernels:
     compute_q_ideal(s_gpu, q_gpu,
@@ -484,9 +470,8 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     u_rec_gpu = gpuarray.zeros(Nt, float_type)
 
     # Get required block/grid sizes for constructing u:
-    block_dim_t, grid_dim_t = cumisc.select_block_grid_sizes(dev,
-                              Nt, max_threads_per_block)
-
+    block_dim_t, grid_dim_t = cumisc.select_block_grid_sizes(dev, Nt)
+                              
     # Reconstruct signal:
     compute_u_ideal(u_rec_gpu, tsh_gpu,
                     c_gpu, float_type(bw), float_type(dt),
