@@ -389,12 +389,6 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     
     if not np.isinf(R):
         raise ValueError('decoding for leaky neuron not implemented yet')
-
-    dev = cumisc.get_current_device()
-
-    # Use a smaller block size than the maximum to prevent the kernels
-    # from using too many registers:
-    max_threads_per_block = 256
     
     # Prepare kernels:
     compute_q_ideal_mod = \
@@ -433,13 +427,17 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     q_gpu = gpuarray.empty((N-1, 1), float_type)
     G_gpu = gpuarray.empty((N-1, N-1), float_type) 
 
-    # Get required block/grid sizes for constructing ts, tsh, and q:
+    # Get required block/grid sizes for constructing ts, tsh, and q;
+    # use a smaller block size than the maximum to prevent the kernels
+    # from using too many registers:
+    dev = cumisc.get_current_device()
+    max_threads_per_block = 256
     block_dim_s, grid_dim_s = \
-                 cumisc.select_block_grid_sizes(dev, s_gpu.shape)
+                 cumisc.select_block_grid_sizes(dev, s_gpu.shape, max_threads_per_block)
     
     # Get required block/grid sizes for constructing G:
     block_dim_G, grid_dim_G = \
-                 cumisc.select_block_grid_sizes(dev, G_gpu.shape)                              
+                 cumisc.select_block_grid_sizes(dev, G_gpu.shape, max_threads_per_block)       
     
     # Run the kernels:
     compute_q_ideal(s_gpu, q_gpu,
@@ -470,7 +468,8 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     u_rec_gpu = gpuarray.zeros(Nt, float_type)
 
     # Get required block/grid sizes for constructing u:
-    block_dim_t, grid_dim_t = cumisc.select_block_grid_sizes(dev, Nt)
+    block_dim_t, grid_dim_t = \
+                 cumisc.select_block_grid_sizes(dev, Nt, max_threads_per_block)
                               
     # Reconstruct signal:
     compute_u_ideal(u_rec_gpu, tsh_gpu,
