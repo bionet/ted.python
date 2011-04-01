@@ -194,7 +194,7 @@ def plot_fourier(u, fs, *args):
     
     n = len(u)/2
     uf = fft(u)[0:n]
-    f = (fs/2)*np.arange(0, n)/n
+    f = (fs/2.0)*np.arange(0, n)/n
 
     a = int(2.0*n*fmin/fs)
     b = int(2.0*n*fmax/fs)
