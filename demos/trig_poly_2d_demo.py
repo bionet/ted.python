@@ -24,7 +24,7 @@ if __name__ == '__main__':
     dx = dy = 1/64.0
     Mx = My = 4
 
-    S = tp.gen_trig_poly_2d(Sx, Sy, dx, dy, Mx, My)
+    S = tp.gen_trig_poly_2d(Sx, Sy, dx, dy, (Mx, My))
     S/np.max(np.abs(S))
     p.imshow(S)
     p.colorbar()

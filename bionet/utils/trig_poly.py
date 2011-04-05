@@ -286,8 +286,8 @@ def gen_trig_poly_2d(Sx, Sy, dx, dy, c):
             raise ValueError('coefficient array must have 2 dimensions')
         if np.shape(c)[0] % 2 == 0 or np.shape(c)[1] % 2 == 0:
             raise ValueError('coefficient array must have odd number of rows and columns')
-        Mx = np.shape(c)[0]/2
-        My = np.shape(c)[1]/2
+        My = np.shape(c)[0]/2
+        Mx = np.shape(c)[1]/2
     else:
         raise ValueError('unrecognized parameter type')
     
@@ -302,7 +302,7 @@ def gen_trig_poly_2d(Sx, Sy, dx, dy, c):
     
     return np.real(np.fft.ifft2(S_fft))
 
-def get_dirichlet_coeffs_2d(S, dx, dy, Mx, My):
+def get_dirichlet_coeffs_2d(S, Mx, My):
     """
     Compute the Dirichlet coefficients of a 2d trigonometric polynomial.
 
@@ -310,10 +310,6 @@ def get_dirichlet_coeffs_2d(S, dx, dy, Mx, My):
     ----------
     S : numpy.ndarray
         Input signal with shape `(Ny, Nx)`.
-    dx : float
-        Resolution along the X-axis.
-    dy : float
-        Resolution along the Y-axis.
     Mx : int
         Trigonometric polynomial order along the X-axis.
     My : int
