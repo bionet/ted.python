@@ -1323,8 +1323,7 @@ def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list,
             # The portion of the signal encoded begins at time
             # len(u_list[0])*dt-T:
             for i in xrange(M):
-                u_delayed = u_list[i][int(a_list[j][i]/dt):int((T+a_list[j][i])/dt)]
-                v += w_list[j][i]*u_delayed[k]
+                v += w_list[j][i]*u_list[i][k+int(a_list[j][i]/dt)]
             y_list[j] += dt*(v+b_list[j])/k_list[j]
             interval_list[j] += dt
 
