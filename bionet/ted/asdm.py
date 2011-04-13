@@ -17,18 +17,16 @@ asynchronous sigma-delta modulator.
 __all__ = ['asdm_recoverable', 'asdm_encode', 'asdm_decode',
            'asdm_decode_ins', 'asdm_decode_fast',
 	   'asdm_decode_pop', 'asdm_decode_pop_ins']
-           
-from numpy import abs, arange, array, asarray, conjugate, cumsum, \
-        diag, dot, empty, eye, exp, float, max, newaxis, ones, pi, \
-        ravel, real, sinc, triu, zeros
-from numpy.linalg import pinv
-from scipy.signal import resample
 
-# The sici() function is used to construct the decoding matrix G
-# because it can compute the sine integral relatively quickly:
-from scipy.special import sici
-from bionet.utils.numpy_extras import mdot 
+import numpy as np
+import scipy.signal
 
+# The sici() function in scipy.special is used to construct the matrix
+# G in certain decoding algorithms because it can compute the sine
+# integral relatively quickly:
+import scipy.special
+
+import bionet.utils.numpy_extras as ne
 from bionet.ted.vtdm import asdm_decode_vander, \
      asdm_decode_vander_ins
 
@@ -70,10 +68,10 @@ def asdm_recoverable_strict(u, bw, b, d, k):
 
     """
     
-    c = max(abs(u))
+    c = np.max(np.abs(u))
     if c >= b:
         raise ValueError('bias too low')
-    elif 2*k*d/(b-c)*bw/pi >= 1.0:
+    elif 2*k*d/(b-c)*bw/np.pi >= 1.0:
         raise ValueError('reconstruction condition not satisfied;'+
                          'try raising b or reducing k or d')
     else:
@@ -117,10 +115,10 @@ def asdm_recoverable(u, bw, b, d, k):
 
     """
     
-    c = max(abs(u))
+    c = np.max(np.abs(u))
     if c >= b:
         raise ValueError('bias too low')
-    elif (2*k*d/b)*bw/pi >= 1.0:
+    elif (2*k*d/b)*bw/np.pi >= 1.0:
         raise ValueError('reconstruction condition not satisfied;'+
                          'try raising b or reducing k or d')
     else:
@@ -183,10 +181,10 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
     Nu = len(u)
     if Nu == 0:        
         if full_output:
-            return array((), float), dt, b, d, k, dte, y, interval, sgn, \
+            return np.array((), np.float), dt, b, d, k, dte, y, interval, sgn, \
                quad_method, full_output
         else:
-            return array((), float)
+            return np.array((), np.float)
 
     # Check whether the encoding resolution is finer than that of the
     # original sampled signal:
@@ -198,7 +196,7 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
 
         # Resample signal and adjust signal length accordingly:
         M = int(dt/dte)
-        u = resample(u, len(u)*M)
+        u = scipy.signal.resample(u, len(u)*M)
         Nu *= M
         dt = dte
         
@@ -222,17 +220,17 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
     for i in xrange(last):
         y = compute_y(y, sgn, i)
         interval += dt
-        if abs(y) >= d:
+        if np.abs(y) >= d:
             s.append(interval)
             interval = 0.0
             y = d*sgn
             sgn = -sgn
 
     if full_output:
-        return array(s), dt, b, d, k, dte, y, interval, sgn, \
+        return np.array(s), dt, b, d, k, dte, y, interval, sgn, \
                quad_method, full_output
     else:
-        return array(s)
+        return np.array(s)
 
 def asdm_decode(s, dur, dt, bw, b, d, k=1.0, sgn=-1):    
     """
@@ -272,42 +270,42 @@ def asdm_decode(s, dur, dt, bw, b, d, k=1.0, sgn=-1):
         raise ValueError('s must contain at least 2 elements')
 
     # Cast s to an ndarray to permit ndarray operations:
-    s = asarray(s)
+    s = np.asarray(s)
 
     # Compute the spike times:
-    ts = cumsum(s)
+    ts = np.cumsum(s)
 
     # Compute the midpoints between spike times:
     tsh = (ts[0:-1]+ts[1:])/2
     Nsh = len(tsh)
     
-    bwpi = bw/pi
+    bwpi = bw/np.pi
     
     # Compute G matrix:
-    G = empty((Nsh, Nsh), float)
+    G = np.empty((Nsh, Nsh), np.float)
     for j in xrange(Nsh):
 
         # Compute the values for all of the sincs so that they do not
         # need to each be recomputed when determining the integrals
         # between spike times:
-        temp = sici(bw*(ts-tsh[j]))[0]/pi
+        temp = scipy.special.sici(bw*(ts-tsh[j]))[0]/np.pi
         G[:, j] = temp[1:]-temp[:-1]
-    G_inv = pinv(G, __pinv_rcond__)
+    G_inv = np.linalg.pinv(G, __pinv_rcond__)
 
     # Compute quanta:
     if sgn == -1:
-        q = (-1)**arange(1, Nsh+1)*(2*k*d-b*s[1:])
+        q = (-1)**np.arange(1, Nsh+1)*(2*k*d-b*s[1:])
     else:
-        q = (-1)**arange(0, Nsh)*(2*k*d-b*s[1:])
+        q = (-1)**np.arange(0, Nsh)*(2*k*d-b*s[1:])
         
     # Reconstruct signal by adding up the weighted sinc functions. The
     # weighted sinc functions are computed on the fly here to save
     # memory:
-    t = arange(0, dur, dt)
-    u_rec = zeros(len(t), float)
-    c = dot(G_inv, q)
+    t = np.arange(0, dur, dt)
+    u_rec = np.zeros(len(t), np.float)
+    c = np.dot(G_inv, q)
     for i in xrange(Nsh):
-        u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
+        u_rec += np.sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
     return u_rec
 
 def asdm_decode_ins(s, dur, dt, bw, b, sgn=-1):    
@@ -345,43 +343,43 @@ def asdm_decode_ins(s, dur, dt, bw, b, sgn=-1):
         raise ValueError('s must contain at least 2 elements') 
 
     # Cast s to an ndarray to permit ndarray operations:
-    s = asarray(s)
+    s = np.asarray(s)
 
     # Compute the spike times:
-    ts = cumsum(s)
+    ts = np.cumsum(s)
 
     # Compute the midpoints between spike times:
     tsh = (ts[0:-1]+ts[1:])/2
     Nsh = len(tsh)
     
-    t = arange(0, dur, dt)
+    t = np.arange(0, dur, dt)
     
-    bwpi = bw/pi
+    bwpi = bw/np.pi
     
     # Compute G matrix:
-    G = empty((Nsh, Nsh), float)
+    G = np.empty((Nsh, Nsh), np.float)
     for j in xrange(Nsh):
 
         # Compute the values for all of the sinc functions so that
         # they do not need to each be recomputed when determining the
         # integrals between spike times:
-        temp = sici(bw*(ts-tsh[j]))[0]/pi
+        temp = scipy.special.sici(bw*(ts-tsh[j]))[0]/np.pi
         G[:, j] = temp[1:]-temp[:-1]
     
     # Apply compensation principle:
-    B = diag(ones(Nsh-1), -1)+eye(Nsh)
+    B = np.diag(np.ones(Nsh-1), -1)+np.eye(Nsh)
     if sgn == -1:
-        Bq = (-1)**arange(Nsh)*b*(s[1:]-s[:-1])
+        Bq = (-1)**np.arange(Nsh)*b*(s[1:]-s[:-1])
     else:
-        Bq = (-1)**arange(1, Nsh+1)*b*(s[1:]-s[:-1])
+        Bq = (-1)**np.arange(1, Nsh+1)*b*(s[1:]-s[:-1])
         
     # Reconstruct signal by adding up the weighted sinc functions; the
     # first row of B is removed to eliminate boundary issues. The
     # weighted sinc functions are computed on the fly to save memory:
-    u_rec = zeros(len(t), float)
-    c = dot(pinv(dot(B[1:, :], G), __pinv_rcond__), Bq[1:, newaxis])
+    u_rec = np.zeros(len(t), np.float)
+    c = np.dot(np.linalg.pinv(np.dot(B[1:, :], G), __pinv_rcond__), Bq[1:, np.newaxis])
     for i in xrange(Nsh):
-        u_rec += sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
+        u_rec += np.sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
     return u_rec
 
 def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0, sgn=-1):
@@ -425,38 +423,38 @@ def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0, sgn=-1):
         raise ValueError('s must contain at least 2 elements')
 
     # Cast s to an ndarray to permit ndarray operations:
-    s = asarray(s)
+    s = np.asarray(s)
 
     # Compute the spike times:
-    ts = cumsum(s)
+    ts = np.cumsum(s)
 
     # Compute the midpoints between spike times:
     tsh = (ts[0:-1]+ts[1:])/2
     Nsh = len(tsh)
 
     # Convert M in the event that an integer was specified:
-    M = float(M)
+    M = np.float(M)
     jbwM = 1j*bw/M
 
     # Compute quanta:
     if sgn == -1:
-        q = (-1)**arange(1, Nsh+1)*(2*k*d-b*s[1:])
+        q = (-1)**np.arange(1, Nsh+1)*(2*k*d-b*s[1:])
     else:
-        q = (-1)**arange(0, Nsh)*(2*k*d-b*s[1:])
+        q = (-1)**np.arange(0, Nsh)*(2*k*d-b*s[1:])
         
     # Compute approximation coefficients:
-    a = bw/(pi*(2*M+1))
-    m = arange(-M, M+1)
-    P_inv = -triu(ones((Nsh, Nsh)))
-    S = exp(-jbwM*dot(m[:, newaxis], ts[:-1][newaxis]))
-    D = diag(s[1:])
-    SD = dot(S, D)
-    T = mdot(a, SD, conjugate(S.T))
-    dd = mdot(a, pinv(T, __pinv_rcond__), SD, P_inv, q[:, newaxis])
+    a = bw/(np.pi*(2*M+1))
+    m = np.arange(-M, M+1)
+    P_inv = -np.triu(np.ones((Nsh, Nsh)))
+    S = np.exp(-jbwM*np.dot(m[:, np.newaxis], ts[:-1][np.newaxis]))
+    D = np.diag(s[1:])
+    SD = np.dot(S, D)
+    T = ne.mdot(a, SD, np.conj(S.T))
+    dd = ne.mdot(a, np.linalg.pinv(T, __pinv_rcond__), SD, P_inv, q[:, np.newaxis])
 
     # Reconstruct signal:
-    t = arange(0, dur, dt)
-    return ravel(real(jbwM*dot(m*dd.T, exp(jbwM*m[:, newaxis]*t))))
+    t = np.arange(0, dur, dt)
+    return np.ravel(np.real(jbwM*np.dot(m*dd.T, np.exp(jbwM*m[:, np.newaxis]*t))))
 
 def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
     """
@@ -509,10 +507,10 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
     if len(sgn_list) != M:
         raise ValueError('incorrect number of first spike signs')
 
-    bwpi = bw/pi
+    bwpi = bw/np.pi
     
     # Compute the spike times:
-    ts_list = map(cumsum, s_list)
+    ts_list = map(np.cumsum, s_list)
 
     # Compute the midpoints between spike times:
     tsh_list = map(lambda ts:(ts[0:-1]+ts[1:])/2, ts_list)
@@ -523,19 +521,19 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
         
     # Compute the values of the matrix that must be inverted to obtain
     # the reconstruction coefficients:
-    Nsh_cumsum = cumsum([0.0]+Nsh_list)
+    Nsh_cumsum = np.cumsum([0.0]+Nsh_list)
     Nsh_sum = Nsh_cumsum[-1]
-    G = empty((Nsh_sum, Nsh_sum), float)
-    q = empty((Nsh_sum, 1), float)
+    G = np.empty((Nsh_sum, Nsh_sum), np.float)
+    q = np.empty((Nsh_sum, 1), np.float)
     for l in xrange(M):
         for m in xrange(M):
-            G_block = empty((Nsh_list[l], Nsh_list[m]), float)
+            G_block = np.empty((Nsh_list[l], Nsh_list[m]), np.float)
 
             # Compute the values for all of the sincs so that they
             # do not need to each be recomputed when determining
             # the integrals between spike times:
             for k in xrange(Nsh_list[m]):
-                temp = sici(bw*(ts_list[l]-tsh_list[m][k]))[0]/pi
+                temp = scipy.special.sici(bw*(ts_list[l]-tsh_list[m][k]))[0]/np.pi
                 G_block[:, k] = temp[1:]-temp[:-1]
 
             G[Nsh_cumsum[l]:Nsh_cumsum[l+1],
@@ -544,22 +542,22 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
         # Compute the quanta:
         if sgn_list[l] == -1:
             q[Nsh_cumsum[l]:Nsh_cumsum[l+1], 0] = \
-                (-1)**arange(1, Nsh_list[l]+1)* \
+                (-1)**np.arange(1, Nsh_list[l]+1)* \
                 (2*k_list[l]*d_list[l]-b_list[l]*s_list[l][1:])
         else:
             q[Nsh_cumsum[l]:Nsh_cumsum[l+1], 0] = \
-                (-1)**arange(0, Nsh_list[l])* \
+                (-1)**np.arange(0, Nsh_list[l])* \
                 (2*k_list[l]*d_list[l]-b_list[l]*s_list[l][1:])
             
     # Compute the reconstruction coefficients:
-    c = dot(pinv(G), q)
+    c = np.dot(np.linalg.pinv(G), q)
 
     # Reconstruct the signal using the coefficients:
-    t = arange(0, dur, dt)
-    u_rec = zeros(len(t), float)
+    t = np.arange(0, dur, dt)
+    u_rec = np.zeros(len(t), np.float)
     for m in xrange(M):
         for k in xrange(Nsh_list[m]):
-            u_rec += sinc(bwpi*(t-tsh_list[m][k]))*bwpi*c[Nsh_cumsum[m]+k, 0]
+            u_rec += np.sinc(bwpi*(t-tsh_list[m][k]))*bwpi*c[Nsh_cumsum[m]+k, 0]
     return u_rec
 
 def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
@@ -608,10 +606,10 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
     if len(sgn_list) != M:
         raise ValueError('incorrect number of first spike signs')
 
-    bwpi = bw/pi
+    bwpi = bw/np.pi
     
     # Compute the spike times:
-    ts_list = map(cumsum, s_list)
+    ts_list = map(np.cumsum, s_list)
 
     # Compute the midpoints between spike times:
     tsh_list = map(lambda ts:(ts[0:-1]+ts[1:])/2, ts_list)
@@ -621,19 +619,19 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
     
     # Compute the values of the matrix that must be inverted to obtain
     # the reconstruction coefficients:
-    Nsh_cumsum = cumsum([0.0]+Nsh_list)
+    Nsh_cumsum = np.cumsum([0.0]+Nsh_list)
     Nsh_sum = Nsh_cumsum[-1]
-    G = empty((Nsh_sum, Nsh_sum), float)
-    Bq = empty((Nsh_sum, 1), float)
+    G = np.empty((Nsh_sum, Nsh_sum), np.float)
+    Bq = np.empty((Nsh_sum, 1), np.float)
     for l in xrange(M):
         for m in xrange(M):
-            G_block = empty((Nsh_list[l], Nsh_list[m]), float)
+            G_block = np.empty((Nsh_list[l], Nsh_list[m]), np.float)
 
             # Compute the values for all of the sincs so that they
             # do not need to each be recomputed when determining
             # the integrals between spike times:
             for k in xrange(Nsh_list[m]):
-                temp = sici(bw*(ts_list[l]-tsh_list[m][k]))[0]/pi
+                temp = scipy.special.sici(bw*(ts_list[l]-tsh_list[m][k]))[0]/np.pi
                 G_block[:, k] = temp[2:]-temp[:-2]
 
             G[Nsh_cumsum[l]:Nsh_cumsum[l+1],
@@ -642,21 +640,21 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
         # Compute the quanta:
         if sgn_list[l] == -1:
             Bq[Nsh_cumsum[l]:Nsh_cumsum[l+1], 0] = \
-                (-1)**arange(1, Nsh_list[l]+1)* \
+                (-1)**np.arange(1, Nsh_list[l]+1)* \
                 b_list[l]*(s_list[l][2:]-s_list[l][1:-1])
         else:
             Bq[Nsh_cumsum[l]:Nsh_cumsum[l+1], 0] = \
-                (-1)**arange(0, Nsh_list[l])* \
+                (-1)**np.arange(0, Nsh_list[l])* \
                 b_list[l]*(s_list[l][2:]-s_list[l][1:-1])
 
     # Compute the reconstruction coefficients:
-    c = dot(pinv(G), Bq)
+    c = np.dot(np.linalg.pinv(G), Bq)
 
     # Reconstruct the signal using the coefficients:
-    t = arange(0, dur, dt)
-    u_rec = zeros(len(t), float)
+    t = np.arange(0, dur, dt)
+    u_rec = np.zeros(len(t), np.float)
     for m in xrange(M):
         for k in xrange(Nsh_list[m]):
-            u_rec += sinc(bwpi*(t-tsh_list[m][k]))*bwpi*c[Nsh_cumsum[m]+k, 0]
+            u_rec += np.sinc(bwpi*(t-tsh_list[m][k]))*bwpi*c[Nsh_cumsum[m]+k, 0]
     return u_rec
 

@@ -31,16 +31,15 @@ if debug:
         debug = False
     else:
         debug_plot_filename = 'rt_debug.png'
-        debug_plot_figsize = (7,5)
+        debug_plot_figsize = (7, 5)
         debug_plot_dpi = 100
-        
+
+import numpy as np
+
 import bionet.utils.misc as m
 import bionet.ted.asdm as asdm
 import bionet.ted.iaf as iaf
 import bionet.ted.vtdm as vtdm
-
-from numpy import arange, array, cos, cumsum, float, hstack, \
-     inf, intersect1d, pi, round, sin, where, zeros
 
 class SignalProcessor:
     """
@@ -205,10 +204,10 @@ class RealTimeDecoder(SignalProcessor):
 
         # Spike intervals and spike indicies:
         self.s = []
-        self.tk = array((), float)
+        self.tk = np.array((), np.float)
 
         # Overlap:
-        self.overlap = array((), float)
+        self.overlap = np.array((), np.float)
         
         # Number of spike intervals that must be obtainable from the
         # queue. For the first block, N+2 spike intervals must be
@@ -270,10 +269,10 @@ class RealTimeDecoder(SignalProcessor):
                 del self.s[0:self.J]
 
             # Find the times of the spikes in the current block:
-            self.ts = cumsum(self.s)
-            self.tk = array(round(self.ts/self.dt), int)
+            self.ts = np.cumsum(self.s)
+            self.tk = np.array(np.round(self.ts/self.dt), int)
             self.curr_dur = max(self.ts)
-            self.t = arange(0, self.curr_dur, self.dt)
+            self.t = np.arange(0, self.curr_dur, self.dt)
 
             # Decode the current block:            
             self.u = self.decode(self.s)
@@ -324,16 +323,16 @@ class RealTimeDecoder(SignalProcessor):
             # current block that will overlap with the next block must
             # be retained for the next iteration:
             if self.window_right:
-                self.u_out = hstack((self.u_out,
+                self.u_out = np.hstack((self.u_out,
                     self.uw[self.tk[self.M+self.K]:self.tk[self.N-self.M-self.K]]))
                 self.overlap = \
                     self.uw[self.tk[self.N-self.M-self.K]:self.tk[self.N-self.M]]
                 if debug:
                     self.offset += self.t[self.tk[self.J-1]]
             else:
-                self.u_out = hstack((self.u_out,
+                self.u_out = np.hstack((self.u_out,
                                      self.uw[self.tk[self.M+self.K]::]))
-                self.overlap = array((), float)
+                self.overlap = np.array((), np.float)
                 if debug:
                     self.offset += 0
                 
@@ -367,10 +366,10 @@ class RealTimeDecoder(SignalProcessor):
     # Methods for computing the edges of the windows determined by the
     # windows() method:
     def _theta1(self, t, l, r):
-        return sin((pi/2)*(t-l)/(r-l))**2
+        return np.sin((np.pi/2)*(t-l)/(r-l))**2
 
     def _theta2(self, t, l, r):
-        return cos((pi/2)*(t-l)/(r-l))**2
+        return np.cos((np.pi/2)*(t-l)/(r-l))**2
 
     def window(self, t, ll, lr, rl, rr):
         """Return a window defined over the vector of times t that
@@ -379,11 +378,11 @@ class RealTimeDecoder(SignalProcessor):
         <= lr, 1 when lr < t <= rl, and 1-theta(t,rl,rr)
         when rl < t <= rr."""
 
-        w = zeros(len(t), float)
+        w = np.zeros(len(t), np.float)
         
-        i1 = intersect1d(where(ll < t)[0], where(t <= lr)[0])
-        i2 = intersect1d(where(lr < t)[0], where(t <= rl)[0])
-        i3 = intersect1d(where(rl < t)[0], where(t <= rr)[0])
+        i1 = np.intersect1d(np.where(ll < t)[0], np.where(t <= lr)[0])
+        i2 = np.intersect1d(np.where(lr < t)[0], np.where(t <= rl)[0])
+        i3 = np.intersect1d(np.where(rl < t)[0], np.where(t <= rr)[0])
         
         w[i1] = self._theta1(t[i1], ll, lr)
         w[i2] = 1.0
@@ -573,7 +572,7 @@ class IAFRealTimeEncoder(RealTimeEncoder):
 
     """
     
-    def __init__(self, dt, b, d, R=inf, C=1.0, dte=0.0, quad_method='trapz'):
+    def __init__(self, dt, b, d, R=np.inf, C=1.0, dte=0.0, quad_method='trapz'):
 
         # The values 0 and 0 passed to the constructor initialize the
         # y and interval parameters of the IAF encoder function:

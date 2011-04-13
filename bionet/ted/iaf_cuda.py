@@ -18,7 +18,6 @@ from pycuda.compiler import SourceModule
 import pycuda.gpuarray as gpuarray
 import pycuda.driver as drv
 import numpy as np
-from numpy import ceil, inf
 from scipy.signal import resample
 
 import scikits.cuda.linalg as culinalg
@@ -105,7 +104,7 @@ __global__ void iaf_encode(FLOAT *u, FLOAT *s,
 }
 """)
 
-def iaf_encode(u, dt, b, d, R=inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
+def iaf_encode(u, dt, b, d, R=np.inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
                quad_method='trapz', full_output=False):
     """
     IAF time encoding machine.
@@ -342,7 +341,7 @@ __global__ void compute_u(FLOAT *u_rec, FLOAT *tsh, FLOAT *c,
 }
 """)
 
-def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
+def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
     """
     IAF time decoding machine.
     
@@ -464,7 +463,7 @@ def iaf_decode(s, dur, dt, bw, b, d, R=inf, C=1.0):
     del G_gpu, G_inv_gpu, q_gpu
 
     # Allocate array for reconstructed signal:
-    Nt = int(ceil(dur/dt))
+    Nt = int(np.ceil(dur/dt))
     u_rec_gpu = gpuarray.zeros(Nt, float_type)
 
     # Get required block/grid sizes for constructing u:
