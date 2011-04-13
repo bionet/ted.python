@@ -40,12 +40,13 @@ except ImportError:
     from numpy.fft import fft
 
 def plot_signal(t, u, fig_title='', file_name=''):
-    """Plot a signal.
+    """
+    Plot a signal.
 
     Parameters
     ----------
     t : ndarray of floats
-        Times (s) at which the signal is defined.
+        Times (in s) at which the signal is defined.
     u : ndarray of floats
         Signal samples.
 
@@ -74,12 +75,13 @@ def plot_signal(t, u, fig_title='', file_name=''):
         p.savefig(file_name)
 
 def plot_encoded(t, u, s, fig_title='', file_name=''):
-    """Plot a time-encoded signal.
+    """
+    Plot a time-encoded signal.
 
     Parameters
     ----------
     t : ndarray of floats
-        Times (s) at which the original signal was sampled.
+        Times (in s) at which the original signal was sampled.
     u : ndarray of floats
         Signal samples.
     s : ndarray of floats
@@ -92,17 +94,22 @@ def plot_encoded(t, u, s, fig_title='', file_name=''):
     file_name : string
         File in which to save the plot.
 
+    Notes
+    -----
+    The spike times (i.e., the cumulative sum of the interspike
+    intervals) must all occur within the interval `t-min(t)`.
+
     """
 
     dt = t[1]-t[0]
     cs = np.cumsum(s)
-    if int(cs[-1]/dt) >= len(u):
-        raise ValueError('some spike times occur outside of signal''s '
-                         'support (%f >= %f)' % (cs[-1], dt*len(u)))
+    if cs[-1] >= max(t)-min(t):
+        raise ValueError('some spike times occur outside of signal''s support')
+
     p.clf()
     p.gcf().canvas.set_window_title(fig_title)
     p.axes([0.125, 0.3, 0.775, 0.6])
-    p.vlines(cs, np.zeros(len(cs)), u[np.asarray(cs/dt, int)], 'b')
+    p.vlines(cs+min(t), np.zeros(len(cs)), u[np.asarray(cs/dt, int)], 'b')
     p.hlines(0, 0, max(t), 'r')
     p.plot(t, u, hold=True)
     p.xlabel('t (s)')
@@ -110,7 +117,7 @@ def plot_encoded(t, u, s, fig_title='', file_name=''):
     p.title(fig_title)
     p.gca().set_xlim(min(t), max(t))
     a = p.axes([0.125, 0.1, 0.775, 0.1])
-    p.plot(cs, np.zeros(len(s)), 'ro')
+    p.plot(cs+min(t), np.zeros(len(s)), 'ro')
     a.set_yticklabels([])
     p.xlabel('%d spikes' % len(s))
     p.gca().set_xlim(min(t), max(t))
@@ -119,7 +126,8 @@ def plot_encoded(t, u, s, fig_title='', file_name=''):
         p.savefig(file_name)
 
 def plot_compare(t, u, v, fig_title='', file_name=''):
-    """Compare two signals and plot the difference between them.
+    """
+    Compare two signals and plot the difference between them.
 
     Parameters
     ----------
@@ -155,7 +163,8 @@ def plot_compare(t, u, v, fig_title='', file_name=''):
         p.savefig(file_name)
 
 def plot_fourier(u, fs, *args):
-    """Plot the Discrete Fourier Transform of a signal.
+    """
+    Plot the Discrete Fourier Transform of a signal.
 
     Parameters
     ----------
@@ -209,7 +218,8 @@ def plot_fourier(u, fs, *args):
     p.xlabel('f (Hz)')
 
 def plot_raster(ts_list, plot_stems=True, fig_title='', file_name=''):
-    """Plot several time sequences as a raster.
+    """
+    Plot several time sequences as a raster.
 
     Parameters
     ----------
