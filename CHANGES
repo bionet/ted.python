@@ -3,6 +3,11 @@
 Change Log
 ==========
 
+Release 0.062 - ()
+------------------------------------
+* Improve precision of IAF encoders.
+* Fix signs in delayed IAF example.
+
 Release 0.061 - (November 24, 2010)
 -----------------------------------
 * Add docs for PyCUDA-based functions.
