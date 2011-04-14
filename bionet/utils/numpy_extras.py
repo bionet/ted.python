@@ -20,7 +20,7 @@ numpy [1]_.
 
 """
 
-__all__ = ['crand', 'mdot', 'rank', 'mpower', 'hilb']
+__all__ = ['crand', 'iceil', 'ifloor', 'iround', 'mdot', 'rank', 'mpower', 'hilb']
 
 import numpy as np
 
