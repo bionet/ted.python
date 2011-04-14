@@ -8,6 +8,9 @@ This module contains various functions not currently included in
 numpy [1]_.
 
 - crand           Generate complex uniformly distributed random values.
+- iceil           Ceiling of the input returned as an integer.
+- ifloor          Floor of the input returned as an integer.
+- iround          Input rounded to the nearest integer
 - mdot            Compute the matrix product of several matricies.
 - rank            Estimate the number of linearly independent rows in a matrix.
 - mpower          Raise a square matrix to a (possibly non-integer) power.
@@ -42,6 +45,66 @@ def crand(*args):
     """
     
     return np.random.rand(*args)+1j*np.random.rand(*args)
+
+def iceil(x):
+    """
+    Return the ceiling of the input, element-wise.
+
+    The ceil of the scalar `x` is the smallest integer `i`, such
+    that `i >= x`.  It is often denoted as :math:`\lceil x \rceil`.
+
+    Parameters
+    ----------
+    x : array_like
+        Input data.
+
+    Returns
+    -------
+    y : {numpy.ndarray, scalar}
+        The ceiling of each element in `x`, with `int` dtype.
+        
+    """
+
+    return np.ceil(x).astype(int)
+
+def ifloor(x):
+    """
+    Return the floor of the input, element-wise.
+
+    The floor of the scalar `x` is the largest integer `i`, such
+    that `i <= x`.  It is often denoted as :math:`\lfloor x \rfloor`.
+
+    Parameters
+    ----------
+    x : array_like
+        Input data.
+
+    Returns
+    -------
+    y : {numpy.ndarray, scalar}
+        The floor of each element in `x`, with `int` dtype.
+
+    """
+
+    return np.floor(x).astype(int)
+
+def iround(x):
+    """
+    Round an array to the nearest integer.
+
+    Parameters
+    ----------
+    x : array_like
+        Input data.
+
+    Returns
+    -------
+    y : {numpy.ndarray, scalar}
+        The rounded elements in `x`, with `int` dtype.
+
+    """
+
+    return np.round(x).astype(int)
 
 def mdot(*args):
     """
