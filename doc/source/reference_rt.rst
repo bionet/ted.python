@@ -27,8 +27,8 @@ Asynchronous Sigma-Delta Modulator Classes
    ASDMRealTimeDecoderIns
    ASDMRealTimeEncoder
 
-Integrate-and-Fire Neuron Classes
----------------------------------
+Integrate-and-Fire Neuron Classes and Routines
+----------------------------------------------
 
 .. autosummary::
    :toctree: generated/
@@ -36,3 +36,5 @@ Integrate-and-Fire Neuron Classes
 
    IAFRealTimeDecoder
    IAFRealTimeEncoder
+   iaf_decode_delay_rt
+   iaf_encode_delay_rt
