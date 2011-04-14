@@ -1221,9 +1221,9 @@ def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
 
     return u_rec
 
-def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list,
+def iaf_encode_delay(u_list, t_start, dt, b_list, d_list, k_list, a_list,
                      w_list, y_list=None, interval_list=None,
-                     u_list_prev=None, full_output=False):
+                     full_output=False):
     """
     Multi-input multi-output delayed IAF time encoding
     machine.
@@ -1236,9 +1236,8 @@ def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list,
     u_list : list of ndarrays of floats
         Signals to encode. Each of the ndarrays must be of the same
         length.
-    T : float
-        Temporal support of signals (in s). The portion of the signal
-        encoded is `u_list[:][0:int(T/dt)]`.
+    t_start : float
+        Time at which to begin encoding (in s).
     dt : float
         Sampling resolution of input signals; the sampling frequency
         is 1/dt Hz.
@@ -1256,9 +1255,6 @@ def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list,
         Initial values of integrators.
     interval_list : list of floats
         Times since last spikes (in s).
-    u_list_prev : list of ndarrays of floats
-        If nonempty, the contents of this list are prepended to the
-        contents of `u_list`.
     full_output : bool
         If set, the function returns the encoded data block followed
         by the given parameters (with updated values for `y` and `interval`).
@@ -1277,9 +1273,7 @@ def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list,
 
     Notes
     -----
-    The specified signal length, i.e., `len(u_list[0])*dt`, must
-    exceed the support `T` over which the signal is encoded by the
-    length of the longest delay. 
+    `t_start` must exceed `max(a)`.
     
     """
 
@@ -1287,40 +1281,38 @@ def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list,
     if not M:
         raise ValueError('no spike data given')
 
-    if u_list_prev != None:
-        if len(u_list_prev) != M:
-            raise ValueError('u_list_prev must have the same number ' +
-                             'of entries as u_list')                   
-        u_list = [np.hstack((u_prev, u)) for u_prev, u in
-                  zip(u_list_prev, u_list)]
     if len(set(map(len, u_list))) > 1:
         raise ValueError('all input signals must be of the same length')
+    Nt = len(u_list[0])
+    
     N = len(b_list) # number of neurons
     if np.shape(a_list) != (N, M):
         raise ValueError('incorrect number of delay parameters')
     if np.shape(w_list) != (N, M):
         raise ValueError('incorrect number of scaling factors')
-    
-    a_max = np.max(a_list)
-    if len(u_list[0])*dt < T+a_max:
-        raise ValueError('signals insufficiently long')
 
+    # The start time needs to be sufficiently large to access values
+    # of the input delayed by the maximum delay:
+    a_max = np.max(a_list)
+    if t_start < a_max:
+        raise ValueError('encoding start time is too small')
+    T = Nt*dt-t_start
+    
     s_list = [[] for i in xrange(N)]
     if interval_list == None:
         interval_list = [0.0 for i in xrange(N)]
     if y_list == None:        
         y_list = [0.0 for i in xrange(N)]
+
+    k_start = int(np.round(t_start/dt))
     for j in xrange(N):
 
         # Rectangular quadrature is used to reduce the computational
         # cost of the integration:
         for k in xrange(int(T/dt)):
             v = 0.0
-
-            # The portion of the signal encoded begins at time
-            # len(u_list[0])*dt-T:
             for i in xrange(M):
-                v += w_list[j][i]*u_list[i][k+int(a_list[j][i]/dt)]
+                v += w_list[j][i]*u_list[i][k_start+k-int(a_list[j][i]/dt)]
             y_list[j] += dt*(v+b_list[j])/k_list[j]
             interval_list[j] += dt
 
@@ -1329,15 +1321,11 @@ def iaf_encode_delay(u_list, T, dt, b_list, d_list, k_list, a_list,
                 s_list[j].append(interval_list[j])
                 interval_list[j] = 0.0
                 y_list[j] -= d_list[j]
-
-    # u_list_prev is set to contain the values in u_list that occur
-    # after time T:
-    u_list_prev = [u[int(T/dt):] for u in u_list]
     
     if full_output:
         return [[np.asarray(s) for s in s_list], T, dt, b_list, d_list, \
                k_list, a_list, w_list, y_list, interval_list, \
-               u_list_prev, full_output]
+               full_output]
     else:        
         return [np.asarray(s) for s in s_list]
 
@@ -1404,7 +1392,7 @@ def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
 
         # Compute p and r:
         for i in xrange(M):
-            tau = ts_list[j] + a_list[j][i]
+            tau = ts_list[j] - a_list[j][i]
             w = w_list[j][i]
             p = np.zeros(n_list[j], np.float)
             r = np.zeros(n_list[j], np.float)
@@ -1431,8 +1419,8 @@ def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
             for k in xrange(n_list[i]):
                 for l in xrange(n_list[j]):
                     for m in xrange(M):
-                        tau_im = ts_list[i]+a_list[i][m]
-                        tau_jm = ts_list[j]+a_list[j][m]
+                        tau_im = ts_list[i]-a_list[i][m]
+                        tau_jm = ts_list[j]-a_list[j][m]
 
                         # The analytic expression for Gpr_block[k, l]
                         # is equivalent to the integration described
@@ -1493,7 +1481,7 @@ def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
     for i in xrange(M):
         u_rec_list.append(cd[n_sum+i]+cd[n_sum+i+M]*t)
         for j in xrange(N):
-            tau = ts_list[j]+a_list[j][i]
+            tau = ts_list[j]-a_list[j][i]
             psi = lambda t, k: \
                   0.25*w_list[j][i]*np.where(t <= tau[k],
                                           ((t-tau[k+1])**4-(t-tau[k])**4),
