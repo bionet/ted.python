@@ -1266,7 +1266,7 @@ def iaf_encode_delay(u_list, t_start, dt, b_list, d_list, k_list, a_list,
     s_list : list of ndarrays of floats
         If `full_output` == False, returns the signals encoded as a list
         of arrays of time intervals between spikes.
-    [s_list, T, dt, b_list, d_list, k_list, a_list, w_list, y_list,
+    [s_list, t_start, dt, b_list, d_list, k_list, a_list, w_list, y_list,
     interval_list, u_list_prev, full_output] : list
         If `full_output` == True, returns the encoded signals followed
         by updated encoder parameters.
@@ -1323,7 +1323,7 @@ def iaf_encode_delay(u_list, t_start, dt, b_list, d_list, k_list, a_list,
                 y_list[j] -= d_list[j]
     
     if full_output:
-        return [[np.asarray(s) for s in s_list], T, dt, b_list, d_list, \
+        return [[np.asarray(s) for s in s_list], t_start, dt, b_list, d_list, \
                k_list, a_list, w_list, y_list, interval_list, \
                full_output]
     else:        
