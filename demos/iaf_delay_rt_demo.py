@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Demos of MIMO time encoding and decoding algorithms that use IAF
+Demos of real-time MIMO time encoding and decoding algorithms that use IAF
 neurons with delays.
 """
 
@@ -16,9 +16,10 @@ from bionet.utils.misc import func_timer
 import bionet.utils.gen_test_signal as g
 import bionet.utils.plotting as pl
 import bionet.ted.iaf as iaf
+import bionet.ted.rt as rt
 
 # For determining output plot file names:
-output_name = 'iaf_delay_demo_'
+output_name = 'iaf_delay_rt_demo_'
 output_count = 0
 output_ext = '.png'
 
@@ -79,10 +80,12 @@ k_list = list(0.01*np.ones(N))
 a_list = map(list, np.reshape(np.random.exponential(0.003, N*M), (N, M)))
 w_list = map(list, np.reshape(randu(0.5, 1.0, N*M), (N, M)))
 
-fig_title = 'Signal Encoded Using Delayed IAF Encoder'
+T_block = T/2.0
+T_overlap = T_block/3.0
+fig_title = 'Signal Encoded Using Real-Time Delayed IAF Encoder'
 print fig_title
-s_list = func_timer(iaf.iaf_encode_delay)(u_list, t_start, dt, b_list, d_list,
-                                          k_list, a_list, w_list)
+s_list = func_timer(rt.iaf_encode_delay_rt)(u_list, T_block, t_start, dt, b_list, d_list,
+                                            k_list, a_list, w_list)
 
 for i in xrange(M):
     for j in xrange(N):
@@ -94,11 +97,12 @@ for i in xrange(M):
                         output_name + str(output_count) + output_ext)
         output_count += 1
     
-fig_title = 'Signal Decoded Using Delayed IAF Decoder'
+fig_title = 'Signal Decoded Using Real-Time Delayed IAF Decoder'
 print fig_title
-u_rec_list = func_timer(iaf.iaf_decode_delay)(s_list, T, dt,
-                                              b_list, d_list, k_list,
-                                              a_list, w_list)
+u_rec_list = func_timer(rt.iaf_decode_delay_rt)(s_list, T_block,
+                                                T_overlap, dt,
+                                                b_list, d_list, k_list,
+                                                a_list, w_list)
 
 for i in xrange(M):
     fig_title_out = fig_title + ' (Signal #' + str(i+1) + ')'
