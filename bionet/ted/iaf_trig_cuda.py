@@ -13,7 +13,6 @@ from pycuda.compiler import SourceModule
 import pycuda.gpuarray as gpuarray
 import pycuda.driver as drv
 import numpy as np
-from numpy import ceil, cumsum, inf, isinf, pi, real
 
 import scikits.cuda.misc as cumisc
 import scikits.cuda.linalg as culinalg
@@ -151,7 +150,7 @@ __global__ void compute_u(COMPLEX *u_rec, COMPLEX *c,
 }
 """)
 
-def iaf_decode_trig(s, dur, dt, bw, b, d, R=inf, C=1.0, M=5, smoothing=0.0):
+def iaf_decode_trig(s, dur, dt, bw, b, d, R=np.inf, C=1.0, M=5, smoothing=0.0):
     """
     IAF time decoding machine.
     
@@ -198,7 +197,7 @@ def iaf_decode_trig(s, dur, dt, bw, b, d, R=inf, C=1.0, M=5, smoothing=0.0):
         use_double = 1
         complex_type = np.complex128
         
-    T = 2*pi*M/bw
+    T = 2*np.pi*M/bw
     if T < dur:
         raise ValueError('2*pi*M/bw must exceed the signal length')
 
@@ -227,7 +226,7 @@ def iaf_decode_trig(s, dur, dt, bw, b, d, R=inf, C=1.0, M=5, smoothing=0.0):
     s_gpu = gpuarray.to_gpu(s)
 
     # XXX: Eventually replace this with a PyCUDA equivalent
-    ts = cumsum(s)
+    ts = np.cumsum(s)
     ts_gpu = gpuarray.to_gpu(ts)
 
     # Set up GPUArrays for intermediary data. Note that all of the
@@ -245,7 +244,7 @@ def iaf_decode_trig(s, dur, dt, bw, b, d, R=inf, C=1.0, M=5, smoothing=0.0):
     block_dim_F, grid_dim_F = cumisc.select_block_grid_sizes(dev,
                                                              F_gpu.shape,
                                                              max_threads_per_block)
-    if isinf(R):
+    if np.isinf(R):
         compute_q_ideal(s_gpu, q_gpu, float_type(b), float_type(d),
                         float_type(C), np.uint32(N-1),
                         block=block_dim_s, grid=grid_dim_s)
@@ -279,7 +278,7 @@ def iaf_decode_trig(s, dur, dt, bw, b, d, R=inf, C=1.0, M=5, smoothing=0.0):
                              FHq_gpu)
         
     # Allocate array for reconstructed signal:
-    Nt = int(ceil(dur/dt))
+    Nt = int(np.ceil(dur/dt))
     u_rec_gpu = gpuarray.zeros(Nt, complex_type)
 
     # Get required block/grid sizes:
@@ -293,5 +292,5 @@ def iaf_decode_trig(s, dur, dt, bw, b, d, R=inf, C=1.0, M=5, smoothing=0.0):
               np.uint32(Nt),
               block=block_dim_t, grid=grid_dim_t)
 
-    return real(u_rec_gpu.get())
+    return np.real(u_rec_gpu.get())
 
