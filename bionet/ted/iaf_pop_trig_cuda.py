@@ -13,7 +13,6 @@ from pycuda.compiler import SourceModule
 import pycuda.gpuarray as gpuarray
 import pycuda.driver as drv
 import numpy as np
-from numpy import ceil, cumsum, inf, isinf, pi, real
 
 import scikits.cuda.misc as cumisc
 import scikits.cuda.linalg as culinalg
@@ -577,7 +576,7 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu, R_gpu,
        (R_gpu.size != N) or (C_gpu.size != N):
         raise ValueError('parameter arrays must be of same length')
     
-    T = 2*pi*M/bw
+    T = 2*np.pi*M/bw
     if T < dur:
         raise ValueError('2*pi*M/bw must exceed the signal length')
                     
@@ -683,18 +682,18 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu, R_gpu,
     del FH_gpu, q_gpu
 
     if smoothing == 0:
-        c_gpu = culinalg.dot(culinalg.pinv(prodtrans(F_gpu),
+        c_gpu = culinalg.dot(culinalg.pinv(culinalg.dot(F_gpu, F_gpu, 'c'),
                                            __pinv_rcond__), 
                              FHq_gpu)
     else:
-        c_gpu = culinalg.dot(culinalg.pinv(prodtrans(F_gpu)+
+        c_gpu = culinalg.dot(culinalg.pinv(culinalg.dot(F_gpu, F_gpu, 'c')+
                                            np.sum(ns)*smoothing*culinalg.eye(2*M+1,
                                                                         float_type),
                                            __pinv_rcond__),   
                              FHq_gpu)
         
     # Allocate array for reconstructed signal:
-    Nt = int(ceil(dur/dt))
+    Nt = int(np.ceil(dur/dt))
     u_rec_gpu = gpuarray.zeros(Nt, complex_type)
 
     # Get required block/grid sizes:
@@ -708,4 +707,4 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu, R_gpu,
               np.uint32(Nt),
               block=block_dim_t, grid=grid_dim_t)
 
-    return real(u_rec_gpu.get())
+    return np.real(u_rec_gpu.get())
