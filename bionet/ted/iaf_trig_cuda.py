@@ -22,6 +22,9 @@ import scikits.cuda.linalg as culinalg
 
 from iaf_cuda import iaf_encode, iaf_encode_pop
 
+# Get installation location of C headers:
+from scikits.cuda import install_headers
+
 compute_F_template = Template("""
 #include <pycuda/pycuda-complex.hpp>
 
