@@ -17,6 +17,7 @@ from bionet.utils.misc import func_timer
 import bionet.utils.gen_test_signal as g
 import bionet.utils.plotting as pl
 import bionet.ted.iaf as iaf
+import bionet.ted.iaf_cuda as iaf_cuda
 import bionet.ted.iaf_pop_trig_cuda as iaf_pop_trig_cuda
 
 # Get the automatically selected GPU device:
@@ -86,8 +87,8 @@ C_gpu = gpuarray.to_gpu(np.array([C1, C2]))
 output_count += 1
 fig_title = 'Signal Encoded Using Leaky IAF Encoder'
 print fig_title
-s_gpu, ns_gpu = func_timer(iaf_pop_trig_cuda.iaf_encode_pop)(u_gpu,
-                                                             dt, b_gpu, d_gpu, R_gpu, C_gpu)
+s_gpu, ns_gpu = func_timer(iaf_cuda.iaf_encode_pop)(u_gpu, dt, b_gpu, d_gpu, R_gpu, C_gpu)
+                                                             
 s = s_gpu.get()
 ns = ns_gpu.get()
 pl.plot_encoded(t, u, s[0,0:ns[0]], fig_title + ' #1',
@@ -136,7 +137,7 @@ C_gpu = gpuarray.to_gpu(np.array([C1, C2]))
 output_count += 1
 fig_title = 'Signal Encoded Using Ideal IAF Encoder'
 print fig_title
-s_gpu, ns_gpu = func_timer(iaf_pop_trig_cuda.iaf_encode_pop)(u_gpu, dt, b_gpu, d_gpu, R_gpu, C_gpu)
+s_gpu, ns_gpu = func_timer(iaf_cuda.iaf_encode_pop)(u_gpu, dt, b_gpu, d_gpu, R_gpu, C_gpu)
 s = s_gpu.get()
 ns = ns_gpu.get()
 pl.plot_encoded(t, u, s[0,0:ns[0]], fig_title + ' #1',

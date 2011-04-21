@@ -7,6 +7,8 @@ Release 0.062 - ()
 ------------------------------------
 * Improve precision of IAF encoders.
 * Fix signs in delayed IAF example.
+* Add decoders that use the trigonometric polynomial approximation.
+* Add more PyCUDA decoder implementations.
 
 Release 0.061 - (November 24, 2010)
 -----------------------------------
