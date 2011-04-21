@@ -19,9 +19,6 @@ import scikits.cuda.linalg as culinalg
 
 from iaf_cuda import iaf_encode
 
-# Pseudoinverse singular value cutoff:
-__pinv_rcond__ = 1e-8
-
 compute_F_template = Template("""
 #include <pycuda/pycuda-complex.hpp>
 
@@ -192,9 +189,13 @@ def iaf_decode_trig(s, dur, dt, bw, b, d, R=np.inf, C=1.0, M=5, smoothing=0.0):
     if float_type == np.float32:
         use_double = 0
         complex_type = np.complex64
-    else:
+        __pinv_rcond__ = 1e-4
+    elif float_type == np.float64:
         use_double = 1
         complex_type = np.complex128
+        __pinv_rcond__ = 1e-8
+    else:
+        raise ValueError('unsupported data type')
         
     T = 2*np.pi*M/bw
     if T < dur:
@@ -259,11 +260,10 @@ def iaf_decode_trig(s, dur, dt, bw, b, d, R=np.inf, C=1.0, M=5, smoothing=0.0):
                         np.int32(M), np.uint32((N-1)*(2*M+1)),
                         block=block_dim_F, grid=grid_dim_F)
 
-    # Compute the product of F^H and q first so that both F^H and q
+    # Compute the product of F^H and q first so that q
     # can be dropped from memory:
-    FH_gpu = culinalg.hermitian(F_gpu)
-    FHq_gpu = culinalg.dot(FH_gpu, q_gpu)
-    del FH_gpu, q_gpu
+    FHq_gpu = culinalg.dot(F_gpu, q_gpu, 'c')
+    del q_gpu
     
     if smoothing == 0:
         c_gpu = culinalg.dot(culinalg.pinv(culinalg.dot(F_gpu, F_gpu, 'c'),

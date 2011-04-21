@@ -18,9 +18,6 @@ import scikits.cuda.misc as cumisc
 import scikits.cuda.linalg as culinalg
 from scikits.cuda import install_headers
 
-# Pseudoinverse singular value cutoff:
-__pinv_rcond__ = 1e-8
-
 def _compute_idx_map(ns):
     """
     Map a linear index to corresponding neuron and interspike interval indices.
@@ -81,7 +78,7 @@ def _compute_idx_map(ns):
 
     return idx_to_ni, idx_to_k
 
-compute_ts_template = Template("""
+compute_ts_pop_template = Template("""
 #if ${use_double}
 #define FLOAT double
 #else
@@ -115,7 +112,7 @@ __global__ void compute_ts(FLOAT *s, unsigned int *ns, FLOAT *ts,
 }                      
 """)
 
-compute_F_template = Template("""
+compute_F_pop_template = Template("""
 #include <pycuda/pycuda-complex.hpp>
 #include "cuConstants.h"
 
@@ -203,7 +200,7 @@ __global__ void compute_F_leaky(FLOAT *s, FLOAT *ts, COMPLEX *F, FLOAT bw,
 }                          
 """)
 
-compute_q_template = Template("""
+compute_q_pop_template = Template("""
 #include <pycuda/pycuda-complex.hpp>
 
 #if ${use_double}
@@ -265,7 +262,7 @@ __global__ void compute_q_leaky(FLOAT *s, COMPLEX *q, FLOAT *b,
 }
 """)
 
-compute_u_template = Template("""
+compute_u_pop_template = Template("""
 #include <pycuda/pycuda-complex.hpp>
 #include "cuConstants.h"
 
@@ -357,9 +354,11 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu, R_gpu,
     if float_type == np.float32:
         use_double = 0
         complex_type = np.complex64
+        __pinv_rcond__ = 1e-4
     elif float_type == np.float64:
         use_double = 1
         complex_type = np.complex128
+        __pinv_rcond__ = 1e-8
     else:
         raise ValueError('unsupported data type')
 
@@ -388,28 +387,28 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu, R_gpu,
 
     # Prepare kernels:
     cache_dir = None
-    compute_ts_mod = SourceModule(compute_ts_template.substitute(use_double=use_double),
+    compute_ts_pop_mod = SourceModule(compute_ts_pop_template.substitute(use_double=use_double),
                                   cache_dir=cache_dir)
-    compute_ts = compute_ts_mod.get_function('compute_ts')
+    compute_ts_pop = compute_ts_pop_mod.get_function('compute_ts')
     
-    compute_q_mod = \
-                  SourceModule(compute_q_template.substitute(use_double=use_double),
-                               cache_dir=cache_dir)
-    compute_q_ideal = compute_q_mod.get_function('compute_q_ideal')
-    compute_q_leaky = compute_q_mod.get_function('compute_q_leaky')
+    compute_q_pop_mod = \
+                      SourceModule(compute_q_pop_template.substitute(use_double=use_double),
+                                   cache_dir=cache_dir)
+    compute_q_pop_ideal = compute_q_pop_mod.get_function('compute_q_ideal')
+    compute_q_pop_leaky = compute_q_pop_mod.get_function('compute_q_leaky')
 
-    compute_F_mod = \
-                  SourceModule(compute_F_template.substitute(use_double=use_double),
+    compute_F_pop_mod = \
+                  SourceModule(compute_F_pop_template.substitute(use_double=use_double),
                                cache_dir=cache_dir,
                                options=['-I', install_headers])
-    compute_F_ideal = compute_F_mod.get_function('compute_F_ideal')
-    compute_F_leaky = compute_F_mod.get_function('compute_F_leaky')
+    compute_F_pop_ideal = compute_F_pop_mod.get_function('compute_F_ideal')
+    compute_F_pop_leaky = compute_F_pop_mod.get_function('compute_F_leaky')
 
-    compute_u_mod = \
-                  SourceModule(compute_u_template.substitute(use_double=use_double),
-                               cache_dir=cache_dir,
-                               options=['-I', install_headers])
-    compute_u = compute_u_mod.get_function('compute_u')
+    compute_u_pop_mod = \
+                      SourceModule(compute_u_pop_template.substitute(use_double=use_double),
+                                   cache_dir=cache_dir,
+                                   options=['-I', install_headers])
+    compute_u_pop = compute_u_pop_mod.get_function('compute_u')
     
     # Total number of interspike intervals per neuron less 1 for each
     # spike train with more than
@@ -435,36 +434,36 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu, R_gpu,
                                                 max_threads_per_block)
 
     # Launch kernels:
-    compute_ts(s_gpu, ns_gpu, ts_gpu, np.uint32(s_gpu.shape[1]),
-               np.uint32(N),
-               block=block_dim_ts, grid=grid_dim_ts)
+    compute_ts_pop(s_gpu, ns_gpu, ts_gpu, np.uint32(s_gpu.shape[1]),
+                   np.uint32(N),
+                   block=block_dim_ts, grid=grid_dim_ts)
     if np.all(np.isinf(R_gpu.get())):
-        compute_q_ideal(s_gpu, q_gpu,
-                        b_gpu, d_gpu, C_gpu,
-                        idx_to_ni_gpu, idx_to_k_gpu,
-                        np.uint32(s_gpu.shape[1]),
-                        np.uint32(Nq),
-                        block=block_dim_q, grid=grid_dim_q)
-        compute_F_ideal(s_gpu, ts_gpu, F_gpu,
-                        float_type(bw),
-                        idx_to_ni_gpu, idx_to_k_gpu,
-                        np.int32(M), np.uint32(s_gpu.shape[1]),
-                        np.uint32(F_gpu.size),
-                        block=block_dim_F, grid=grid_dim_F)
+        compute_q_pop_ideal(s_gpu, q_gpu,
+                            b_gpu, d_gpu, C_gpu,
+                            idx_to_ni_gpu, idx_to_k_gpu,
+                            np.uint32(s_gpu.shape[1]),
+                            np.uint32(Nq),
+                            block=block_dim_q, grid=grid_dim_q)
+        compute_F_pop_ideal(s_gpu, ts_gpu, F_gpu,
+                            float_type(bw),
+                            idx_to_ni_gpu, idx_to_k_gpu,
+                            np.int32(M), np.uint32(s_gpu.shape[1]),
+                            np.uint32(F_gpu.size),
+                            block=block_dim_F, grid=grid_dim_F)
     else:
-        compute_q_leaky(s_gpu, q_gpu,
-                        b_gpu, d_gpu,
-                        R_gpu, C_gpu,
-                        idx_to_ni_gpu, idx_to_k_gpu,
-                        np.uint32(s_gpu.shape[1]),
-                        np.uint32(Nq),
-                        block=block_dim_q, grid=grid_dim_q)
-        compute_F_leaky(s_gpu, ts_gpu, F_gpu,
-                        float_type(bw), R_gpu, C_gpu,
-                        idx_to_ni_gpu, idx_to_k_gpu,
-                        np.int32(M), np.uint32(s_gpu.shape[1]),
-                        np.uint32(F_gpu.size),
-                        block=block_dim_F, grid=grid_dim_F)
+        compute_q_pop_leaky(s_gpu, q_gpu,
+                            b_gpu, d_gpu,
+                            R_gpu, C_gpu,
+                            idx_to_ni_gpu, idx_to_k_gpu,
+                            np.uint32(s_gpu.shape[1]),
+                            np.uint32(Nq),
+                            block=block_dim_q, grid=grid_dim_q)
+        compute_F_pop_leaky(s_gpu, ts_gpu, F_gpu,
+                            float_type(bw), R_gpu, C_gpu,
+                            idx_to_ni_gpu, idx_to_k_gpu,
+                            np.int32(M), np.uint32(s_gpu.shape[1]),
+                            np.uint32(F_gpu.size),
+                            block=block_dim_F, grid=grid_dim_F)
 
     # Free unneeded variables:
     del s_gpu, ts_gpu, idx_to_ni_gpu, idx_to_k_gpu
@@ -495,10 +494,10 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu, R_gpu,
                  cumisc.select_block_grid_sizes(dev, Nt, max_threads_per_block)
 
     # Reconstruct signal:
-    compute_u(u_rec_gpu, c_gpu, float_type(bw),
-              float_type(dt),
-              np.int32(M),
-              np.uint32(Nt),
-              block=block_dim_t, grid=grid_dim_t)
+    compute_u_pop(u_rec_gpu, c_gpu, float_type(bw),
+                  float_type(dt),
+                  np.int32(M),
+                  np.uint32(Nt),
+                  block=block_dim_t, grid=grid_dim_t)
 
     return np.real(u_rec_gpu.get())

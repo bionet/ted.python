@@ -81,7 +81,9 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0, M=5, smoothing=0.0):
         q = C*(d+b*R*(np.exp(-s[1:]/RC)-1))
 
     FH = F.conj().T
-    c = np.dot(np.dot(np.linalg.pinv(np.dot(FH, F)+(N-1)*smoothing*np.eye(2*M+1), __pinv_rcond__), FH), q)
+    c = np.dot(np.dot(np.linalg.pinv(np.dot(FH,
+                                            F)+(N-1)*smoothing*np.eye(2*M+1),
+                                     __pinv_rcond__), FH), q)
     t = np.arange(0, dur, dt)
     u_rec = np.zeros(len(t), complex)
     for m in xrange(-M, M+1):

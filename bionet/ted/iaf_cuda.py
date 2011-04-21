@@ -27,9 +27,6 @@ import scikits.cuda.misc as cumisc
 # Get installation location of C headers:
 from scikits.cuda import install_headers
 
-# Pseudoinverse singular value cutoff:
-__pinv_rcond__ = 1e-6
-
 # Kernel template for performing ideal/leaky IAF time encoding using a
 # single encoder:
 iaf_encode_template = Template("""
@@ -239,7 +236,7 @@ __global__ void compute_q(FLOAT *s, FLOAT *q, FLOAT b,
 """)
 
 # Kernel template for computing spike times for the ideal IAF time decoder:
-compute_ts_ideal_mod_template = Template("""
+compute_ts_ideal_template = Template("""
 #if ${use_double}
 #define FLOAT double
 #else
@@ -380,8 +377,10 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
     float_type = s.dtype.type
     if float_type == np.float32:
         use_double = 0
+        __pinv_rcond__ = 1e-4
     elif float_type == np.float64:
         use_double = 1
+        __pinv_rcond__ = 1e-8
     else:
         raise ValueError('unsupported data type')        
 
@@ -414,7 +413,7 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
     compute_G_ideal = compute_G_ideal_mod.get_function('compute_G') 
 
     compute_u_ideal_mod = \
-                        SourceModule(compute_u_ideal_mod_template.substitute(use_double=use_double),
+                        SourceModule(compute_u_ideal_template.substitute(use_double=use_double),
                                      options=["-I", install_headers])
     compute_u_ideal = compute_u_ideal_mod.get_function('compute_u') 
 
@@ -657,7 +656,6 @@ def iaf_encode_pop(u_gpu, dt, b_gpu, d_gpu, R_gpu, C_gpu,
     cache_dir = None
     iaf_encode_pop_mod = \
                    SourceModule(iaf_encode_pop_template.substitute(use_double=use_double),
-                                # options=['--ptxas-options=-v'],
                                 cache_dir=cache_dir)
     iaf_encode_pop = iaf_encode_pop_mod.get_function("iaf_encode_pop")
 
