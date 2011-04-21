@@ -18,7 +18,6 @@ import scikits.cuda.misc as cumisc
 import scikits.cuda.linalg as culinalg
 
 from iaf_cuda import iaf_encode
-from prodtrans import prodtrans
 
 # Pseudoinverse singular value cutoff:
 __pinv_rcond__ = 1e-8
@@ -267,11 +266,11 @@ def iaf_decode_trig(s, dur, dt, bw, b, d, R=np.inf, C=1.0, M=5, smoothing=0.0):
     del FH_gpu, q_gpu
     
     if smoothing == 0:
-        c_gpu = culinalg.dot(culinalg.pinv(prodtrans(F_gpu),
+        c_gpu = culinalg.dot(culinalg.pinv(culinalg.dot(F_gpu, F_gpu, 'c'),
                                            __pinv_rcond__),
                              FHq_gpu)
     else:
-        c_gpu = culinalg.dot(culinalg.pinv(prodtrans(F_gpu)+
+        c_gpu = culinalg.dot(culinalg.pinv(culinalg.dot(F_gpu, F_gpu, 'c')+
                                            (N-1)*smoothing*culinalg.eye(2*M+1,
                                                                         float_type),
                                            __pinv_rcond__),

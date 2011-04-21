@@ -18,8 +18,6 @@ import scikits.cuda.misc as cumisc
 import scikits.cuda.linalg as culinalg
 from scikits.cuda import install_headers
 
-from prodtrans import prodtrans
-
 # Pseudoinverse singular value cutoff:
 __pinv_rcond__ = 1e-8
 
