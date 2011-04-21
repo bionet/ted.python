@@ -7,8 +7,6 @@ IAF neurons.
 
 import sys
 import numpy as np
-import atexit
-import pycuda.driver as drv
 
 # Set matplotlib backend so that plots can be generated without a
 # display:
@@ -21,10 +19,7 @@ import bionet.utils.plotting as pl
 import bionet.ted.iaf as iaf
 import bionet.ted.iaf_cuda as iaf_cuda
 
-# Get the automatically selected GPU device:
 import pycuda.autoinit
-dev = pycuda.autoinit.device
-
 import scikits.cuda.autoinit
 import scikits.cuda.linalg as culinalg
 
