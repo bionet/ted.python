@@ -55,7 +55,7 @@ except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
 # Trigonometric polynomial order:
-M = 32 
+M = 31
 
 # Test leaky algorithms:
 

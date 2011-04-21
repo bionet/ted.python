@@ -57,7 +57,7 @@ try:
 except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
-M = 32 # 2*M+1 trigonometric polynomials are used in the reconstruction
+M = 31 # 2*M+1 trigonometric polynomials are used in the reconstruction
 
 # Test leaky algorithms:
 
