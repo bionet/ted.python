@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-Time decoding algorithms that use the trigonometric polynomial
-approximation.
+Time decoding algorithms that make use of the integrate-and-fire
+neuron model and the trigonometric polynomial approximation.
 
 - iaf_decode            - IAF time decoding machine.
 - iaf_decode_pop        - MISO IAF time decoding machine.
