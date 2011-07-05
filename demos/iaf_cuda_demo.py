@@ -49,7 +49,7 @@ pl.plot_signal(t, u, fig_title,
 
 b = 3.5    # bias
 d = 0.7    # threshold
-R = np.inf # resistance
+R = 10.0   # resistance
 C = 0.01   # capacitance
 
 try:
@@ -58,16 +58,31 @@ except ValueError('reconstruction condition not satisfied'):
     sys.exit()
 
 output_count += 1
+fig_title = 'Signal Encoded Using Leaky IAF Encoder'
+print fig_title
+s = func_timer(iaf_cuda.iaf_encode)(u, dt, b, d, R, C)
+pl.plot_encoded(t, u, s, fig_title,
+                output_name + str(output_count) + output_ext)
+
+output_count += 1
+fig_title = 'Signal Decoded Using Leaky IAF Decoder'
+print fig_title
+u_rec = func_timer(iaf_cuda.iaf_decode)(s, dur, dt, bw, b, d, R, C)
+pl.plot_compare(t, u, u_rec, fig_title,
+                output_name + str(output_count) + output_ext)
+
+R = np.inf
+
+output_count += 1
 fig_title = 'Signal Encoded Using Ideal IAF Encoder'
 print fig_title
-s = func_timer(iaf_cuda.iaf_encode)(np.asarray(u, np.float32), dt, b, d, R, C)
+s = func_timer(iaf_cuda.iaf_encode)(u, dt, b, d, R, C)
 pl.plot_encoded(t, u, s, fig_title,
                 output_name + str(output_count) + output_ext)
 
 output_count += 1
 fig_title = 'Signal Decoded Using Ideal IAF Decoder'
 print fig_title
-u_rec = func_timer(iaf_cuda.iaf_decode)(np.asarray(s, np.float32), dur, dt, bw, b, d, R, C)
+u_rec = func_timer(iaf_cuda.iaf_decode)(s, dur, dt, bw, b, d, R, C)
 pl.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
-
