@@ -227,7 +227,7 @@ __global__ void compute_G_ideal(FLOAT *ts, FLOAT *tsh, COMPLEX *G, FLOAT bw,
         
         SICI(bw*(ts[INDEX(l,n,s_cols)]-tsh[INDEX(m,k,s_cols)]), &si1, &ci);
         SICI(bw*(ts[INDEX(l,n+1,s_cols)]-tsh[INDEX(m,k,s_cols)]), &si0, &ci);
-        G[idx] = COMPLEX((si1-si0)/PI);
+        G[idx] = COMPLEX((si0-si1)/PI);
     }
 }
 
@@ -303,7 +303,6 @@ compute_u_pop_template = Template("""
 __global__ void compute_u(COMPLEX *u_rec, COMPLEX *c,
                           FLOAT *tsh, unsigned int *ns,
                           FLOAT bw, FLOAT dt,
-                          unsigned int *idx_to_ni,
                           unsigned int s_cols,
                           unsigned int M,
                           unsigned int Nt) {
@@ -314,10 +313,12 @@ __global__ void compute_u(COMPLEX *u_rec, COMPLEX *c,
     // Each thread reconstructs the signal at time t[idx]:
     if (idx < Nt) {
         COMPLEX u_temp = COMPLEX(0);
+        unsigned int c_ind = 0;
         for (unsigned int m = 0; m < M; m++) {
-            for (unsigned int k = 0; k < ns[m]; k++) {
-                u_temp += SINC(bwpi*(idx*dt-tsh[INDEX(m,k,s_cols)]))*bwpi*c[idx_to_ni[m]+k];
+            for (unsigned int k = 0; k < ns[m]-1; k++) {
+                u_temp += SINC(bwpi*(idx*dt-tsh[INDEX(m,k,s_cols)]))*bwpi*c[c_ind+k];
             }
+            c_ind += (ns[m]-1);
         }
         u_rec[idx] = u_temp;
     }
@@ -488,7 +489,6 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu,
     # Reconstruct signal:
     compute_u_pop(u_rec_gpu, c_gpu, tsh_gpu, ns_gpu,
                   float_type(bw), float_type(dt),
-                  idx_to_ni_gpu,
                   np.uint32(s_gpu.shape[1]),
                   np.uint32(N),                  
                   np.uint32(Nt), 
