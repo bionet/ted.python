@@ -284,7 +284,10 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0, M=5, smoothing=0.0):
         
     # Allocate array for reconstructed signal:
     Nt = int(np.ceil(dur/dt))
-    u_rec_gpu = gpuarray.zeros(Nt, complex_type)
+    u_rec_gpu = gpuarray.to_gpu(np.zeros(Nt, complex_type))
+    ### Replace the above with the following line when the bug in
+    # gpuarray.zeros in pycuda 2011.1.2 is fixed:
+    #u_rec_gpu = gpuarray.zeros(Nt, complex_type)
 
     # Get required block/grid sizes:
     block_dim_t, grid_dim_t = \
@@ -768,7 +771,10 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu, R_gpu,
         
     # Allocate array for reconstructed signal:
     Nt = int(np.ceil(dur/dt))
-    u_rec_gpu = gpuarray.zeros(Nt, complex_type)
+    u_rec_gpu = gpuarray.to_gpu(np.zeros(Nt, complex_type))
+    ### Replace the above with the following line when the bug in
+    # gpuarray.zeros in pycuda 2011.1.2 is fixed:
+    #u_rec_gpu = gpuarray.zeros(Nt, complex_type)
 
     # Get required block/grid sizes:
     block_dim_t, grid_dim_t = \

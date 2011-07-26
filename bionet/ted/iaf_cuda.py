@@ -472,13 +472,13 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
     # use a smaller block size than the maximum to prevent the kernels
     # from using too many registers:
     dev = cumisc.get_current_device()
-    max_threads_per_block = 256
+    max_threads_per_block = 128
     block_dim_s, grid_dim_s = \
                  cumisc.select_block_grid_sizes(dev, s_gpu.shape, max_threads_per_block)
     
     # Get required block/grid sizes for constructing G:
     block_dim_G, grid_dim_G = \
-                 cumisc.select_block_grid_sizes(dev, G_gpu.shape, max_threads_per_block)       
+                 cumisc.select_block_grid_sizes(dev, G_gpu.shape, max_threads_per_block)
     
     # Run the kernels:
     compute_ts(s_gpu, ts_gpu, np.uint32(N),
@@ -506,15 +506,18 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
     del s_gpu, ts_gpu
     
     # Compute the reconstruction coefficients:
-    #c_gpu = culinalg.dot(culinalg.pinv(G_gpu, __pinv_rcond__), q_gpu)
-    c_gpu = culinalg.dot(culinalg.pinv(G_gpu), q_gpu)
+    c_gpu = culinalg.dot(culinalg.pinv(G_gpu, __pinv_rcond__), q_gpu)
     
     # Free unneeded G, G_inv and q:
     del G_gpu, q_gpu
 
     # Allocate array for reconstructed signal:
     Nt = int(np.ceil(dur/dt))
-    u_rec_gpu = gpuarray.zeros(Nt, complex_type)
+
+    u_rec_gpu = gpuarray.to_gpu(np.zeros(Nt, complex_type))
+    ### Replace the above with the following line when the bug in
+    # gpuarray.zeros in pycuda 2011.1.2 is fixed:
+    #u_rec_gpu = gpuarray.zeros(Nt, complex_type)
 
     # Get required block/grid sizes for constructing u:
     block_dim_t, grid_dim_t = \
