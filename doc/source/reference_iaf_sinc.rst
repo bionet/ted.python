@@ -2,8 +2,8 @@
 
 .. currentmodule:: bionet.ted.iaf
 
-Integrate-and-Fire Neuron Routines
-==================================
+Integrate-and-Fire Neuron Routines (Sinc Kernel)
+================================================
 
 Single-Input Single-Output Machines
 -----------------------------------

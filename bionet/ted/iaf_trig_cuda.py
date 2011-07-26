@@ -11,6 +11,8 @@ These functions make use of CUDA.
 
 """
 
+__all__ = ['iaf_decode', 'iaf_decode_pop']
+
 from string import Template
 from pycuda.compiler import SourceModule
 import pycuda.gpuarray as gpuarray

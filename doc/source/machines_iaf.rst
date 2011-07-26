@@ -33,7 +33,7 @@ Single-Input Single-Output Machines
 :class:`Time Decoding Machine - Real-Time Decoder <bionet.ted.rt.IAFRealTimeDecoder>` |lazar_overcomplete_2008|_
    Decodes a bandlimited, arbitrarily long signal encoded by an
    Integrate-and-Fire neuron by stitching together blocks of data
-   decoded by :func:`solving a Vandermonde system <bionet.ted.iaf.iaf_decode_vander` using the
+   decoded by :func:`solving a Vandermonde system <bionet.ted.iaf.iaf_decode_vander>` using the
    :func:`Björk-Pereyra Algorithm <bionet.ted.bpa.bpa>`.
 
    .. image:: images/tdm-real.png

@@ -9,6 +9,8 @@ neuron model and the trigonometric polynomial approximation.
 
 """
 
+__all__ = ['iaf_decode', 'iaf_decode_pop']
+
 import numpy as np
 
 # Pseudoinverse singular value cutoff:

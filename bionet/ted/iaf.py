@@ -790,8 +790,7 @@ def iaf_decode_spline(s, dur, dt, b, d, R=np.inf, C=1.0):
 def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
                           C_list):
     """
-    Multi-input single-output spline interpolation IAF time
-    decoding machine.
+    Multi-input single-output spline interpolation IAF time decoding machine.
                           
     Decode a signal encoded with an ensemble of Integrate-and-Fire
     neurons using spline interpolation.
@@ -1225,8 +1224,7 @@ def iaf_encode_delay(u_list, t_start, dt, b_list, d_list, k_list, a_list,
                      w_list, y_list=None, interval_list=None,
                      full_output=False):
     """
-    Multi-input multi-output delayed IAF time encoding
-    machine.
+    Multi-input multi-output delayed IAF time encoding machine.
                      
     Encode several signals with an ensemble of ideal
     Integrate-and-Fire neurons with delays.
