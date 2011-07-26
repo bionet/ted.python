@@ -217,11 +217,8 @@ __global__ void compute_G_ideal(FLOAT *ts, FLOAT *tsh, COMPLEX *G, FLOAT bw,
 
     if (idx < N) {
 
-        // Find the neurons corresponding the current element:
         unsigned int l = idx_to_ni[row];
         unsigned int m = idx_to_ni[col];
-
-        // Find the interspike midpoint entries:
         unsigned int n = idx_to_k[row];
         unsigned int k = idx_to_k[col];
         
@@ -245,18 +242,15 @@ __global__ void compute_G_leaky(FLOAT *ts, FLOAT *tsh, COMPLEX *G, FLOAT bw,
 
     if (idx < N) {
 
-        // Find the neurons corresponding the current element:
         unsigned int l = idx_to_ni[row];
         unsigned int m = idx_to_ni[col];
-
-        // Find the interspike midpoint entries:
         unsigned int n = idx_to_k[row];
         unsigned int k = idx_to_k[col];
 
         FLOAT RC = R[l]*C[l];
         if (ts[INDEX(l,n,s_cols)] < tsh[INDEX(m,k,s_cols)] &&
             tsh[INDEX(m,k,s_cols)] < ts[INDEX(l,n+1,s_cols)]) {
-            G[idx] = COMPLEX(0,-1.0/4.0)*EXP((tsh[k]-ts[n+1])/RC)*
+            G[idx] = COMPLEX(0,-1.0/4.0)*EXP((tsh[INDEX(m,k,s_cols)]-ts[INDEX(l,n+1,s_cols)])/RC)*
                 (2.0*EXPI(COMPLEX(1,-RC*bw)*(ts[INDEX(l,n,s_cols)]-tsh[INDEX(m,k,s_cols)])/RC)-
                  2.0*EXPI(COMPLEX(1,-RC*bw)*(ts[INDEX(l,n+1,s_cols)]-tsh[INDEX(m,k,s_cols)])/RC)-
                  2.0*EXPI(COMPLEX(1,RC*bw)*(ts[INDEX(l,n,s_cols)]-tsh[INDEX(m,k,s_cols)])/RC)+
@@ -318,7 +312,10 @@ __global__ void compute_u(COMPLEX *u_rec, COMPLEX *c,
             for (unsigned int k = 0; k < ns[m]-1; k++) {
                 u_temp += SINC(bwpi*(idx*dt-tsh[INDEX(m,k,s_cols)]))*bwpi*c[c_ind+k];
             }
-            c_ind += (ns[m]-1);
+            if (ns[m] > 1)
+                c_ind += (ns[m]-1);
+            else
+                c_ind += ns[m];
         }
         u_rec[idx] = u_temp;
     }
@@ -336,7 +333,38 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu,
 
     Parameters
     ----------
+    s_gpu : pycuda.gpuarray.GPUArray
+        Signal encoded by an ensemble of encoders. The nonzero
+        values represent the time between spikes (in s). The number of
+        arrays in the list corresponds to the number of encoders in
+        the ensemble.
+    ns_gpu : pycuda.gpuarray.GPUArray
+        Number of interspike intervals in each row of `s_gpu`.
+    dur : float
+        Duration of signal (in s).
+    dt : float
+        Sampling resolution of original signal; the sampling frequency
+        is 1/dt Hz.
+    bw : float
+        Signal bandwidth (in rad/s).
+    b_gpu : pycuda.gpuarray.GPUArray
+        Array of encoder biases.
+    d_gpu : pycuda.gpuarray.GPUArray
+        Array of encoder thresholds.
+    R_gpu : pycuda.gpuarray.GPUArray
+        Array of neuron resistances.
+    C_gpu : pycuda.gpuarray.GPUArray
+        Array of neuron capacitances.
+    
+    Returns
+    -------
+    u_rec : pycuda.gpuarray.GPUArray
+        Recovered signal.
 
+    Notes
+    -----
+    The number of spikes contributed by each neuron may differ from the
+    number contributed by other neurons.
     
     """
     
@@ -458,13 +486,13 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu,
                             np.uint32(Nq),
                             block=block_dim_q, grid=grid_dim_q)
         compute_G_leaky_pop(ts_gpu, tsh_gpu, G_gpu, float_type(bw),
+                            R_gpu, C_gpu,
                             idx_to_ni_gpu, idx_to_k_gpu,
                             np.uint32(Nq),
                             np.uint32(s_gpu.shape[1]),
                             np.uint32(G_gpu.size),
                             block=block_dim_G, grid=grid_dim_G)
 
-    from ipdb import set_trace; set_trace()    
     # Free unneeded variables:
     del ts_gpu, idx_to_k_gpu
 

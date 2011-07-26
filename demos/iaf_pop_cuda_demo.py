@@ -24,7 +24,7 @@ import scikits.cuda.autoinit
 import pycuda.gpuarray as gpuarray
 
 # For determining output plot file names:
-output_name = 'iaf_pop_demo_'
+output_name = 'iaf_pop_cuda_demo_'
 output_count = 0
 output_ext = '.png'
 
