@@ -86,7 +86,8 @@ C_gpu = gpuarray.to_gpu(np.array([C1, C2]))
 output_count += 1
 fig_title = 'Signal Encoded Using Leaky IAF Encoder'
 print fig_title
-s_gpu, ns_gpu = func_timer(iaf_trig_cuda.iaf_encode_pop)(u_gpu, dt, b_gpu, d_gpu, R_gpu, C_gpu)
+s_gpu, ns_gpu = func_timer(iaf_trig_cuda.iaf_encode_pop)(u_gpu, dt,
+                                                         b_gpu, d_gpu, R_gpu, C_gpu)
                                                              
 s = s_gpu.get()
 ns = ns_gpu.get()
@@ -136,7 +137,8 @@ C_gpu = gpuarray.to_gpu(np.array([C1, C2]))
 output_count += 1
 fig_title = 'Signal Encoded Using Ideal IAF Encoder'
 print fig_title
-s_gpu, ns_gpu = func_timer(iaf_trig_cuda.iaf_encode_pop)(u_gpu, dt, b_gpu, d_gpu, R_gpu, C_gpu)
+s_gpu, ns_gpu = func_timer(iaf_trig_cuda.iaf_encode_pop)(u_gpu, dt,
+                                                         b_gpu, d_gpu, R_gpu, C_gpu)
 s = s_gpu.get()
 ns = ns_gpu.get()
 pl.plot_encoded(t, u, s[0,0:ns[0]], fig_title + ' #1',
@@ -153,12 +155,3 @@ u_rec = func_timer(iaf_trig_cuda.iaf_decode_pop)(s_gpu, ns_gpu, dur, dt, bw,
                                                      R_gpu, C_gpu, M)
 pl.plot_compare(t, u, u_rec, fig_title,
                 output_name + str(output_count) + output_ext)
-
-# s_list = [s[0, 0:ns[0]], s[1, 0:ns[1]]]
-# b_list = b_gpu.get().tolist()
-# d_list = d_gpu.get().tolist()
-# R_list = R_gpu.get().tolist()
-# C_list = C_gpu.get().tolist()
-# import bionet.ted.iaf_trig as iaf_trig
-# u_rec2 = iaf_trig.iaf_decode_pop(s_list, dur, dt, bw, b_list,
-#                                  d_list, R_list, C_list)
