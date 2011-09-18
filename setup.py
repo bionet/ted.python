@@ -7,11 +7,11 @@ import time
 from distutils.core import setup
 
 NAME =               'bionet.utils'
-VERSION =            '0.016'
+VERSION =            '0.017'
 IS_RELEASED =        True
 AUTHOR =             'Lev Givon'
 AUTHOR_EMAIL =       'lev@columbia.edu'
-URL =                'http://bionet.ee.columbia.edu/code/'
+URL =                'http://bionet.github.com/'
 MAINTAINER =         'Lev Givon'
 MAINTAINER_EMAIL =   'lev@columbia.edu'
 DESCRIPTION =        'Bionet utilities'

@@ -3,8 +3,8 @@
 Change Log
 ==========
 
-Release 0.017 - ()
-------------------------------
+Release 0.017 - (September 19, 2011)
+------------------------------------
 * Add trigonometric polynomial routines.
 * Add 3D plotting wrapper routines.
 * Fix animation bug when using the Qt4Agg matplotlib backend.
