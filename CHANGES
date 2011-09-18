@@ -3,7 +3,7 @@
 Change Log
 ==========
 
-Release 0.062 - ()
+Release 0.062 - (September 19, 2011)
 ------------------------------------
 * Improve precision of IAF encoders.
 * Fix signs in delayed IAF example.

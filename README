@@ -16,7 +16,7 @@ Authors & Acknowledgments
 --------------------------
 
 This software written and packaged by Lev Givon, currently at the
-Bionet Group [1]_ at Columbia University. 
+Bionet Group [2]_ at Columbia University. 
 See the included AUTHORS file for more information and
 acknowledgments.
 
@@ -40,9 +40,10 @@ References
 The algorithms implemented in this toolbox are described in the papers
 listed in the attached BibTeX bibliography. Further research on
 time domain coding and processing may be obtained from the Bionet Group
-publication server [2]_.
+publication server [3]_.
 
-.. [1] http://bionet.ee.columbia.edu/
-.. [2] http://bionet.ee.columbia.edu/publications/
+.. [1] http://bionet.github.com/
+.. [2] http://bionet.ee.columbia.edu/
+.. [3] http://bionet.ee.columbia.edu/publications/
 
 
