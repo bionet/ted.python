@@ -15,7 +15,7 @@ Group's online code repository [1]_.
 Authors 
 -------
 The software in this package was written and packaged by Lev Givon, currently at
-the Bionet Group at Columbia University.
+the Bionet Group [2]_ at Columbia University.
 
 License
 -------
@@ -30,5 +30,5 @@ Please direct all questions and comments pertaining to this software to
 
 Lev Givon <lev@columbia.edu>
 
-.. [1] http://bionet.ee.columbia.edu/
-
+.. [1] http://bionet.github.com/
+.. [2] http://bionet.ee.columbia.edu/
