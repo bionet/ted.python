@@ -31,6 +31,7 @@ import numpy as np
 import pylab as p
 
 from mpl_toolkits.mplot3d import axes3d
+import matplotlib as mp
 
 # Since the fft function in scipy is faster than that in numpy, try to
 # import the former before falling back to the latter:
