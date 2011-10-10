@@ -4,6 +4,7 @@ import os
 import sys
 import time
 
+import numpy as np
 from distutils.core import setup
 from distutils.extension import Extension
 from distutils.sysconfig import get_python_lib
@@ -78,12 +79,11 @@ def write_version_py(version, filename='bionet/ted/version.py'):
     
 if sys.platform in ['linux2', 'darwin']:
     ext_name = 'bionet.ted.bpa_cython_' + sys.platform
-        
-    # Look for the numpy includes in the platform-specific Python
-    # directory:
+
+    # Need numpy include files to compile BPA extension:
     bpa_cython = Extension(ext_name,
                            ['bionet/ted/bpa_cython.pyx'],
-                           [get_python_lib(1) + '/numpy/core/include'])
+                           [numpy.get_include()])
 else:
     bpa_cython = None
 
