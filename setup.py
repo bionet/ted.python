@@ -7,7 +7,7 @@ import time
 import numpy as np
 from distutils.core import setup
 from distutils.extension import Extension
-from distutils.sysconfig import get_python_inc, get_python_lib
+from distutils.sysconfig import get_python_version
 from Cython.Distutils import build_ext
 
 NAME =               'bionet.ted'
@@ -83,7 +83,8 @@ if sys.platform in ['linux2', 'darwin']:
     # Need numpy include files to compile BPA extension:
     bpa_cython = Extension(ext_name,
                            ['bionet/ted/bpa_cython.pyx'],
-                           [get_python_inc(), np.get_include()])
+                           [np.get_include()],
+			   libraries=['python' + get_python_version()])
 else:
     bpa_cython = None
 
