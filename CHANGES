@@ -3,6 +3,10 @@
 Change Log
 ==========
 
+Release 0.063 - ()
+------------------
+* Improve finding of includes/libraries needed to build bpa extension.
+
 Release 0.062 - (September 19, 2011)
 ------------------------------------
 * Improve precision of IAF encoders.
