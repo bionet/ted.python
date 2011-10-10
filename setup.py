@@ -83,7 +83,7 @@ if sys.platform in ['linux2', 'darwin']:
     # Need numpy include files to compile BPA extension:
     bpa_cython = Extension(ext_name,
                            ['bionet/ted/bpa_cython.pyx'],
-                           [numpy.get_include()])
+                           [np.get_include()])
 else:
     bpa_cython = None
 
