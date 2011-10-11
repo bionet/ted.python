@@ -11,7 +11,7 @@ from distutils.sysconfig import get_python_version
 from Cython.Distutils import build_ext
 
 NAME =               'bionet.ted'
-VERSION =            '0.062'
+VERSION =            '0.063'
 IS_RELEASED =        True
 AUTHOR =             'Lev Givon'
 AUTHOR_EMAIL =       'lev@columbia.edu'
