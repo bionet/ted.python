@@ -1,7 +1,7 @@
 .. -*- rst -*-
 
-Asynchronous Sigma-Delta Modulator Machines
-===========================================
+Asynchronous Sigma-Delta Modulators
+===================================
 
 Single-Input Single-Output Machines
 -----------------------------------
