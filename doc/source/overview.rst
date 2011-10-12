@@ -9,7 +9,7 @@ What is Time Encoding?
 Consider a simple analog signal:
 
 .. image:: images/overview_input.png
-   :scale: 80
+   :scale: 70
    :align: center
 
 If this signal is bandlimited, then it can be faithfully represented
@@ -23,7 +23,7 @@ stimulus signal by transforming it into a sequence of time events or
 *spikes*: |lazar_time_2004|_:
 
 .. image:: images/tem-iaf.png
-   :scale: 70
+   :scale: 60
    :align: center
 
 To illustrate the encoding process, the sample signal depicted above
@@ -33,7 +33,7 @@ non-uniformly spaced spikes (represented by the red markers in
 the plot below):
 
 .. image:: images/overview_encoded.png
-   :scale: 80
+   :scale: 70
    :align: center
 
 The existence of such systems motivates the question as to whether
@@ -48,7 +48,7 @@ using a *time decoding machine*. The circuit below uses sinc kernels
 to reconstruct the encoded signal:
 
 .. image:: images/tdm-sinc.png
-   :scale: 70
+   :scale: 60
    :align: center
 
 Processing a time encoded signal with the above circuit results in the
@@ -58,7 +58,7 @@ reconstruction can be made arbitrarily precise for bandlimited
 stimuli.
 
 .. image:: images/overview_decoded.png
-   :scale: 80
+   :scale: 70
    :align: center
 
 What are Time Encoding Machines?
@@ -71,7 +71,7 @@ modulators), single-input multi-output (population encoding models),
 and other classical circuit configurations:
 
 .. image:: images/tem-general.png
-   :scale: 70
+   :scale: 60
    :align: center
 
 What are Time Decoding Machines?
@@ -82,7 +82,7 @@ signal encoded by a Time Encoding Machine according to a fidelity
 criterion:
 
 .. image:: images/tdm-general.png
-   :scale: 70
+   :scale: 60
    :align: center
 
 Why Should Neuroscientists Care About Time Encoding?

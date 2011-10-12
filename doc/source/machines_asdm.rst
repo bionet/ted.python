@@ -11,7 +11,7 @@ Single-Input Single-Output Machines
    Modulator.
 
    .. image:: images/tem-asdm.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 :func:`Time Decoding Machine <bionet.ted.asdm.asdm_decode>` |lazar_perfect_2004|_
@@ -19,7 +19,7 @@ Single-Input Single-Output Machines
    Modulator using sinc kernels.
 
    .. image:: images/tdm-sinc.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 :func:`Time Decoding Machine - Fast Approximation Method <bionet.ted.asdm.asdm_decode_fast>` |lazar_fast_2005|_
@@ -27,7 +27,7 @@ Single-Input Single-Output Machines
    Modulator using a fast approximation method.
 
    .. image:: images/tdm-fast.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 :class:`Time Decoding Machine - Real-Time Decoder <bionet.ted.rt.ASDMRealTimeDecoder>` |lazar_overcomplete_2008|_
@@ -37,7 +37,7 @@ Single-Input Single-Output Machines
    :func:`Björk-Pereyra Algorithm <bionet.ted.bpa.bpa>`.
 
    .. image:: images/tdm-real.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 :class:`Time Decoding Machine - Threshold-Insensitive Real-Time Decoder <bionet.ted.rt.ASDMRealTimeDecoder>` |lazar_overcomplete_2008|_
@@ -49,7 +49,7 @@ Single-Input Single-Output Machines
    integrator threshold.
 
    .. image:: images/tdm-real-ins.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 :func:`Time Decoding Machine - Threshold-Insensitive Method <bionet.ted.asdm.asdm_decode_ins>` |lazar_perfect_2004|_
@@ -59,7 +59,7 @@ Single-Input Single-Output Machines
    threshold.
 
    .. image:: images/tdm-sinc-ins.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 Multi-Input Single-Output Machines
@@ -70,7 +70,7 @@ Multi-Input Single-Output Machines
    Sigma-Delta Modulators using sinc kernels.
 
    .. image:: images/tdm-sinc-miso.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 :func:`Time Decoding Machine - Threshold-Insensitive MISO Decoder <bionet.ted.asdm.asdm_decode_pop>` |lazar_perfect_2004|_ |lazar_information_2007|_
@@ -80,7 +80,7 @@ Multi-Input Single-Output Machines
    thresholds.
 
    .. image:: images/tdm-sinc-ins-miso.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 .. include:: bibliography.rst

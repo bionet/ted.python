@@ -11,7 +11,7 @@ Single-Input Single-Output Machines
    Leaky and ideal neuron models are supported.
 
    .. image:: images/tem-iaf.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 :func:`Time Decoding Machine <bionet.ted.iaf.iaf_decode>` |lazar_time_2004|_
@@ -19,7 +19,7 @@ Single-Input Single-Output Machines
    neuron using sinc kernels.
 
    .. image:: images/tdm-sinc.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 :func:`Time Decoding Machine - Fast Approximation Method <bionet.ted.iaf.iaf_decode_fast>` |lazar_fast_2005|_
@@ -27,7 +27,7 @@ Single-Input Single-Output Machines
    neuron using a fast approximation method.
 
    .. image:: images/tdm-fast.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 :class:`Time Decoding Machine - Real-Time Decoder <bionet.ted.rt.IAFRealTimeDecoder>` |lazar_overcomplete_2008|_
@@ -37,7 +37,7 @@ Single-Input Single-Output Machines
    :func:`Björk-Pereyra Algorithm <bionet.ted.bpa.bpa>`.
 
    .. image:: images/tdm-real.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 :func:`Time Decoding Machine - Spline Interpolation Method <bionet.ted.iaf.iaf_decode_spline>` |lazar_consistent_2009|_
@@ -45,7 +45,7 @@ Single-Input Single-Output Machines
    neuron using spline interpolation.
 
    .. image:: images/tdm-spline.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 Single-Input Multi-Output Machines
@@ -56,7 +56,7 @@ Single-Input Multi-Output Machines
    ON-OFF Integrate-and-Fire neurons.
 
    .. image:: images/tem-iaf-coupled.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 Multi-Input Single-Output Machines
@@ -67,7 +67,7 @@ Multi-Input Single-Output Machines
    neurons using sinc kernels.
 
    .. image:: images/tdm-sinc-miso.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 :func:`Time Decoding Machine - MISO Coupled IAF Decoder <bionet.ted.iaf.iaf_decode_coupled>` |lazar_consistent_2009|_
@@ -75,7 +75,7 @@ Multi-Input Single-Output Machines
    Integrate-and-Fire neurons using spline interpolation.
 
    .. image:: images/tdm-spline-mimo.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 Multi-Input Multi-Output Machines
@@ -86,7 +86,7 @@ Multi-Input Multi-Output Machines
    Integrate-and-Fire neurons with delays.
 
    .. image:: images/tem-iaf-mimo.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 :func:`Time Decoding Machine - MIMO Delayed IAF Decoder <bionet.ted.iaf.iaf_decode_delay>` |lazar_consistent_2009|_
@@ -95,7 +95,7 @@ Multi-Input Multi-Output Machines
    interpolation.
 
    .. image:: images/tdm-spline-mimo.png
-      :scale: 70
+      :scale: 60
       :align: center
 
 .. include:: bibliography.rst
