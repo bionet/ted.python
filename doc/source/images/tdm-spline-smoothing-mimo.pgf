@@ -1,0 +1,24 @@
+% Time decoding with smoothing spline interpolation.
+
+\tikzstyle{empty}=[]
+\tikzstyle{rect}=[rectangle,draw=black,thick,minimum size=8mm]
+\begin{tikzpicture}[>=latex,join=miter]
+\node (input) [] {$\left(t_k\right)_{k\in\mathbb{Z}}$};
+\node (coeff) [draw,node distance=35mm,right of=input] {$\begin{bmatrix}
+\mathbf{G} + n\lambda\sum_{j=1}^N\mathbf{I} & \mathbf{T} \\
+\mathbf{T}^{'} & \mathbf{0}  \\
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{c} \\
+\mathbf{d} \\
+\end{bmatrix}=\begin{bmatrix}
+\mathbf{q} \\
+\mathbf{0} \\
+\end{bmatrix}$};
+\node (sum) [draw,node distance=60mm,right of=coeff] {$\sum_{i=1}^{m}d_i\frac{t^{i-1}}{(i-1)!}+
+\sum_{j=1}^N\frac{1}{C^j\sigma^j}\sum_{k=1}^{n_j} c_k^j\psi_k^j$};
+\node (output) [node distance=40mm,right of=sum] {$\hat{u}(t)$};
+\draw [->] (input) to (coeff);
+\draw [->] (coeff) to (sum);
+\draw [->] (sum) to (output);
+\end{tikzpicture}

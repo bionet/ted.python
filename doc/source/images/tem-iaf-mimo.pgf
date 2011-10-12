@@ -103,8 +103,8 @@
 \node (feedback_2) [shape=coordinate,below of=y_2] {};
 \node (feedback_N) [shape=coordinate,below of=y_N] {};
 
-\draw [->,dotted] (tk_1) |- (feedback_1) -| (integrator_1);
-\draw [->,dotted] (tk_2) |- (feedback_2) -| (integrator_2);
-\draw [->,dotted] (tk_N) |- (feedback_N) -| (integrator_N);
+\draw [->,dashed] (tk_1) |- (feedback_1) -| (integrator_1);
+\draw [->,dashed] (tk_2) |- (feedback_2) -| (integrator_2);
+\draw [->,dashed] (tk_N) |- (feedback_N) -| (integrator_N);
 
 \end{tikzpicture}
