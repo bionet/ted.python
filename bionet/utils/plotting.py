@@ -218,7 +218,7 @@ def plot_fourier(u, fs, *args):
     p.ylabel('imag')
     p.xlabel('f (Hz)')
 
-def plot_raster(ts_list, plot_stems=True, fig_title='', file_name=''):
+def plot_raster(ts_list, plot_stems=True, plot_axes=True, marker='.', markersize=5, fig_title='', file_name=''):
     """
     Plot several time sequences as a raster.
 
@@ -228,7 +228,13 @@ def plot_raster(ts_list, plot_stems=True, fig_title='', file_name=''):
         Time sequences to plot.
     plot_stems : bool
         Show stems for all events.
-
+    plot_axes : bool
+        Show horizontal axes for all sequences.
+    marker : char
+        Marker symbol.
+    markersize : int
+        Marker symbol size.
+        
     Optional Parameters
     -------------------
     fig_title : string
@@ -241,14 +247,15 @@ def plot_raster(ts_list, plot_stems=True, fig_title='', file_name=''):
     M = len(ts_list)
     p.clf()
     p.gcf().canvas.set_window_title(fig_title)
-    max_ts = max([max(ts) for ts in ts_list])
+    max_ts = max([max(ts) if len(ts) > 1 else 0 for ts in ts_list])
     ax = p.gca()
     ax.axis([0, max_ts, -0.5, M-0.5])
     p.yticks(xrange(M))
     for (ts,y) in zip(ts_list,xrange(M)):
-        p.axhline(y, 0, 1, color='b', hold=True)
-        p.plot(ts, y*np.ones(len(ts)), '|b', hold=True,
-               markersize=20,
+        if plot_axes:
+            p.axhline(y, 0, 1, color='b', hold=True)
+        p.plot(ts, y*np.ones(len(ts)), marker+'b', hold=True,
+               markersize=markersize,
                scalex=False, scaley=False)
         if plot_stems:
             for t in ts:
