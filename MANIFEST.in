@@ -1,4 +1,4 @@
-include AUTHORS CHANGES INSTALL LICENSE PAPERS README
+include AUTHORS CHANGES INSTALL LICENSE PAPERS README.rst
 recursive-include demos *.py 
 recursive-include doc *
 exclude doc/source/*pgf*
