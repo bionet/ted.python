@@ -1,3 +1,3 @@
-include CHANGES INSTALL LICENSE README
+include CHANGES INSTALL LICENSE README.rst
 recursive-include demos *.py
 recursive-include tests *.py
