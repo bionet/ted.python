@@ -60,5 +60,5 @@ To rebuild the documentation, run::
 
    make
 
-from within the ``doc/`` subdirectory and follow the directions.
+from within the ``docs/`` subdirectory and follow the directions.
 
