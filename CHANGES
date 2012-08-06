@@ -3,6 +3,10 @@
 Change Log
 ==========
 
+Release 0.018 - ()
+------------------
+* Use distribute to install the package.
+
 Release 0.017 - (September 19, 2011)
 ------------------------------------
 * Add trigonometric polynomial routines.
