@@ -6,7 +6,7 @@ Change Log
 Release 0.063 - ()
 ------------------
 * Improve finding of includes/libraries needed to build bpa extension.
-* Use distribute to install the package.
+* Download distribute for package installation if it isn't available.
 
 Release 0.062 - (September 19, 2011)
 ------------------------------------
