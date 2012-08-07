@@ -73,5 +73,8 @@ if __name__ == '__main__':
           namespace_packages = ['bionet'],
           install_requires = ['numpy >= 1.2.0', 
                               'scipy >= 0.7.0'],
+          extras_require = dict(
+              matplotlib = 'matplotlib >= 0.98',
+              tables = 'tables >= 2.1.1'),
           ext_modules = [bpa_cython],
           cmdclass = {'build_ext': build_ext})
