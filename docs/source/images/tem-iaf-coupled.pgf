@@ -1,0 +1,47 @@
+% Coupled IAF neuron time encoder.
+
+\begin{tikzpicture}[>=latex,join=miter]
+\node (input) {$u(t)$};
+\node (sum_1) [draw,circle,node distance=27mm,above right of=input] {$\sum$};
+\node (sum_2) [draw,circle,node distance=27mm,below right of=input] {$\sum$};
+\node (bias_1) [node distance=15mm,left of=sum_1] {$b^1$};
+\node (bias_2) [node distance=15mm,left of=sum_2] {$b^2$};
+\node (integrator_1) [draw,node distance=15mm,right of=sum_1] {$\frac{1}{\kappa^1}\int dt$};
+\node (integrator_2) [draw,node distance=15mm,right of=sum_2] {$\frac{1}{\kappa^2}\int dt$};
+\node (threshold_1) [draw,matrix,inner xsep=2mm,inner ysep=0.5mm,node distance=25mm,right of=integrator_1] {
+	\draw[->] (0,0) to (0,0.5); 
+	\draw[->] (0,0) to (1.5,0); 
+	\draw (0.5,0) node [below] {$\delta^1$} to (0.5,0.25); 
+	\draw (0.5,0.25) to (1.25,0.25);\\
+};
+\node (threshold_2) [draw,matrix,inner xsep=2mm,inner ysep=0.5mm,node distance=25mm,right of=integrator_2] {
+	\draw[->] (0,0) to (0,0.5); 
+	\draw[->] (0,0) to (-1.5,0); 
+	\draw (-0.5,0) node [below] {$\delta^2$} to (-0.5,0.25); 
+	\draw (-0.5,0.25) to (-1.25,0.25);\\
+};
+\node (output_1) [node distance=25mm,right of=threshold_1] {$\left(t_k^1\right)$};
+\node (output_2) [node distance=25mm,right of=threshold_2] {$\left(t_k^2\right)$};
+\node (couple_11) [draw,above of=integrator_1] {$h^{11}(t)$};
+\node (couple_22) [draw,below of=integrator_2] {$h^{22}(t)$};
+\node (couple_12) [draw,below of=integrator_1] {$h^{12}(t)$};
+\node (couple_21) [draw,above of=integrator_2] {$h^{21}(t)$};
+\draw [->] (input) to (sum_1);
+\draw [->] (input) to (sum_2);
+\draw [->] (bias_1) to (sum_1);
+\draw [->] (bias_2) to (sum_2);
+\draw [->] (sum_1) to (integrator_1);
+\draw [->] (sum_2) to (integrator_2);
+\draw [->] (couple_11.west) -| node [above] {$-$} (sum_1.north);
+\draw [->] (couple_22.west) -| (sum_2.south);
+\draw [->] (couple_21.west) to (sum_1);
+\draw [->] (couple_12.west) to node [label=200:$-$] {} (sum_2);
+\draw [->] (integrator_1) to (threshold_1);
+\draw [->] (integrator_2) to (threshold_2);
+\draw [->] (threshold_1) to node [shape=coordinate,name=tk_1] {} (output_1);
+\draw [->] (threshold_2) to node [shape=coordinate,name=tk_2] {} (output_2);
+\draw [->] (tk_1) |- (couple_11.east);
+\draw [->] (tk_2) |- (couple_22.east);
+\draw [->] (tk_1) |- (couple_12.east);
+\draw [->] (tk_2) |- (couple_21.east);
+\end{tikzpicture}

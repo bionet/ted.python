@@ -1,0 +1,27 @@
+% Threshold-insensitive real-time time decoding with sinc kernel.
+
+\tikzstyle{empty}=[]
+\tikzstyle{rect}=[rectangle,draw=black,thick,minimum size=8mm]
+\begin{tikzpicture}[>=latex,join=miter]
+\node (input) [] {$\left(t_k\right)_{k\in\mathbb{Z}}$};
+\node (coeff) [draw,node distance=33mm,right of=input] {
+$\begin{aligned}\mathbf{V}_i\mathbf{x}_i &=\mathbf{D}_i(\mathbf{P}-\mathbf{a}\mathbf{b}^H)\mathbf{r}_i\\
+\mathbf{V}_i\mathbf{y}_i &=\mathbf{D}_i\mathbf{a}\\
+\mathbf{d}_i &=b\left(\mathbf{x}_i-\mathbf{y}_i\mathbf{y}_i^H\mathbf{x}_i/\alpha\right)
+\end{aligned}$
+};
+\node (sum) [draw,node distance=55mm,right of=coeff] {$\sum_{n=0}^N j(\Omega-2\Omega n/N) d_{i,n}e^{j(-\Omega+2\Omega n/N)t}$};
+\node (lpf) [draw,matrix,inner xsep=3mm,inner ysep=3mm,node distance=53mm,right of=sum] { 
+	\draw[->] (0,0) to (0,0.75); 
+	\draw[->] (0,0) to (3.0,0); 
+	\draw[domain=0:1.5] plot(\x,{(rad(atan(-0.75*(\x-1) r ))/(pi/2)+1)/4});
+    \draw[domain=0.5:1.5, style=densely dashed] plot(\x,{(rad(atan(0.75*(\x-1) r ))/(pi/2)+1)/4});
+	\draw[domain=1.5:3.0, style=densely dashed] plot(\x,{(rad(atan(-0.75*(\x-2.0) r ))/(pi/2)+1)/4});
+\\
+};
+\node (output) [node distance=30mm,right of=lpf] {$\hat{u}(t)$};
+\draw [->] (input) to (coeff);
+\draw [->] (coeff) to (sum);
+\draw [->] (sum) to (lpf);
+\draw [->] (lpf) to (output);
+\end{tikzpicture}

@@ -1,0 +1,24 @@
+% Time encoding with IAF neuron.
+
+\begin{tikzpicture}[>=latex,join=miter]
+\node (input) {$u(t)$}; 
+\node (sum) [draw,circle,node distance=15mm,right of=input] {$\sum$}; 
+\node (integrator) [draw,node distance=15mm,right of=sum] {$\frac{1}{\kappa}\int dt$}; 
+\node (threshold) [matrix,draw,inner xsep=2mm,inner ysep=1mm,node distance=25mm,right of=integrator] {
+	\draw[->] (0,0) to (0,0.5); 
+	\draw[->] (0,0) to (1.5,0); 
+	\draw (0.5,0) node [below] {$\delta_k$} to (0.5,0.25); 
+	\draw (0.5,0.25) to (1.25,0.25);\\
+};
+\node (output) [node distance=23mm, right of=threshold] {$\left(t_k\right)_{k\in\mathbb{Z}}$};
+\node (bias) [node distance=12mm,below of=sum] {$b$}; 
+\draw [->] (input) to (sum);
+\draw [->] (sum) to (integrator);
+\draw [->] (bias) to (sum);
+\draw [->] (integrator) to node [shape=coordinate,name=y] {} node [above] {$y(t)$} (threshold);
+\node (feedback) [shape=coordinate,node distance=15mm,below of=y] {};
+\node (feedback2) [shape=coordinate,node distance=15mm,above of=threshold] {};
+\draw [->] (threshold) to node [shape=coordinate,name=tk] {} (output);
+\draw [->,dashed] (tk) |- (feedback) node [below,pos=0.85] {Spike-triggered reset} -| (integrator);
+\draw [->,dotted] (tk) |- (feedback2) node [above,text width=30mm,align=center] {Optional spike-triggered random threshold reset} -| (threshold.north);
+\end{tikzpicture}

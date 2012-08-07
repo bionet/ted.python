@@ -1,0 +1,72 @@
+% Time encoding with an ensemble of IAF neurons.
+
+\begin{tikzpicture}[>=latex,join=miter]
+\node (input) {$u(t)$};
+
+\matrix [column sep=5mm,row sep=12mm,node distance=25mm,right of=input] {
+\node (input_1) [shape=coordinate] {}; & \node (sum_1) [draw,circle] {$\sum$}; & 
+\node (integrator_1) [draw] {$\frac{1}{\kappa^1}\int dt$};\\
+\node (input_2) [shape=coordinate] {}; & \node (sum_2) [draw,circle] {$\sum$}; & 
+\node (integrator_2) [draw] {$\frac{1}{\kappa^2}\int dt$};\\
+; & \node (dots_left) [] {$\vdots$} ; & \\
+\node (input_n) [shape=coordinate] {}; & \node (sum_n) [draw,circle] {$\sum$}; & 
+\node (integrator_n) [draw] {$\frac{1}{\kappa_n}\int dt$};\\
+};
+
+\node (bias_1) [below of=sum_1] {$b^1$};
+\node (bias_2) [below of=sum_2] {$b^2$};
+\node (bias_n) [below of=sum_n] {$b^n$};
+
+\node (threshold_1) [matrix,draw,inner xsep=2mm,inner ysep=1mm,node distance=27mm,right of=integrator_1] {
+	\draw[->] (0,0) to (0,0.5); 
+	\draw[->] (0,0) to (1.5,0); 
+	\draw (0.5,0) node [below] {$\delta^1$} to (0.5,0.25); 
+	\draw (0.5,0.25) to (1.25,0.25);\\
+};
+\node (threshold_2) [matrix,draw,inner xsep=2mm,inner ysep=1mm,node distance=27mm,right of=integrator_2] {
+	\draw[->] (0,0) to (0,0.5); 
+	\draw[->] (0,0) to (1.5,0); 
+	\draw (0.5,0) node [below] {$\delta^2$} to (0.5,0.25); 
+	\draw (0.5,0.25) to (1.25,0.25);\\
+};
+\node (threshold_n) [matrix,draw,inner xsep=2mm,inner ysep=1mm,node distance=27mm,right of=integrator_n] {
+	\draw[->] (0,0) to (0,0.5); 
+	\draw[->] (0,0) to (1.5,0); 
+	\draw (0.5,0) node [below] {$\delta^n$} to (0.5,0.25); 
+	\draw (0.5,0.25) to (1.25,0.25);\\
+};
+
+\node (output_1) [node distance=25mm,right of=threshold_1] {$\left(t_k^1\right)_{k\in\mathbb{Z}}$};
+\node (output_2) [node distance=25mm,right of=threshold_2] {$\left(t_k^2\right)_{k\in\mathbb{Z}}$};
+\node (output_n) [node distance=25mm,right of=threshold_n] {$\left(t_k^n\right)_{k\in\mathbb{Z}}$};
+
+\draw [->] (bias_1) to (sum_1);
+\draw [->] (bias_2) to (sum_2);
+\draw [->] (bias_n) to (sum_n);
+
+\draw [->] (input) to (input_1) to (sum_1);
+\draw [->] (input) to (input_2) to (sum_2);
+\draw [->] (input) to (input_n) to (sum_n);
+
+\draw [->] (sum_1) to (integrator_1);
+\draw [->] (sum_2) to (integrator_2);
+\draw [->] (sum_n) to (integrator_n);
+
+\draw [->] (integrator_1) to node[name=y_1,above] {$y^1(t)$} (threshold_1);
+\draw [->] (integrator_2) to node[name=y_2,above] {$y^2(t)$} (threshold_2);
+\draw [->] (integrator_n) to node[name=y_n,above] {$y^n(t)$} (threshold_n);
+
+\node (feedback_1) [shape=coordinate,node distance=12mm,below of=y_1] {};
+\node (feedback_2) [shape=coordinate,node distance=12mm,below of=y_2] {};
+\node (feedback_n) [shape=coordinate,node distance=12mm,below of=y_n] {};
+
+\draw [->] (threshold_1) to node[shape=coordinate,name=tk_1] {} (output_1);
+\draw [->] (threshold_2) to node[shape=coordinate,name=tk_2] {} (output_2);
+\draw [->] (threshold_n) to node[shape=coordinate,name=tk_n] {} (output_n);
+
+\node (dots_right) [node distance=18mm,below of=threshold_2] {$\vdots$};
+
+\draw [->,dotted] (tk_1) |- (feedback_1) -| (integrator_1);
+\draw [->,dotted] (tk_2) |- (feedback_2) -| (integrator_2);
+\draw [->,dotted] (tk_n) |- (feedback_n) -| (integrator_n);
+\end{tikzpicture}

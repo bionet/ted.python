@@ -1,0 +1,26 @@
+% MIMO time decoding with spline interpolation.
+
+\tikzstyle{empty}=[]
+\tikzstyle{rect}=[rectangle,draw=black,thick,minimum size=8mm]
+\begin{tikzpicture}[>=latex,join=miter]
+\node (input) [] {$(t_k^j)_{k\in\mathbb{Z}}$};
+\node (coeff) [draw,node distance=35mm,right of=input] {$\begin{bmatrix}
+\mathbf{G} & \mathbf{p} & \mathbf{r} \\
+\mathbf{p}^T & \mathbf{0} & \mathbf{0} \\
+\mathbf{r}^T & \mathbf{0} & \mathbf{0} \\
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{c} \\
+\mathbf{d}_0 \\
+\mathbf{d}_1 \\
+\end{bmatrix}=\begin{bmatrix}
+\mathbf{q} \\
+\mathbf{0} \\
+\mathbf{0} \\
+\end{bmatrix}$};
+\node (sum) [draw,node distance=50mm,right of=coeff] {$\mathbf{d}_0+\mathbf{d}_1 t +\sum_{j=1}^N\sum_{k=1}^{n_j-1}c_k^j \psi_k^j(t)$};
+\node (output) [node distance=35mm,right of=sum] {$\hat{\mathbf{u}}(t)$};
+\draw [->] (input) to (coeff);
+\draw [->] (coeff) to (sum);
+\draw [->] (sum) to (output);
+\end{tikzpicture}
