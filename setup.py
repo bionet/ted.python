@@ -24,7 +24,7 @@ for scheme in INSTALL_SCHEMES.values():
     scheme['data'] = scheme['platlib']
 
 NAME =               'bionet.ted'
-VERSION =            '0.063'
+VERSION =            '0.07'
 AUTHOR =             'Lev Givon'
 AUTHOR_EMAIL =       'lev@columbia.edu'
 URL =                'http://bionet.github.com/'

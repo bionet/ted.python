@@ -3,9 +3,8 @@
 Change Log
 ==========
 
-Release 0.018 - ()
-------------------
-* Use distribute to install the package.
+This change log contains the history of the Bionet Utils toolbox prior to its
+merger with the TED toolbox.
 
 Release 0.017 - (September 19, 2011)
 ------------------------------------
