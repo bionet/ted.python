@@ -7,8 +7,8 @@ Plotting Utilities
 This module contains functions for plotting the results of functions
 that produce numerical data.
 
-- plot_encoded    Plot a time-encoded signal.
 - plot_compare    Display two superimposed signals and their difference.
+- plot_encoded    Plot a time-encoded signal.
 - plot_fourier    Plot the Discrete Time Fourier transform of a signal.
 - plot_raster     Display several time sequences as a raster plot.
 - plot_signal     Plot a signal over some time interval.
@@ -270,7 +270,7 @@ def plot_raster(ts_list, plot_stems=True, plot_axes=True, marker='.', markersize
 def contour(X, Y, Z, *args):    
 
     # For some reason, this is necessary to prevent clf() from raising
-    # an exception:
+    # an exception:    
     try:
         p.clf()
     except ValueError:
@@ -296,7 +296,7 @@ contourf.__doc__ = axes3d.Axes3D.contourf.__doc__
 def surf(X, Y, Z, *args):    
 
     # For some reason, this is necessary to prevent clf() from raising
-    # an exception:
+    # an exception:    
     try:
         p.clf()
     except ValueError:
@@ -318,4 +318,3 @@ def wireframe(X, Y, Z, *args):
     ax.plot_wireframe(X, Y, Z, *args)
     p.draw_if_interactive()
 wireframe.__doc__ = axes3d.Axes3D.plot_wireframe.__doc__
-
