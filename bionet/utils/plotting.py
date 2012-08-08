@@ -50,16 +50,13 @@ def plot_signal(t, u, fig_title='', file_name=''):
         Times (in s) at which the signal is defined.
     u : ndarray of floats
         Signal samples.
-
-    Optional Parameters
-    -------------------
     fig_title : string
         Plot title.
     file_name : string
         File in which to save the plot.
 
     """
-    
+
     p.clf()
 
     # Set the plot window title:
@@ -87,9 +84,6 @@ def plot_encoded(t, u, s, fig_title='', file_name=''):
         Signal samples.
     s : ndarray of floats
         Intervals between encoded signal spikes.
-
-    Optional Parameters
-    -------------------
     fig_title : string
         Plot title.
     file_name : string
@@ -136,16 +130,13 @@ def plot_compare(t, u, v, fig_title='', file_name=''):
         Times (s) at which the signal is defined.
     u, v : ndarrays of floats
         Signal samples.
-
-    Optional Parameters
-    -------------------
     fig_title : string
         Plot title.
     file_name : string
         File in which to save the plot.
 
     """
-    
+
     p.clf()
     p.gcf().canvas.set_window_title(fig_title)
     p.subplot(211)
@@ -173,9 +164,6 @@ def plot_fourier(u, fs, *args):
         Sampled signal.
     fs : float
         Sampling rate (Hz).
-
-    Optional Parameters
-    -------------------
     fmin : float
         Minimum frequency to display (Hz).
     fmax : float:
@@ -185,7 +173,7 @@ def plot_fourier(u, fs, *args):
     -----
     This function may take a long time to run if the frequency range
     is very large.
-    
+
     """
 
     if len(args) > 0:
@@ -201,7 +189,7 @@ def plot_fourier(u, fs, *args):
         fmax = fs/2
     if fmax <= fmin or fmax > fs/2:
         raise ValueError('invalid maximum frequency')
-    
+
     n = len(u)/2
     uf = fft(u)[0:n]
     f = (fs/2.0)*np.arange(0, n)/n
@@ -234,9 +222,6 @@ def plot_raster(ts_list, plot_stems=True, plot_axes=True, marker='.', markersize
         Marker symbol.
     markersize : int
         Marker symbol size.
-        
-    Optional Parameters
-    -------------------
     fig_title : string
         Plot title.
     file_name : string
@@ -267,7 +252,7 @@ def plot_raster(ts_list, plot_stems=True, plot_axes=True, marker='.', markersize
     if file_name:
         p.savefig(file_name)
 
-def contour(X, Y, Z, *args):    
+def contour(X, Y, Z, *args):
 
     # For some reason, this is necessary to prevent clf() from raising
     # an exception:    
@@ -280,7 +265,7 @@ def contour(X, Y, Z, *args):
     p.draw_if_interactive()
 contour.__doc__ = axes3d.Axes3D.contour.__doc__
 
-def contourf(X, Y, Z, *args):    
+def contourf(X, Y, Z, *args):
 
     # For some reason, this is necessary to prevent clf() from raising
     # an exception:
@@ -293,7 +278,7 @@ def contourf(X, Y, Z, *args):
     p.draw_if_interactive()
 contourf.__doc__ = axes3d.Axes3D.contourf.__doc__
 
-def surf(X, Y, Z, *args):    
+def surf(X, Y, Z, *args):
 
     # For some reason, this is necessary to prevent clf() from raising
     # an exception:    
@@ -306,7 +291,7 @@ def surf(X, Y, Z, *args):
     p.draw_if_interactive()
 surf.__doc__ = axes3d.Axes3D.plot_surface.__doc__
 
-def wireframe(X, Y, Z, *args):    
+def wireframe(X, Y, Z, *args):
 
     # For some reason, this is necessary to prevent clf() from raising
     # an exception:

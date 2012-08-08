@@ -7,21 +7,21 @@ Signal Processing Extras
 This module contains various signal processing tools and
 algorithms that are not currently in scipy.signal.
 
-Error analysis functions
-------------------------
+Error Analysis Routines
+-----------------------
 - db              Convert a power value to decibels.
 - rms             Compute the root mean squared value of an array.
 - snr             Compute the signal-to-noise ratio of two signals.
 
-Filtering functions
--------------------
+Filtering Routines
+------------------
 - downsample      Downsample an array.
 - fftfilt         Apply an FIR filter to a signal using the overlap-add method.
 - remezord        Determine filter parameters for Remez algorithm.
 - upsample        Upsample an array.
 
-Miscellaneous functions
------------------------
+Miscellaneous Routines
+----------------------
 - nextpow2        Return n such that 2**n >= abs(x).
 - oddceil         Return the smallest odd integer no less than x.
 - oddround        Return the nearest odd integer nearest to x.
@@ -65,18 +65,16 @@ def snr(u, u_rec, k_min=0, k_max=None):
         Original signal.
     u_rec : numpy array of floats
         Reconstructed signal.
+    k_min : int
+        Lower index into the signal over which to compute the SNR.
+    k_max : int
+        Upper index into the signal over which to compute the SNR.
 
-    Optional Parameters
-    -------------------
-    k_min, k_max : int
-        Lower and upper indicies into the signals over which to compute
-        the SNR.
-        
     """
 
     if len(u) != len(u_rec):
         raise ValueError('u and u_rec must be the same length')
-        
+
     return db(mean(u[k_min:k_max]**2))-db(mean((u[k_min:k_max]-u_rec[k_min:k_max])**2))
 
 # --- Sampling functions ---
@@ -103,7 +101,7 @@ def downsample(x, n, offset=0):
 
 def nextpow2(x):
     """Return the first integer N such that 2**N >= abs(x)"""
-    
+
     return ceil(log2(abs(x)))
 
 def fftfilt(b, x, *n):
@@ -112,7 +110,7 @@ def fftfilt(b, x, *n):
     length n is not specified, it and the overlap-add block length
     are selected so as to minimize the computational cost of
     the filtering operation."""
-    
+
     N_x = len(x)
     N_b = len(b)
 
@@ -151,10 +149,10 @@ def fftfilt(b, x, *n):
             N_fft = 2**nextpow2(N_b+N_x-1)
 
     N_fft = int(N_fft)
-    
+
     # Compute the block length:
     L = int(N_fft - N_b + 1)
-    
+
     # Compute the transform of the filter:
     H = fft(b, N_fft)
 
@@ -177,7 +175,7 @@ def oddceil(x):
     """Return the smallest odd integer no less than x."""
 
     return oddround(x+1)
-    
+
 def remlplen_herrmann(fp, fs, dp, ds):
     """Determine the length of the low pass filter with passband frequency
     fp, stopband frequency fs, passband ripple dp, and stopband ripple ds.
@@ -225,7 +223,7 @@ def remlplen_ichige(fp, fs, dp, ds):
     fp, stopband frequency fs, passband ripple dp, and stopband ripple ds.
     fp and fs must be normalized with respect to the sampling frequency.
     Note that the filter order is one less than the filter length.
-    
+
     References
     ----------
     K. Ichige, M. Iwaki, and R. Ishii, Accurate Estimation of Minimum
@@ -239,17 +237,17 @@ def remlplen_ichige(fp, fs, dp, ds):
     g = lambda fp,dF,d:(2.0/pi)*arctan(v(dF,dp)*(1.0/fp-1.0/(0.5-dF)))
     h = lambda fp,dF,c:(2.0/pi)*arctan((c/dF)*(1.0/fp-1.0/(0.5-dF)))
     Nc = ceil(1.0+(1.101/dF)*(-log10(2.0*dp))**1.1)
-    Nm = (0.52/dF)*log10(dp/ds)*(-log10(dp))**0.17 
-    N3 = ceil(Nc*(g(fp,dF,dp)+g(0.5-dF-fp,dF,dp)+1.0)/3.0) 
+    Nm = (0.52/dF)*log10(dp/ds)*(-log10(dp))**0.17
+    N3 = ceil(Nc*(g(fp,dF,dp)+g(0.5-dF-fp,dF,dp)+1.0)/3.0)
     DN = ceil(Nm*(h(fp,dF,1.1)-(h(0.5-dF-fp,dF,0.29)-1.0)/2.0))
     N4 = N3+DN
-    
+
     return int(N4)
 
 def remezord(freqs, amps, rips, Hz=1, alg='ichige'):
     """Calculate the parameters required by the Remez exchange algorithm to
     construct a finite impulse response (FIR) filter that approximately
-    meets the specified design. 
+    meets the specified design.
 
     Parameters
     ----------
@@ -263,7 +261,7 @@ def remezord(freqs, amps, rips, Hz=1, alg='ichige'):
     rips : array_like of floats
         A sequence specifying the maximum ripples of each band.
     alg : {'herrmann', 'kaiser', 'ichige'}
-        Filter length approximation algorithm. 
+        Filter length approximation algorithm.
 
     Returns
     -------
@@ -279,7 +277,7 @@ def remezord(freqs, amps, rips, Hz=1, alg='ichige'):
     See Also
     --------
     scipy.signal.remez
-    
+
     """
 
     # Make sure the parameters are floating point numpy arrays:
@@ -302,7 +300,7 @@ def remezord(freqs, amps, rips, Hz=1, alg='ichige'):
         remlplen = remlplen_ichige
     else:
         raise ValueError('Unknown filter length approximation algorithm.')
-    
+
     # Validate inputs:
     if any(freqs > 0.5):
         raise ValueError('Frequency band edges must not exceed the Nyquist frequency.')
@@ -332,5 +330,5 @@ def remezord(freqs, amps, rips, Hz=1, alg='ichige'):
     # The filter design weights correspond to the ratios between the maximum
     # ripple and all of the other ripples:
     weight = max(rips)/rips
-    
+
     return [L, bands, amps, weight]
