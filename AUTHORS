@@ -10,14 +10,14 @@ Some parts of the code are based (in part) on earlier implementations
 written by the following members and alumni of the Bionet Group under
 the supervision of Prof. Aurel A. Lazar [2]_:
 
-* Eftychios Pnevmatikakis
-* Yevgeniy Slutskiy
-* Robert Turetsky
+* Eftychios A. Pnevmatikakis
+* Yevgeniy B. Slutskiy
+* Robert J. Turetsky
 
 Special thanks are due to the following Bionet Group members for 
 reviewing the code and providing useful suggestions:
 
-* Robert Turetsky
+* Robert J. Turetsky
 * Yiyin Zhou
 
 .. [1] http://bionet.ee.columbia.edu/
