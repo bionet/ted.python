@@ -30,3 +30,4 @@ Utility Modules
    reference_scipy_extras
    reference_signal_extras
    reference_trig_poly
+   reference_video_io
