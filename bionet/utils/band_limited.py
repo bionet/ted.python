@@ -16,7 +16,8 @@ from numpy.fft import irfft
 from scipy.signal import firwin, lfilter
 
 def gen_band_limited(dur, dt, fmax, np=None, nc=3):
-    """Generate a uniformly sampled, band-limited signal.
+    """
+    Generate a uniformly sampled, band-limited signal.
 
     Parameters
     ----------
@@ -26,19 +27,16 @@ def gen_band_limited(dur, dt, fmax, np=None, nc=3):
         Sampling resolution; the sampling frequency is 1/dt Hz.
     fmax : float
         Maximum frequency (Hz).
+    np : float
+        Noise power. If `np != None`, Gaussian white noise is added to the
+        generated signal before the latter is filtered.
+    nc : int
+        Number of discrete frequency components in generated signal.
 
     Returns
     -------
     u : ndarray of floats
         Generated signal.
-        
-    Optional Parameters
-    -------------------
-    np : float
-        Noise power (dB). If np != None, Gaussian white noise
-	is added to the generated signal before the latter is filtered.
-    nc : int
-        Number of discrete frequency components in generated signal.
 
     """
 

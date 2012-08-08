@@ -45,8 +45,10 @@ if not os.path.exists('/usr/bin/mencoder'):
 # for more information on converting OpenCV image to ndarrays and
 # vice versa.
 
-class ReadVideo:
+class ReadVideo(object):
     """
+    Read frames from a video.
+
     This class provides an interface for reading frames from a video
     file using OpenCV and returning them as ndarrays.
 
@@ -71,7 +73,7 @@ class ReadVideo:
         Read a frame from the video as an OpenCV frame.
     read_np_frame()
         Read a frame from the video as an ndarray.
-        
+
     """
 
     def __init__(self, filename):
@@ -100,17 +102,17 @@ class ReadVideo:
         (height, width)."""
 
         return self.get_frame_height(), self.get_frame_width()
-    
+
     def get_prop_fps(self):
         """Return the frame rate of the video file."""
 
         return cv.GetCaptureProperty(self.capture,
                                      cv.CV_CAP_PROP_FPS)
-    
+
     def __cv2array(self, img):
         """Convert an OpenCV image to an ndarray of dimensions
         (height, width, channels)."""
-        
+
         depth2dtype = {
             cv.IPL_DEPTH_8U: 'uint8',
             cv.IPL_DEPTH_8S: 'int8',
@@ -138,10 +140,10 @@ class ReadVideo:
             cv.SetCaptureProperty(self.capture,
                                   cv.CV_CAP_PROP_POS_FRAMES, n)
         return cv.QueryFrame(self.capture)
-    
+
     def read_np_frame(self, n=None):
         """Read a frame as a numpy array from the video."""
-        
+
         frame = self.__get_frame(n)
         if frame != None:
             return self.__cv2array(frame)
@@ -150,12 +152,14 @@ class ReadVideo:
 
     def read_cv_frame(self, n=None):
         """Read a frame as an OpenCV image from the video."""
-        
+
         frame = self.__get_frame(n)
         return frame
 
-class WriteVideo:
+class WriteVideo(object):
     """
+    Write frames to a video.
+
     This class provides an interface for writing frames represented
     as ndarrays to a video file using OpenCV.
 
@@ -167,7 +171,7 @@ class WriteVideo:
         Video codec of output video; default is ('M', 'J', 'P', 'G').
     fps : float
         Frame rate of output video; default is 30.0.
-    frame_size : tuple 
+    frame_size : tuple
         Size of video frames (rows, columns); default is (256, 256).
     is_color : bool
         True of the video is color.
@@ -178,7 +182,7 @@ class WriteVideo:
         Write an OpenCV frame `a` to the video.
     write_np_frame(a)
         Write the frame represented as ndarray `a` to the video.
-        
+
     """
 
     def __init__(self, filename, fourcc=('D', 'I', 'V', 'X'),
@@ -189,7 +193,7 @@ class WriteVideo:
 
     def __array2cv(self, a):
         """Convert an ndarray to an OpenCV image."""
-        
+
         dtype2depth = {
             'uint8':   cv.IPL_DEPTH_8U,
             'int8':    cv.IPL_DEPTH_8S,
@@ -212,20 +216,22 @@ class WriteVideo:
         cv.SetData(img, a.tostring(),
                    a.dtype.itemsize*nChannels*a.shape[1])
         return img
-          
+
     def write_cv_frame(self, a):
         """Write an OpenCV image as a frame to the video."""
-        
+
         cv.WriteFrame(self.writer, a)
-        
+
     def write_np_frame(self, a):
         """Write a numpy array as a frame to the video."""
-        
+
         img = self.__array2cv(a)
         cv.WriteFrame(self.writer, img)
 
-class WriteFigureVideo:
+class WriteFigureVideo(object):
     """
+    Write matplotlib figures as frames to a video.
+
     This class provides an interface for writing frames represented as
     matplotlib figures to a video file using mencoder.
 
@@ -249,13 +255,13 @@ class WriteFigureVideo:
         Write a matplotlib figure `fig` to the output video file.
     create_video()
         Create the output video file.
-        
+
     Notes
     -----
     This class is based upon the file movie_demo.py ((c) 2004 by Josh
     Lifton) included with matplotlib. The output video file is not
     actually assembled until the `close` method is called.
-    
+
     """
 
     def __init__(self, filename,
@@ -266,16 +272,16 @@ class WriteFigureVideo:
         self.width = 8.0
         self.height = 6.0
         self.fps = fps
-        
+
         self.tempdir = tempfile.mkdtemp()
         self.frame_count = 0
-        
+
     def write_fig(self, fig):
         """Write a matplotlib figure to the output video file."""
-        
+
         if self.tempdir == None:
             raise ValueError('cannot add frames to completed video file')
-        
+
         if not isinstance(fig, Figure):
             raise ValueError('can only write instances of type '
                              'matplotlib.figure.Figure')
@@ -283,15 +289,15 @@ class WriteFigureVideo:
             raise ValueError('figure width must be %f' % self.width)
         if fig.get_figheight() != self.height:
             raise ValueError('figure height must be %f' % self.height)
-        
+
         canvas = FigureCanvasAgg(fig)
         canvas.print_figure(self.tempdir + str("/%010d.png" % self.frame_count),
                             self.dpi)
         self.frame_count += 1
-        
+
     def create_video(self):
         """Assemble the output video from the input frames."""
-        
+
         width_pix = int(floor(self.width*self.dpi))
         height_pix = int(floor(self.height*self.dpi))
         command = ('mencoder', 'mf://'+self.tempdir+'/*.png',
@@ -304,13 +310,13 @@ class WriteFigureVideo:
             os.remove(f)
         os.rmdir(self.tempdir)
         self.tempdir = None
-        
+
     def __del__(self):
         """Create the video before the class instance is destroyed."""
-        
+
         if self.tempdir:
             self.create_video()
-    
+
 
 def video_capture(filename, t, fourcc=('D','I','V','X'), fps=30.0,
                   frame_size=(640, 480), is_color=True):

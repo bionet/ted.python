@@ -8,13 +8,13 @@ This module contains various functions not currently included in
 numpy [1]_.
 
 - crand           Generate complex uniformly distributed random values.
+- hilb            Generate a Hilbert matrix of the specified size.
 - iceil           Ceiling of the input returned as an integer.
 - ifloor          Floor of the input returned as an integer.
 - iround          Input rounded to the nearest integer
 - mdot            Compute the matrix product of several matricies.
-- rank            Estimate the number of linearly independent rows in a matrix.
 - mpower          Raise a square matrix to a (possibly non-integer) power.
-- hilb            Generate a Hilbert matrix of the specified size.
+- rank            Estimate the number of linearly independent rows in a matrix.
 
 .. [1] http://numpy.scipy.org/
 
@@ -31,7 +31,7 @@ def crand(*args):
     Create an array of the given shape whose entries are complex
     numbers with real and imaginary parts sampled from a uniform
     distribution over ``[0, 1)``.
-    
+
     Parameters
     ----------
     d0, d1, ..., dn : int
@@ -41,9 +41,9 @@ def crand(*args):
     -------
     out : numpy.ndarray
         Complex random variables.
-        
+
     """
-    
+
     return np.random.rand(*args)+1j*np.random.rand(*args)
 
 def iceil(x):
@@ -62,7 +62,7 @@ def iceil(x):
     -------
     y : {numpy.ndarray, scalar}
         The ceiling of each element in `x`, with `int` dtype.
-        
+
     """
 
     return np.ceil(x).astype(int)
@@ -122,10 +122,10 @@ def mdot(*args):
 def rank(x, *args):
     """
     Compute matrix rank.
-    
+
     Estimate the number of linearly independent rows or columns of the
     matrix x.
-    
+
     Parameters
     ----------
     x : array_like, shape `(M, N)` 
