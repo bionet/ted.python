@@ -7,14 +7,14 @@ Demo of fftfilt function.
 import scipy.signal as si
 
 import bionet.utils.signal_extras as s
-import bionet.utils.gen_test_signal as g
+import bionet.utils.band_limited as bl
 
 print 'creating test signal..'
 dur = 0.2
 dt = 1e-6
 fs = 1/dt
 fmax = 50000.0
-u = g.gen_test_signal(dur, dt, fmax, nc=10)
+u = bl.gen_band_limited(dur, dt, fmax, nc=10)
 
 print 'creating filter..'
 f1 = 10000.0

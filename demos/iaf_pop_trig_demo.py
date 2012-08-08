@@ -15,7 +15,7 @@ import matplotlib
 matplotlib.use('AGG')
 
 from bionet.utils.misc import func_timer
-import bionet.utils.gen_test_signal as g
+import bionet.utils.band_limited as bl
 import bionet.utils.plotting as pl
 import bionet.ted.iaf as iaf
 import bionet.ted.iaf_trig as iaf_trig
@@ -40,7 +40,7 @@ if noise_power == None:
 else:
     fig_title = 'IAF Input Signal with %d dB of Noise' % noise_power
 print fig_title
-u = func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
+u = func_timer(bl.gen_band_limited)(dur, dt, f, noise_power)
 pl.plot_signal(t, u, fig_title,
                output_name + str(output_count) + output_ext)
 

@@ -14,7 +14,7 @@ import matplotlib
 matplotlib.use('AGG')
 
 from bionet.utils.misc import func_timer
-import bionet.utils.gen_test_signal as g
+import bionet.utils.band_limited as bl
 import bionet.utils.plotting as pl
 import bionet.ted.iaf as iaf
 import bionet.ted.iaf_trig_cuda as iaf_trig_cuda
@@ -24,8 +24,6 @@ import pycuda.autoinit
 import pycuda.gpuarray as gpuarray
 
 import scikits.cuda.autoinit
-#import scikits.cuda.misc as cumisc
-#cumisc.init_device(0)
 import scikits.cuda.linalg as culinalg
 
 # For determining output plot file names:
@@ -48,7 +46,7 @@ if noise_power == None:
 else:
     fig_title = 'IAF Input Signal with %d dB of Noise' % noise_power
 print fig_title
-u = func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
+u = func_timer(bl.gen_band_limited)(dur, dt, f, noise_power)
 pl.plot_signal(t, u, fig_title,
                output_name + str(output_count) + output_ext)
 

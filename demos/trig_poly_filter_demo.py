@@ -23,7 +23,7 @@ def make_gammatone(t, N, i):
 
     Constructs the impulse response of a gammatone filter
     from a filterbank of the specified size.
-    
+
     Parameters
     ----------
     t : ndarray
@@ -32,14 +32,14 @@ def make_gammatone(t, N, i):
         Number of filters in filterbank.
     i : int
         Index of filter to compute.
-        
+
     Returns
     -------
     h : ndarray
         Impulse response of the generated filter.
 
     """
-    
+
     if i < 0 or i >= N:
         raise ValueError('invalid index i')
 

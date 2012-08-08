@@ -13,7 +13,7 @@ import matplotlib
 matplotlib.use('AGG')
 
 from bionet.utils.misc import func_timer
-import bionet.utils.gen_test_signal as g
+import bionet.utils.band_limited as bl
 import bionet.utils.plotting as pl
 import bionet.ted.iaf as iaf
 import bionet.ted.rt as rt
@@ -55,7 +55,7 @@ u_list = []
 for i in xrange(M):
     fig_title_in = fig_title + ' (Signal #' + str(i+1) + ')'
     print fig_title_in
-    u = func_timer(g.gen_test_signal)(dur, dt, f, noise_power, comps)
+    u = func_timer(bl.gen_band_limited)(dur, dt, f, noise_power, comps)
     u /= max(u)
     u *= 1.5
     pl.plot_signal(t_enc, u[k_start:k_end], fig_title_in,
