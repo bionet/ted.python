@@ -9,9 +9,9 @@ packages released by the Bionet Group.
 
 Available modules
 ---------------------
-- gen_test_signal  Algorithm for generating band-limited test signals.
-- numpy_extras     Various functions not currently in numpy.
+- band_limited     Algorithm for generating band-limited test signals.
 - misc             Unclassified functions.
+- numpy_extras     Various functions not currently in numpy.
 - plotting         Signal plotting functions.
 - pylab_extras     Various functions not currently in pylab.
 - scipy_extras     Various functions not currently in scipy.
