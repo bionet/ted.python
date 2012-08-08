@@ -2,8 +2,5 @@ include AUTHORS CHANGES CHANGES.utils INSTALL LICENSE PAPERS README.rst
 recursive-include demos *.py 
 recursive-include docs *
 recursive-include tests *.py
-exclude docs/source/*pgf*
-exclude docs/source/images/*.pgf
-exclude docs/source/make_*.py
 prune docs/source/generated/
 exclude MANIFEST.in

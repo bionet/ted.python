@@ -3,8 +3,8 @@
 Change Log
 ==========
 
-Release 0.07 - ()
-------------------
+Release 0.07 - (August 8, 2012)
+-------------------------------
 * Merge with utils toolbox.
 * Add docs for merged utilities.
 * Improve finding of includes/libraries needed to build bpa extension.
