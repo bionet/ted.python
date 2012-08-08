@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
 from info import __doc__
-from version import __version__
-
+try:
+    from version import __version__
+except ImportError:
+    pass

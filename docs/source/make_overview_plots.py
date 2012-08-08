@@ -13,7 +13,7 @@ import matplotlib as mp
 mp.use('AGG')
 
 from bionet.utils.misc import func_timer
-import bionet.utils.gen_test_signal as g
+import bionet.utils.band_limited as bl
 import bionet.utils.plotting as pl
 import bionet.ted.iaf as iaf
 
@@ -34,7 +34,7 @@ np.random.seed(0)
 noise_power = None
 fig_title = 'IAF input signal';
 print fig_title
-u = func_timer(g.gen_test_signal)(dur, dt, f, noise_power)
+u = func_timer(bl.gen_band_limited)(dur, dt, f, noise_power)
 pl.plot_signal(t, u, fig_title, output_dir + 'overview_input' + output_ext)
 
 b = 3.5     # bias

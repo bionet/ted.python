@@ -25,8 +25,13 @@ sys.path.append(os.path.abspath('../sphinxext'))
 extensions = ['sphinx.ext.pngmath',
               'sphinx.ext.autodoc', # needed by numpydoc              
               'sphinx.ext.autosummary', # needed to autogenerate stubs
-              'numpydoc',
-              'plot_directive']
+              'numpydoc']
+try:
+    import matplotlib.sphinxext.plot_directive
+except ImportError:
+    extensions.append('plot_directive')
+else:
+    extensions.append('matplotlib.sphinxext.plot_directive')
 
 # Use local autosummary extension because the autosummary extension
 # included in Sphinx 0.6.* and later doesn't seem to extract docstring
@@ -34,7 +39,7 @@ extensions = ['sphinx.ext.pngmath',
 import sphinx
 if sphinx.__version__ < "0.7":
     extensions.append('autosummary')
-    extensions.append('only_directives')                
+    extensions.append('only_directives')
 
 # Generate autosummary stubs:
 import glob
