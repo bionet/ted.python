@@ -1,1 +1,1 @@
-../../CHANGES
+../../CHANGES.rst
