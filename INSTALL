@@ -59,7 +59,11 @@ release and run::
 
 from within the main directory in the release. Sample code 
 demonstrating how to use the toolbox is located in the
-``demos/`` subdirectory.
+``demos/`` subdirectory. If you have `pip <http://www.pip-installer.org>`_
+installed, you can install the latest package code directly from Github as
+follows::
+
+    pip install git+git://github.com/bionet/ted.python.git
 
 To rebuild the documentation, run::
 
