@@ -183,8 +183,6 @@ def plot_fourier(u, fs, fmin=0.0, fmax=None, stem=True):
 
     if fmax is None:
         fmax = fs/2
-    else:
-        fmax = args[1]
     if fmax <= fmin or fmax > fs/2:
         raise ValueError('invalid maximum frequency')
 
