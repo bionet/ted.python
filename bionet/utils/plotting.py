@@ -154,7 +154,7 @@ def plot_compare(t, u, v, fig_title='', file_name=''):
     if file_name:
         p.savefig(file_name)
 
-def plot_fourier(u, fs, *args):
+def plot_fourier(u, fs, fmin=0.0, fmax=None, stem=True):
     """
     Plot the Discrete Fourier Transform of a signal.
 
@@ -168,7 +168,9 @@ def plot_fourier(u, fs, *args):
         Minimum frequency to display (Hz).
     fmax : float:
         Maximum frequency to display (Hz).
-
+    stem : bool
+        If true, plot using stem. Otherwise, plot using ordinary line graph.
+        
     Notes
     -----
     This function may take a long time to run if the frequency range
@@ -176,17 +178,13 @@ def plot_fourier(u, fs, *args):
 
     """
 
-    if len(args) > 0:
-        fmin = args[0]
-    else:
-        fmin = 0.0
     if fmin < 0.0 or fmin >= fs/2:
         raise ValueError('invalid minimum frequency')
 
-    if len(args) == 2:
-        fmax = args[1]
-    else:
+    if fmax is None:
         fmax = fs/2
+    else:
+        fmax = args[1]
     if fmax <= fmin or fmax > fs/2:
         raise ValueError('invalid maximum frequency')
 
@@ -199,10 +197,16 @@ def plot_fourier(u, fs, *args):
 
     p.clf()
     p.subplot(211)
-    p.stem(f[a:b], np.real(uf)[a:b])
+    if stem:
+        p.stem(f[a:b], np.real(uf)[a:b])
+    else:
+        p.plot(f[a:b], np.real(uf)[a:b])
     p.ylabel('real')
     p.subplot(212)
-    p.stem(f[a:b], np.imag(uf)[a:b])
+    if stem:
+        p.stem(f[a:b], np.imag(uf)[a:b])
+    else:
+        p.plot(f[a:b], np.imag(uf)[a:b])
     p.ylabel('imag')
     p.xlabel('f (Hz)')
 
