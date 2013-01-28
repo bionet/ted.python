@@ -10,6 +10,8 @@ limitations of the functions in the asdm and iaf modules.
 - ASDMRealTimeEncoder    - Real-time ASDM encoder.
 - IAFRealTimeEncoder     - Real-time IAF encoder.
 - IAFRealTimeDecoder     - Real-time IAF decoder.
+- iaf_decode_rt          - Functional wrapper for IAFRealTimeDecoder
+- iaf_encode_rt          - Functional wrapper for IAFRealTimeEncoder
 - iaf_decode_delay_rt    - Real-time delayed IAF decoder.
 - iaf_encode_delay_rt    - Real-time delayed IAF encoder.
 
@@ -20,6 +22,7 @@ __all__ = ['SignalProcessor',
            'ASDMRealTimeEncoder', 'ASDMRealTimeDecoder',
            'ASDMRealTimeDecoderIns',
            'IAFRealTimeEncoder', 'IAFRealTimeDecoder',
+           'iaf_decode_rt', 'iaf_encode_rt',
            'iaf_decode_delay_rt', 'iaf_encode_delay_rt']
 
 # Setting this flag enables the silent generation of a debug plot
@@ -642,6 +645,95 @@ class IAFRealTimeDecoder(RealTimeDecoder):
 
         return vtdm.iaf_decode_vander(data, self.curr_dur, self.dt,
                                       self.bw, self.b, self.d, self.R, self.C)
+
+def iaf_encode_rt(u, dt, b, d, R=np.inf, C=1.0, dte=0, quad_method='trapz'):
+    """
+    Real-time IAF neuron time encoding machine.
+    
+    Encode a finite length signal with an Integrate-and-Fire neuron.
+
+    Parameters
+    ----------
+    u : array_like of floats
+        Signal to encode.
+    dt : float
+        Sampling resolution of input signal; the sampling frequency
+        is 1/dt Hz.
+    b : float
+        Encoder bias.
+    d : float
+        Encoder threshold.
+    R : float
+        Neuron resistance.
+    C : float
+        Neuron capacitance.
+    dte : float
+        Sampling resolution assumed by the encoder (s).
+        This may not exceed `dt`.
+    quad_method : {'rect', 'trapz'}
+        Quadrature method to use (rectangular or trapezoidal) when the
+        neuron is ideal; exponential Euler integration is used
+        when the neuron is leaky.
+
+    Returns
+    -------
+    s : ndarray of floats
+        Returns the signal encoded as an
+        array of time intervals between spikes.
+        
+    Notes
+    -----
+    When trapezoidal integration is used, the value of the integral
+    will not be computed for the very last entry in `u`.
+
+    """
+
+    encoder = IAFRealTimeEncoder(dt, b, d, R, C, dte, quad_method)
+    return encoder(u)
+
+def iaf_decode_rt(s, dur, dt, bw, d, R, C, N=10, M=3, K=1):
+    """
+    Real-time IAF neuron time decoding machine.
+    
+    Decode a finite length signal encoded with an Integrate-and-Fire
+    neuron.
+
+    Parameters
+    ----------
+    s : ndarray of floats
+        Encoded signal. The values represent the time between spikes (in s).
+    dur : float
+        Duration of signal (in s).
+    dt : float
+        Sampling resolution of original signal; the sampling frequency
+        is 1/dt Hz.
+    bw : float
+        Signal bandwidth (in rad/s).
+    b : float
+        Encoder bias.
+    d : float
+        Encoder threshold.
+    R : float
+        Neuron resistance.
+    C : float
+        Neuron capacitance.
+    N : int
+        Number of spikes to process in each block less 1.
+    M : int
+        Number of spikes between the starting time of each successive
+        block.
+    K : int
+        Number of spikes in the overlap between successive blocks.
+
+    Returns
+    -------
+    u_rec : ndarray of floats
+        Recovered signal.
+        
+    """
+
+    decoder = IAFRealTimeDecoder(dt, bw, b, d, R, C, N, M, K)
+    return decoder(s)
 
 def iaf_encode_delay_rt(u_list, T_block, t_begin, dt,
                         b_list, d_list, k_list, a_list, w_list):
