@@ -691,7 +691,7 @@ def iaf_encode_rt(u, dt, b, d, R=np.inf, C=1.0, dte=0, quad_method='trapz'):
     encoder = IAFRealTimeEncoder(dt, b, d, R, C, dte, quad_method)
     return encoder(u)
 
-def iaf_decode_rt(s, dur, dt, bw, b, d, R, C, N=10, M=3, K=1):
+def iaf_decode_rt(s, dt, bw, b, d, R, C, N=10, M=3, K=1):
     """
     Real-time IAF neuron time decoding machine.
     
@@ -702,8 +702,6 @@ def iaf_decode_rt(s, dur, dt, bw, b, d, R, C, N=10, M=3, K=1):
     ----------
     s : ndarray of floats
         Encoded signal. The values represent the time between spikes (in s).
-    dur : float
-        Duration of signal (in s).
     dt : float
         Sampling resolution of original signal; the sampling frequency
         is 1/dt Hz.
