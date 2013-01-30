@@ -154,7 +154,7 @@ def plot_compare(t, u, v, fig_title='', file_name=''):
     if file_name:
         p.savefig(file_name)
 
-def plot_fourier(u, fs, fmin=0.0, fmax=None, stem=True):
+def plot_fourier(u, fs, fmin=0.0, fmax=None, style='line'):
     """
     Plot the Discrete Fourier Transform of a signal.
 
@@ -168,8 +168,8 @@ def plot_fourier(u, fs, fmin=0.0, fmax=None, stem=True):
         Minimum frequency to display (Hz).
     fmax : float:
         Maximum frequency to display (Hz).
-    stem : bool
-        If true, plot using stem. Otherwise, plot using ordinary line graph.
+    style : {'line', 'semilogy', 'stem'}
+        Set plot style.
         
     Notes
     -----
@@ -195,17 +195,27 @@ def plot_fourier(u, fs, fmin=0.0, fmax=None, stem=True):
 
     p.clf()
     p.subplot(211)
-    if stem:
+    if style == 'stem':
         p.stem(f[a:b], np.real(uf)[a:b])
+        p.ylabel('real')
+    elif style == 'semilogy':
+        p.semilogy(f[a:b], np.abs(np.real(uf)[a:b]))
+        p.ylabel('|real|')
     else:
         p.plot(f[a:b], np.real(uf)[a:b])
-    p.ylabel('real')
+        p.ylabel('real')
+    p.xlim((a, b))
     p.subplot(212)
-    if stem:
+    if style == 'stem':
         p.stem(f[a:b], np.imag(uf)[a:b])
+        p.ylabel('imag')
+    elif style == 'semilogy':
+        p.semilogy(f[a:b], np.abs(np.imag(uf)[a:b]))
+        p.ylabel('|imag|')
     else:
         p.plot(f[a:b], np.imag(uf)[a:b])
-    p.ylabel('imag')
+        p.ylabel('imag')
+    p.xlim((a, b))
     p.xlabel('f (Hz)')
 
 def plot_raster(ts_list, plot_stems=True, plot_axes=True, marker='.', markersize=5, fig_title='', file_name=''):
