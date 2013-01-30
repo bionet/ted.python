@@ -10,10 +10,10 @@ limitations of the functions in the asdm and iaf modules.
 - ASDMRealTimeEncoder    - Real-time ASDM encoder.
 - IAFRealTimeEncoder     - Real-time IAF encoder.
 - IAFRealTimeDecoder     - Real-time IAF decoder.
-- iaf_decode_rt          - Functional wrapper for IAFRealTimeDecoder
-- iaf_encode_rt          - Functional wrapper for IAFRealTimeEncoder
-- iaf_decode_delay_rt    - Real-time delayed IAF decoder.
-- iaf_encode_delay_rt    - Real-time delayed IAF encoder.
+- iaf_decode             - Functional wrapper for IAFRealTimeDecoder
+- iaf_encode             - Functional wrapper for IAFRealTimeEncoder
+- iaf_decode_delay       - Real-time delayed IAF decoder.
+- iaf_encode_delay       - Real-time delayed IAF encoder.
 
 """
 
@@ -22,8 +22,8 @@ __all__ = ['SignalProcessor',
            'ASDMRealTimeEncoder', 'ASDMRealTimeDecoder',
            'ASDMRealTimeDecoderIns',
            'IAFRealTimeEncoder', 'IAFRealTimeDecoder',
-           'iaf_decode_rt', 'iaf_encode_rt',
-           'iaf_decode_delay_rt', 'iaf_encode_delay_rt']
+           'iaf_decode', 'iaf_encode',
+           'iaf_decode_delay', 'iaf_encode_delay']
 
 # Setting this flag enables the silent generation of a debug plot
 # depicting the progress of the stitching algorithm employed in the
@@ -646,7 +646,7 @@ class IAFRealTimeDecoder(RealTimeDecoder):
         return vtdm.iaf_decode_vander(data, self.curr_dur, self.dt,
                                       self.bw, self.b, self.d, self.R, self.C)
 
-def iaf_encode_rt(u, dt, b, d, R=np.inf, C=1.0, dte=0, quad_method='trapz'):
+def iaf_encode(u, dt, b, d, R=np.inf, C=1.0, dte=0, quad_method='trapz'):
     """
     Real-time IAF neuron time encoding machine.
     
@@ -689,9 +689,9 @@ def iaf_encode_rt(u, dt, b, d, R=np.inf, C=1.0, dte=0, quad_method='trapz'):
     """
 
     encoder = IAFRealTimeEncoder(dt, b, d, R, C, dte, quad_method)
-    return encoder(u)
+    return np.asarray(encoder(u))
 
-def iaf_decode_rt(s, dt, bw, b, d, R, C, N=10, M=3, K=1):
+def iaf_decode(s, dt, bw, b, d, R, C, N=10, M=3, K=1):
     """
     Real-time IAF neuron time decoding machine.
     
@@ -731,10 +731,10 @@ def iaf_decode_rt(s, dt, bw, b, d, R, C, N=10, M=3, K=1):
     """
 
     decoder = IAFRealTimeDecoder(dt, bw, b, d, R, C, N, M, K)
-    return decoder(s)
+    return np.asarray(decoder(s))
 
-def iaf_encode_delay_rt(u_list, T_block, t_begin, dt,
-                        b_list, d_list, k_list, a_list, w_list):
+def iaf_encode_delay(u_list, T_block, t_begin, dt,
+                     b_list, d_list, k_list, a_list, w_list):
     """
     Real-time multi-input multi-output delayed IAF time encoding machine.
 
@@ -886,8 +886,8 @@ def _get_spike_block(s_list, t_start, t_end):
 
     return s_block_list
 
-def iaf_decode_delay_rt(s_list, T_block, T_overlap, dt,
-                        b_list, d_list, k_list, a_list, w_list):
+def iaf_decode_delay(s_list, T_block, T_overlap, dt,
+                     b_list, d_list, k_list, a_list, w_list):
     """
     Real-time multi-input multi-output delayed IAF time decoding machine.
 
