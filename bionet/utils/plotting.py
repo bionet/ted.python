@@ -204,7 +204,7 @@ def plot_fourier(u, fs, fmin=0.0, fmax=None, style='line'):
     else:
         p.plot(f[a:b], np.real(uf)[a:b])
         p.ylabel('real')
-    p.xlim((a, b))
+    p.xlim((f[a], f[b]))
     p.subplot(212)
     if style == 'stem':
         p.stem(f[a:b], np.imag(uf)[a:b])
@@ -215,7 +215,7 @@ def plot_fourier(u, fs, fmin=0.0, fmax=None, style='line'):
     else:
         p.plot(f[a:b], np.imag(uf)[a:b])
         p.ylabel('imag')
-    p.xlim((a, b))
+    p.xlim((f[a], f[b]))
     p.xlabel('f (Hz)')
 
 def plot_raster(ts_list, plot_stems=True, plot_axes=True, marker='.', markersize=5, fig_title='', file_name=''):
