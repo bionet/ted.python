@@ -123,7 +123,7 @@ Further Reading
 ---------------
 
 More literature on time encoding and decoding is available on the
-`Bionet publication server <http://bionet.ee.columbia.edu/publications/>`_.
+`Bionet publication server <http://www.bionet.ee.columbia.edu/publications/>`_.
 
 .. include:: bibliography.rst
 

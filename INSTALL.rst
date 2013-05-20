@@ -7,7 +7,7 @@ Obtaining the Latest Software
 -----------------------------
 The latest version of the Time Encoding and Decoding Toolbox can be
 downloaded from the Bionet Group's `code repository page
-<http://bionet.github.com/>`_.
+<http://bionet.github.io/>`_.
 
 Prerequisites
 -------------
@@ -26,7 +26,7 @@ To run the CUDA-dependent implementations, you will also need
 
 * `NVIDIA CUDA Toolkit <http://www.nvidia.com/object/cuda_get.html>`_ 3.2 or later.
 * `PyCUDA <http://mathema.tician.de/software/pycuda>`_ 0.94.2 or later.
-* `scikit.cuda <http://bionet.ee.columbia.edu/code>`_ 0.04 or later.
+* `scikit.cuda <http://www.bionet.ee.columbia.edu/code>`_ 0.04 or later.
 
 To run the demo code and generate plots, the following package 
 is also required:

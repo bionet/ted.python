@@ -20,5 +20,5 @@ reviewing the code and providing useful suggestions:
 * Robert J. Turetsky
 * Yiyin Zhou
 
-.. [1] http://bionet.ee.columbia.edu/
+.. [1] http://www.bionet.ee.columbia.edu/
 .. [2] http://www.ee.columbia.edu/~aurel/

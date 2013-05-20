@@ -11,7 +11,7 @@ routines, classes, and demo programs that implement time encoding and
 decoding algorithms. A  
 `MATLAB <http://www.mathworks.com/products/matlab/>`_  implementation of the
 toolbox is also available from the Bionet Group's `code repository page
-<http://bionet.github.com/>`_.  
+<http://bionet.github.io/>`_.  
 
 To get started using the toolbox, go to the :doc:`installation <install>` page and
 try running the demos. Check out the :doc:`overview <overview>` page for a
