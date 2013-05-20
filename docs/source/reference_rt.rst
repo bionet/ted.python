@@ -36,5 +36,5 @@ Integrate-and-Fire Neuron Classes and Routines
 
    IAFRealTimeDecoder
    IAFRealTimeEncoder
-   iaf_decode_delay_rt
-   iaf_encode_delay_rt
+   iaf_decode_delay
+   iaf_encode_delay
