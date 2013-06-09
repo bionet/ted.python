@@ -122,8 +122,10 @@ Why Should Engineers/Computer Scientists Care About Time Encoding?
 Further Reading
 ---------------
 
-More literature on time encoding and decoding is available on the
-`Bionet publication server <http://www.bionet.ee.columbia.edu/publications/>`_.
+See the `publications <publications.rst>`_ page for the list of articles whose
+algorithms are implemented in the toolbox. More literature on time encoding and
+decoding is available on the `Bionet publication server
+<http://www.bionet.ee.columbia.edu/publications/>`_.
 
 .. include:: bibliography.rst
 

@@ -27,6 +27,7 @@ Contents
    overview
    machines
    reference
+   publications
    authors
    license
    changes
