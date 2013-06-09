@@ -13,7 +13,13 @@ PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
 
-.PHONY: help clean images html dirhtml pickle json htmlhelp qthelp latex changes linkcheck doctest
+# Custom variables:
+PGF_FILES=$(wildcard $(SRCDIR)/images/*.pgf)
+PGF_IMAGES=$(patsubst %.pgf,%.png,$(PGF_FILES))
+GEN_IMAGES=source/images/overview_input.png source/images/overview_encoded.png source/images/overview_decoded.png
+IMAGES=$(PGF_IMAGES) $(GEN_IMAGES)
+
+.PHONY: help clean html dirhtml pickle json htmlhelp qthelp latex changes linkcheck doctest
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -31,14 +37,19 @@ help:
 clean:
 	-rm -rf $(BUILDDIR)/ $(SRCDIR)/generated/ $(SRCDIR)/images/*.png
 
-images: 
-	cd source && python make_overview_plots.py
-	cd source && python make_pgf_images.py
-
-html: images
+html: $(PGF_IMAGES) $(GEN_IMAGES)
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+
+$(PGF_IMAGES): pgf_images 
+$(GEN_IMAGES): gen_images
+
+.SECONDARY: pgf_images gen_images
+pgf_images:
+	cd source && python make_pgf_images.py
+gen_images:
+	cd source && python make_overview_plots.py
 
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
