@@ -3,8 +3,8 @@
 Change Log
 ==========
 
-Release 0.071 - ()
-------------------
+Release 0.071 - (Under Development)
+-----------------------------------
 * Add pip installation information.
 
 Release 0.07 - (August 8, 2012)
