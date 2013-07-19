@@ -280,7 +280,7 @@ latex_appendices = []
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'ted', u'TED Documentation',
-     [u'x'], 1)
+     [u'Lev Givon'], 1)
 ]
 
 # If true, show URL addresses after external links.
