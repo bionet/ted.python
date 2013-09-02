@@ -47,12 +47,12 @@ if sys.platform in ['linux2', 'darwin']:
     ext_name = 'bionet.ted.bpa_cython_' + sys.platform
 
     # Need numpy include files to compile BPA extension:
-    bpa_cython = Extension(ext_name,
+    ext_modules = [Extension(ext_name,
                            ['bionet/ted/bpa_cython.pyx'],
                            [np.get_include()],
-                           libraries=['python' + get_python_version()])
+                           libraries=['python' + get_python_version()])]
 else:
-    bpa_cython = None
+    ext_modules = []
 
 if __name__ == '__main__':
     if os.path.exists('MANIFEST'):
@@ -77,5 +77,5 @@ if __name__ == '__main__':
               matplotlib = 'matplotlib >= 0.98',
               opencv = 'opencv >= 2.1.0',
               tables = 'tables >= 2.1.1'),
-          ext_modules = [bpa_cython],
+          ext_modules = ext_modules,
           cmdclass = {'build_ext': build_ext})
