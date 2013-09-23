@@ -43,7 +43,7 @@ time domain coding and processing may be obtained from the Bionet Group
 publication server [3]_.
 
 .. [1] http://bionet.github.com/
-.. [2] http://bionet.ee.columbia.edu/
-.. [3] http://bionet.ee.columbia.edu/publications/
+.. [2] http://www.bionet.ee.columbia.edu/
+.. [3] http://www.bionet.ee.columbia.edu/publications/
 
 
