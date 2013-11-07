@@ -16,6 +16,10 @@ Development
 The latest source code can be obtained from
 `<http://github.com/bionet/ted.python>`_.
 
+Authors & Acknowledgements
+--------------------------
+See the included AUTHORS file for more information.
+
 License
 -------
 This software is licensed under the 
