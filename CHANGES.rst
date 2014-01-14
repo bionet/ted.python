@@ -6,6 +6,7 @@ Change Log
 Release 0.071 - (Under Development)
 -----------------------------------
 * Add pip installation information.
+* Replace distribute_setup with ez_setup.
 
 Release 0.07 - (August 8, 2012)
 -------------------------------
