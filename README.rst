@@ -1,11 +1,11 @@
 .. -*- rst -*-
 
-Time Encoding and Decoding Toolbox
+Time Encoding and Decoding Toolkit
 ==================================
 
 Package Description
 -------------------
-The Time Encoding and Decoding Toolbox contains Python implementations
+The Time Encoding and Decoding Toolkit contains Python implementations
 of algorithms designed to reversibly convert digitally sampled signals
 to and from a time-domain representation consisting of a series of
 time intervals between fixed-amplitude spikes. Sample code
@@ -28,7 +28,7 @@ See the included LICENSE file for more information.
 
 References
 ----------
-The algorithms implemented in this toolbox are described in the papers
+The algorithms implemented in this toolkit are described in the papers
 listed in the attached BibTeX bibliography. Further research on
 time domain coding and processing may be obtained from the Bionet Group
 publication server [3]_.

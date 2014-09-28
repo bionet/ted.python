@@ -30,7 +30,7 @@ AUTHOR_EMAIL =       'lev@columbia.edu'
 URL =                'http://bionet.github.io/ted.python/'
 MAINTAINER =         'Lev Givon'
 MAINTAINER_EMAIL =   'lev@columbia.edu'
-DESCRIPTION =        'Time Encoding and Decoding Toolbox'
+DESCRIPTION =        'Time Encoding and Decoding Toolkit'
 DOWNLOAD_URL =       URL
 LICENSE =            'BSD'
 CLASSIFIERS = [
@@ -48,7 +48,7 @@ CLASSIFIERS = [
 ext_modules = []
 if not(len(sys.argv) >= 2 and ('--help' in sys.argv[1:] or \
        sys.argv[1] in ('--help-commands', 'egg_info', '--version', 'clean'))):
-    
+
     # Needed to build pyx files:
     from Cython.Distutils import build_ext
 
@@ -61,7 +61,7 @@ if not(len(sys.argv) >= 2 and ('--help' in sys.argv[1:] or \
                                  ['bionet/ted/bpa_cython.pyx'],
                                  [np.get_include()],
                                  libraries=['python' + get_python_version()])]
-    
+
 metadata = dict(name = NAME,
                 version = VERSION,
                 author = AUTHOR,

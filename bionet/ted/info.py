@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Time Encoding and Decoding Toolbox
+Time Encoding and Decoding Toolkit
 ==================================
 
 Routines for converting finite-length, band-limited, digitally sampled

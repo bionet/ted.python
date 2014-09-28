@@ -1,12 +1,12 @@
 .. -*- rst -*- 
 
-Time Encoding and Decoding Toolbox
+Time Encoding and Decoding Toolkit
 ==================================
 
 Introduction
 ------------
 
-The Time Encoding and Decoding Toolbox (TED) is a library of Python
+The Time Encoding and Decoding Toolkit (TED) is a library of Python
 routines, classes, and demo programs that implement time encoding and
 decoding algorithms. A  
 `MATLAB <http://www.mathworks.com/products/matlab/>`_  implementation of the

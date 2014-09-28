@@ -3,8 +3,8 @@
 Change Log
 ==========
 
-This change log contains the history of the Bionet Utils toolbox prior to its
-merger with the TED toolbox.
+This change log contains the history of the Bionet Utils toolkit prior to its
+merger with the TED toolkit.
 
 Release 0.017 - (September 19, 2011)
 ------------------------------------

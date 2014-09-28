@@ -7,10 +7,11 @@ Release 0.071 - (Under Development)
 -----------------------------------
 * Add pip installation information.
 * Replace distribute_setup with ez_setup.
+* Change name to Time Encoding and Decoding Toolkit.
 
 Release 0.07 - (August 8, 2012)
 -------------------------------
-* Merge with utils toolbox.
+* Merge with utils toolkit.
 * Add docs for merged utilities.
 * Improve finding of includes/libraries needed to build bpa extension.
 * Download distribute for package installation if it isn't available.

@@ -5,14 +5,14 @@ Installation Instructions
 
 Obtaining the Latest Software
 -----------------------------
-The latest version of the Time Encoding and Decoding Toolbox can be
+The latest version of the Time Encoding and Decoding Toolkit can be
 downloaded from the Bionet Group's `code repository page
 <http://bionet.github.io/>`_.
 
 Prerequisites
 -------------
 
-The Python implementation of the Time Encoding and Decoding Toolbox
+The Python implementation of the Time Encoding and Decoding Toolkit
 requires that several software packages be present in order to be
 built and installed (older versions of these packages may work, but have not
 been tested):
@@ -54,13 +54,13 @@ on other platforms supported by the above packages.
 Building and Installation
 -------------------------
 
-To build and install the toolbox, download and unpack the source 
-release and run::
+To build and install the toolkit, download and unpack the source release and 
+run::
 
    python setup.py install
 
-from within the main directory in the release. Sample code 
-demonstrating how to use the toolbox is located in the
+from within the main directory in the release. Sample code demonstrating how to 
+use the toolkit is located in the
 ``demos/`` subdirectory. If you have `pip <http://www.pip-installer.org>`_
 installed, you can install the latest package code directly from Github as
 follows::

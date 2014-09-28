@@ -3,7 +3,7 @@
 Publications
 ============
 
-The Time Encoding and Decoding Toolbox implements algorithms from the following
+The Time Encoding and Decoding Toolkit implements algorithms from the following
 publications:
 
 |lazar_time_2004|_ A.A. Lazar, **Time Encoding with an Integrate-and-Fire

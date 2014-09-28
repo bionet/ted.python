@@ -123,7 +123,7 @@ Further Reading
 ---------------
 
 See the :doc:`publications <publications>` page for the list of articles whose
-algorithms are implemented in the toolbox. More literature on time encoding and
+algorithms are implemented in the toolkit. More literature on time encoding and
 decoding is available on the `Bionet publication server
 <http://www.bionet.ee.columbia.edu/publications/>`_.
 

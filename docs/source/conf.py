@@ -294,7 +294,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'TED', u'TED Documentation',
-   u'Lev Givon', 'TED', 'Time Encoding and Decoding Toolbox.',
+   u'Lev Givon', 'TED', 'Time Encoding and Decoding Toolkit.',
    'Miscellaneous'),
 ]
 
