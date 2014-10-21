@@ -31,9 +31,7 @@ References
 The algorithms implemented in this toolkit are described in the papers
 listed in the attached BibTeX bibliography. Further research on
 time domain coding and processing may be obtained from the Bionet Group
-publication server [3]_.
+publication server [1]_.
 
-.. [1] http://bionet.github.io/
-.. [2] http://www.bionet.ee.columbia.edu/
-.. [3] http://www.bionet.ee.columbia.edu/publications/
+.. [1] http://www.bionet.ee.columbia.edu/publications/
 
