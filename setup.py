@@ -24,10 +24,10 @@ for scheme in INSTALL_SCHEMES.values():
     scheme['data'] = scheme['platlib']
 
 NAME =               'bionet.ted'
-VERSION =            '0.071'
+VERSION =            '0.7.1'
 AUTHOR =             'Lev Givon'
 AUTHOR_EMAIL =       'lev@columbia.edu'
-URL =                'http://bionet.github.io/ted.python/'
+URL =                'https://github.com/bionet/ted.python/'
 MAINTAINER =         'Lev Givon'
 MAINTAINER_EMAIL =   'lev@columbia.edu'
 DESCRIPTION =        'Time Encoding and Decoding Toolkit'
@@ -75,15 +75,15 @@ metadata = dict(name = NAME,
                 packages = find_packages(),
                 data_files = [('bionet', ['bionet/__init__.py'])],
                 namespace_packages = ['bionet'],
-                install_requires = ['cython >= 0.11.2',
-                                    'numpy >= 1.2.0', 
+                install_requires = ['cython >= 0.20.0',
+                                    'numpy >= 1.2.0',
                                     'scipy >= 0.7.0'],
                 extras_require = dict(
                     matplotlib = 'matplotlib >= 0.98',
                     opencv = 'opencv >= 2.1.0',
                     tables = 'tables >= 2.1.1'),
                 ext_modules = ext_modules,
-                cmdclass = {'build_ext': build_ext})            
+                cmdclass = {'build_ext': build_ext})
 
 if __name__ == '__main__':
     if os.path.exists('MANIFEST'):

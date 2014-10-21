@@ -3,11 +3,13 @@
 Change Log
 ==========
 
-Release 0.071 - (Under Development)
+Release 0.7.1 - (Under Development)
 -----------------------------------
 * Add pip installation information.
 * Replace distribute_setup with ez_setup.
 * Change name to Time Encoding and Decoding Toolkit.
+* Fix various demos.
+* Change to PEP 440 version numbering.
 
 Release 0.07 - (August 8, 2012)
 -------------------------------
