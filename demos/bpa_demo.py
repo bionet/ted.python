@@ -12,7 +12,7 @@ from time import time
 import sys
 
 import bionet.ted.bpa_python as bpa_python
-if sys.platform == 'linux2': 
+if 'linux' in sys.platform:
     import bionet.ted.bpa_cython_linux2 as bpa_cython
 elif sys.platform == 'darwin':
     import bionet.ted.bpa_cython_darwin as bpa_cython

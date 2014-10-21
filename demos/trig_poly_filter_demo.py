@@ -37,7 +37,6 @@ def make_gammatone(t, N, i):
     -------
     h : ndarray
         Impulse response of the generated filter.
-
     """
 
     if i < 0 or i >= N:
@@ -68,13 +67,13 @@ def make_gammatone_fb(t, N):
         Times over which to compute the impulse responses.
     N : int
         Number of filters in filterbank.
-        
+
     Returns
     -------
     h : ndarray
         Impulse response of the generated filter.
-    
     """
+
     h = np.zeros((N, len(t)))
     for i in xrange(N):
         h[i, :] = make_gammatone(t, N, i)
@@ -94,24 +93,23 @@ def filter_trig_poly(u, h, dt, M):
         Time resolution.
     M : int
         Trigonometric polynomial order.
-        
+
     Returns
     -------
     v : numpy.ndarray
         Filtered signal.
-        
+
     Notes
     -----
     Assumes that `u` is defined over times `dt*arange(0, len(t))` and
-    that `dt*len(u)` is equal to the period of the trigonometric polynomial.    
-
+    that `dt*len(u)` is equal to the period of the trigonometric polynomial.
     """
 
     # Get the Dirichlet coefficients of the signal:
-    am = get_dirichlet_coeffs(u, dt, M)
+    am = tp.get_dirichlet_coeffs(u, dt, M)
 
     # Get the Dirichlet coefficients of the filter:
-    hm = get_dirichlet_coeffs(h, dt, M)
+    hm = tp.get_dirichlet_coeffs(h, dt, M)
 
     # Construct the filtered signal using the above coefficients:
     T = dt*len(u)
@@ -138,14 +136,13 @@ def filter_trig_poly_fft(u, h):
     -------
     v : numpy.ndarray
         Filtered signal.
-        
+
     Notes
     -----
     Assumes that `u` is defined over times `dt*arange(0, len(t))` and
-    that `dt*len(u)` is equal to the period of the trigonometric polynomial.    
+    that `dt*len(u)` is equal to the period of the trigonometric polynomial.
 
     This function uses the FFT to perform the filtering.
-    
     """
 
     N = len(u)
@@ -153,7 +150,7 @@ def filter_trig_poly_fft(u, h):
                                np.fft.fft(np.hstack((h, np.zeros(len(u)-1))))))[0:N]
 
 if __name__ == '__main__':
-    
+
     print 'generating trigonometric polynomial signal..'
     M = 250
     Omega = 2*np.pi*2000
@@ -164,7 +161,7 @@ if __name__ == '__main__':
 
     u = tp.gen_trig_poly(T, dt, M)
     am_rec = tp.get_dirichlet_coeffs(u, dt, M)
-    
+
     # Try to recover the Dirichlet coefficients of the generated signal
     # using different methods. Note that this only works if u contains an
     # entire period of the signal (i.e., arange(0, T, dt)):
@@ -172,7 +169,7 @@ if __name__ == '__main__':
     u_rec = tp.gen_trig_poly(T, dt, am_rec)
     pl.plot_compare(t, u, u_rec, 'Signal Reconstruction',
                     output_name + str(output_count) + output_ext)
-    output_count += 1 
+    output_count += 1
 
     # Create a filter:
     h = make_gammatone(t, 16, 0)
@@ -180,8 +177,8 @@ if __name__ == '__main__':
     h_rec = tp.gen_trig_poly(T, dt, hm)
     pl.plot_compare(t, h, h_rec, 'Filter Reconstruction',
                     output_name + str(output_count) + output_ext)
-    output_count += 1 
-      
+    output_count += 1
+
     # Filter the signal using FFTs:
     v_fft = filter_trig_poly_fft(u, h)
     pl.plot_signal(t, v_fft, 'Filtered Signal',

@@ -10,7 +10,7 @@ __all__ = ['bpa']
 
 import sys
 
-if sys.platform == 'linux2':
+if 'linux' in sys.platform:
     try:
         from bionet.ted.bpa_cython_linux2 import *
     except ImportError:

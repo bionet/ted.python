@@ -14,7 +14,7 @@ import matplotlib
 matplotlib.use('AGG')
 
 from bionet.utils.misc import func_timer
-import bionet.utils.gen_band_limited as g
+import bionet.utils.band_limited as bl
 import bionet.utils.plotting as pl
 import bionet.ted.asdm as asdm
 

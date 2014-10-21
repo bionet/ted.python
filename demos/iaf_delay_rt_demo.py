@@ -15,7 +15,6 @@ matplotlib.use('AGG')
 from bionet.utils.misc import func_timer
 import bionet.utils.band_limited as bl
 import bionet.utils.plotting as pl
-import bionet.ted.iaf as iaf
 import bionet.ted.rt as rt
 
 # For determining output plot file names:
@@ -84,8 +83,8 @@ T_block = T/2.0
 T_overlap = T_block/3.0
 fig_title = 'Signal Encoded Using Real-Time Delayed IAF Encoder'
 print fig_title
-s_list = func_timer(rt.iaf_encode_delay_rt)(u_list, T_block, t_start, dt, b_list, d_list,
-                                            k_list, a_list, w_list)
+s_list = func_timer(rt.iaf_encode_delay)(u_list, T_block, t_start, dt, b_list, d_list,
+                                         k_list, a_list, w_list)
 
 for i in xrange(M):
     for j in xrange(N):
@@ -96,17 +95,17 @@ for i in xrange(M):
                         fig_title_out,
                         output_name + str(output_count) + output_ext)
         output_count += 1
-    
+
 fig_title = 'Signal Decoded Using Real-Time Delayed IAF Decoder'
 print fig_title
-u_rec_list = func_timer(rt.iaf_decode_delay_rt)(s_list, T_block,
-                                                T_overlap, dt,
-                                                b_list, d_list, k_list,
-                                                a_list, w_list)
+u_rec_list = func_timer(rt.iaf_decode_delay)(s_list, T_block,
+                                             T_overlap, dt,
+                                             b_list, d_list, k_list,
+                                             a_list, w_list)
 
 for i in xrange(M):
     fig_title_out = fig_title + ' (Signal #' + str(i+1) + ')'
     pl.plot_compare(t_enc, u_list[i][k_start:k_end],
-                    u_rec_list[i][0:k_end-k_start], fig_title_out, 
+                    u_rec_list[i][0:k_end-k_start], fig_title_out,
                     output_name + str(output_count) + output_ext)
     output_count += 1
