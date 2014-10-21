@@ -2,21 +2,21 @@
 
 __all__ = ['bpa']
 
-include "numpy.pxd"
 import numpy as np
+cimport numpy as np
 
-def bpa(ndarray V, ndarray b):
+def bpa(np.ndarray V, np.ndarray b):
     """
     bpa(V, b)
-    
+
     Solve a Vandermonde system using BPA.
-    
+
     Solve a Vandermonde system using the Bjork-Pereyra algorithm.
 
     Parameters
     ----------
     V : ndarray of floats, shape (M, M)
-        A Vandermonde matrix. 
+        A Vandermonde matrix.
     b : ndarray of floats, shape (M,)
         The system solved by this routine is `dot(V,d) == b`.
 
@@ -24,17 +24,16 @@ def bpa(ndarray V, ndarray b):
     -------
     d : ndarray of floats, shape (M,)
         System solution.
-        
+
     See Also
     --------
     numpy.linalg.solve
-    
+
     Notes
     -----
     The matrix is assumed to be oriented such that its second column
     contains the arguments that would need to be passed to the
     `vander()` function in order to construct the matrix.
-    
     """
 
     cdef int N, C
@@ -49,8 +48,8 @@ def bpa(ndarray V, ndarray b):
     bs = np.shape(b)
 
     # Copy the input values to avoid modifying them:
-    cdef ndarray z_array
-    cdef ndarray b_array
+    cdef np.ndarray z_array
+    cdef np.ndarray b_array
     z_array = np.array(V[:, 1], np.complex)
     b_array = np.array(b.flatten(), np.complex)
 
