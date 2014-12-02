@@ -39,8 +39,7 @@ class Mock(object):
 
 MOCK_MODULES = ['pycuda', 'pycuda.compiler', 'pycuda.driver',
                 'pycuda.elementwise', 'pycuda.gpuarray',
-                'pycuda.reduction', 'pycuda.scan', 'pycuda.tools', 'pytools',
-                'scipy', 'scipy.sparse']
+                'pycuda.reduction', 'pycuda.scan', 'pycuda.tools', 'pytools']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
 
