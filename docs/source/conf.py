@@ -47,7 +47,6 @@ for mod_name in MOCK_MODULES:
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.append(os.path.abspath('../sphinxext'))
-sys.path.append(os.path.abspath('../../bionet'))
 sys.path.append(os.path.abspath('../../'))
 
 # -- General configuration -----------------------------------------------------
@@ -65,7 +64,7 @@ extensions = ['sphinx.ext.autodoc',
 try:
     import matplotlib.sphinxext.plot_directive
 except ImportError:
-    extensions.append('sphinx.ext.plot_directive')
+    extensions.append('plot_directive')
 else:
     extensions.append('matplotlib.sphinxext.plot_directive')
 
