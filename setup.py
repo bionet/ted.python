@@ -43,25 +43,6 @@ CLASSIFIERS = [
     'Topic :: Scientific/Engineering',
     'Topic :: Software Development']
 
-# Don't attempt to import numpy when it isn't actually needed; this enables pip
-# to install numpy before bottleneck:
-ext_modules = []
-if not(len(sys.argv) >= 2 and ('--help' in sys.argv[1:] or \
-       sys.argv[1] in ('--help-commands', 'egg_info', '--version', 'clean'))):
-
-    # Needed to build pyx files:
-    from Cython.Distutils import build_ext
-
-    if sys.platform in ['linux2', 'darwin']:
-
-        # Need numpy include files to compile BPA extension:
-        import numpy as np
-        ext_name = 'bionet.ted.bpa_cython_' + sys.platform
-        ext_modules = [Extension(ext_name,
-                                 ['bionet/ted/bpa_cython.pyx'],
-                                 [np.get_include()],
-                                 libraries=['python' + get_python_version()])]
-
 metadata = dict(name = NAME,
                 version = VERSION,
                 author = AUTHOR,
@@ -82,10 +63,32 @@ metadata = dict(name = NAME,
                     matplotlib = 'matplotlib >= 0.98',
                     opencv = 'opencv >= 2.1.0',
                     tables = 'tables >= 2.1.1',
-                    sphinx_rtd_theme = 'sphinx_rtd_theme >= 0.1.6'),
-                ext_modules = ext_modules,
-                cmdclass = {'build_ext': build_ext})
+                    sphinx_rtd_theme = 'sphinx_rtd_theme >= 0.1.6'))
 
+# Don't attempt to import numpy when it isn't actually needed; this enables pip
+# to install numpy before bottleneck:
+ext_modules = []
+if not(len(sys.argv) >= 2 and ('--help' in sys.argv[1:] or \
+       sys.argv[1] in ('--help-commands', 'egg_info', '--version', 'clean'))):
+
+    # Needed to build pyx files:
+    try:
+        from Cython.Distutils import build_ext
+    except:
+        pass
+    else:
+        if sys.platform in ['linux2', 'darwin']:
+
+            # Need numpy include files to compile BPA extension:
+            import numpy as np
+            ext_name = 'bionet.ted.bpa_cython_' + sys.platform
+            ext_modules = [Extension(ext_name,
+                                     ['bionet/ted/bpa_cython.pyx'],
+                                     [np.get_include()],
+                                     libraries=['python' + get_python_version()])]
+
+            metadata['ext_modules'] = ext_modules
+            metadata['cmdclass'] = {'build_ext': build_ext}
 if __name__ == '__main__':
     if os.path.exists('MANIFEST'):
         os.remove('MANIFEST')
