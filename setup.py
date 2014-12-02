@@ -81,7 +81,8 @@ metadata = dict(name = NAME,
                 extras_require = dict(
                     matplotlib = 'matplotlib >= 0.98',
                     opencv = 'opencv >= 2.1.0',
-                    tables = 'tables >= 2.1.1'),
+                    tables = 'tables >= 2.1.1',
+                    sphinx_rtd_theme = 'sphinx_rtd_theme >= 0.1.6'),
                 ext_modules = ext_modules,
                 cmdclass = {'build_ext': build_ext})
 

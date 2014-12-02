@@ -12,7 +12,43 @@
 # serve to show the default.
 
 import re, sys, os
-import sphinx_bootstrap_theme
+
+# Prevent project dependencies from interfering with autodoc:
+class Mock(object):
+    __all__ = []
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __call__(self, *args, **kwargs):
+        return Mock()
+
+    @classmethod
+    def __getattr__(cls, name):
+        if name in ('__file__', '__path__'):
+            return '/dev/null'
+        elif name[0] == name[0].upper():
+            mockType = type(name, (), {})
+            mockType.__module__ = __name__
+            return mockType
+        else:
+            return Mock()
+
+    def __getitem__(self, v):
+        return Mock()
+
+MOCK_MODULES = ['matplotlib', 'matplotlib.pyplot', 
+                'numpy', 'pycuda', 'pycuda.compiler', 'pycuda.driver',
+                'pycuda.elementwise', 'pycuda.gpuarray',
+                'pycuda.reduction', 'pycuda.scan', 'pycuda.tools', 'pytools',
+                'scipy', 'scipy.sparse']
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = Mock()
+
+# Prevent pkg_resources requirements checking from raising exceptions due to
+# missing dependencies:
+import pkg_resources
+pkg_resources.require = Mock()
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -109,57 +145,19 @@ pygments_style = 'sphinx'
 
 # -- Options for HTML output ---------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-html_theme = 'bootstrap'
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+if on_rtd:
+    html_theme = 'default'
+else:
 
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-html_theme_options = {
-    # Navigation bar title. (Default: ``project`` value)
-    'navbar_title': "TED",
+    import sphinx_rtd_theme
 
-    # Tab name for entire site. (Default: "Site")
-    'navbar_site_name': "Contents",
+    # The theme to use for HTML and HTML Help pages.  See the documentation for
+    # a list of builtin themes.
+    html_theme = 'sphinx_rtd_theme'
 
-    # Global TOC depth for "site" navbar tab. (Default: 1)
-    # Switching to -1 shows all levels.
-    'globaltoc_depth': 2,
-    
-    # Include hidden TOCs in Site navbar?
-    #
-    # Note: If this is "false", you cannot have mixed ``:hidden:`` and
-    # non-hidden ``toctree`` directives in the same page, or else the build
-    # will break.
-    #
-    # Values: "true" (default) or "false"
-    'globaltoc_includehidden': "true",
-
-    # HTML navbar class (Default: "navbar") to attach to <div> element.
-    # For black navbar, do "navbar navbar-inverse"
-    #'navbar_class': "navbar navbar-inverse",
-
-    # Fix navigation bar to top of page?
-    # Values: "true" (default) or "false"
-    'navbar_fixed_top': "true",
-
-    # Location of link to source.
-    # Options are "nav" (default), "footer" or anything else to exclude.
-    'source_link_position': None,
-
-    # Bootswatch (http://bootswatch.com/) theme.
-    #
-    # Options are nothing with "" (default) or the name of a valid theme
-    # such as "amelia" or "cosmo".
-    #
-    # Note that this is served off CDN, so won't be available offline.
-    'bootswatch_theme': "united",
-}
-
-
-# Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
+    # Add any paths that contain custom themes here, relative to this directory.
+    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -207,7 +205,7 @@ html_use_index = True
 #html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-#html_show_sourcelink = True
+html_show_sourcelink = False
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 #html_show_sphinx = True

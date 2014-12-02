@@ -10,6 +10,7 @@ Release 0.7.1 - (Under Development)
 * Change name to Time Encoding and Decoding Toolkit.
 * Fix various demos.
 * Change to PEP 440 version numbering.
+* Use ReadTheDocs theme in HTML docs.
 
 Release 0.07 - (August 8, 2012)
 -------------------------------
