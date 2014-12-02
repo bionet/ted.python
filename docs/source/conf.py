@@ -65,7 +65,7 @@ extensions = ['sphinx.ext.autodoc',
 try:
     import matplotlib.sphinxext.plot_directive
 except ImportError:
-    extensions.append('plot_directive')
+    extensions.append('sphinx.ext.plot_directive')
 else:
     extensions.append('matplotlib.sphinxext.plot_directive')
 
