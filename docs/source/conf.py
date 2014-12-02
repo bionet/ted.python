@@ -37,7 +37,7 @@ class Mock(object):
     def __getitem__(self, v):
         return Mock()
 
-MOCK_MODULES = ['numpy', 'pycuda', 'pycuda.compiler', 'pycuda.driver',
+MOCK_MODULES = ['pycuda', 'pycuda.compiler', 'pycuda.driver',
                 'pycuda.elementwise', 'pycuda.gpuarray',
                 'pycuda.reduction', 'pycuda.scan', 'pycuda.tools', 'pytools',
                 'scipy', 'scipy.sparse']
@@ -48,6 +48,8 @@ for mod_name in MOCK_MODULES:
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.append(os.path.abspath('../sphinxext'))
+sys.path.append(os.path.abspath('../../bionet'))
+sys.path.append(os.path.abspath('../../'))
 
 # -- General configuration -----------------------------------------------------
 
@@ -56,10 +58,10 @@ needs_sphinx = '1.0'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.pngmath',
-              'sphinx.ext.autodoc', # needed by numpydoc              
-              'sphinx.ext.autosummary', # needed to autogenerate stubs
-              'sphinx.ext.intersphinx', # generate links to other project sites
+extensions = ['sphinx.ext.autodoc',
+              'sphinx.ext.autosummary',
+              'sphinx.ext.pngmath',
+              'sphinx.ext.intersphinx',
               'numpydoc']
 try:
     import matplotlib.sphinxext.plot_directive
@@ -70,7 +72,7 @@ else:
 
 # Generate autosummary stubs:
 autosummary_generate = True
-    
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
