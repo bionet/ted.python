@@ -3,7 +3,7 @@
 """
 Time encoding and decoding algorithms that make use of the
 asynchronous sigma-delta modulator.
- 
+
 - asdm_decode         - ASDM time decoding machine.
 - asdm_decode_fast    - Fast ASDM time decoding machine.
 - asdm_decode_ins     - Threshold-insensitive ASDM time decoding machine.
@@ -14,9 +14,14 @@ asynchronous sigma-delta modulator.
 
 """
 
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
+
 __all__ = ['asdm_recoverable', 'asdm_encode', 'asdm_decode',
            'asdm_decode_ins', 'asdm_decode_fast',
-	   'asdm_decode_pop', 'asdm_decode_pop_ins']
+           'asdm_decode_pop', 'asdm_decode_pop_ins']
 
 import numpy as np
 import scipy.signal
@@ -38,11 +43,11 @@ __pinv_rcond__ = 1e-8
 def asdm_recoverable_strict(u, bw, b, d, k):
     """
     ASDM time encoding parameter check.
-    
+
     Determine whether a signal encoded with an Asynchronous
     Sigma-Delta Modulator using the specified parameters can be
     perfectly recovered.
-    
+
     Parameters
     ----------
     u : array_like of floats
@@ -60,14 +65,13 @@ def asdm_recoverable_strict(u, bw, b, d, k):
     -------
     rec : bool
         True if the specified signal is recoverable.
-        
+
     Raises
     ------
     ValueError
         When the signal cannot be perfectly recovered.
-
     """
-    
+
     c = np.max(np.abs(u))
     if c >= b:
         raise ValueError('bias too low')
@@ -107,14 +111,13 @@ def asdm_recoverable(u, bw, b, d, k):
     ------
     ValueError
         When the signal cannot be perfectly recovered.
-        
+
     Notes
     -----
     The bound assumed by this check is not as strict as that described in
     most of Prof. Lazar's papers.
-
     """
-    
+
     c = np.max(np.abs(u))
     if c >= b:
         raise ValueError('bias too low')
@@ -131,7 +134,7 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
 
     Encode a finite length signal using an Asynchronous Sigma-Delta
     Modulator.
-    
+
     Parameters
     ----------
     u : array_like of floats
@@ -148,7 +151,7 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
     dte : float
         Sampling resolution assumed by the encoder (s).
         This may not exceed `dt`.
-    y : float 
+    y : float
         Initial value of integrator.
     interval : float
         Time since last spike (in s).
@@ -175,11 +178,10 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
     -----
     When trapezoidal integration is used, the value of the integral
     will not be computed for the very last entry in `u`.
-    
     """
-    
+
     Nu = len(u)
-    if Nu == 0:        
+    if Nu == 0:
         if full_output:
             return np.array((), np.float), dt, b, d, k, dte, y, interval, sgn, \
                quad_method, full_output
@@ -199,7 +201,7 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
         u = scipy.signal.resample(u, len(u)*M)
         Nu *= M
         dt = dte
-        
+
     # Use a list rather than an array to save the spike intervals
     # because the number of spikes is not fixed:
     s = []
@@ -216,7 +218,7 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
         last = Nu-1
     else:
         raise ValueError('unrecognized quadrature method')
-    
+
     for i in xrange(last):
         y = compute_y(y, sgn, i)
         interval += dt
@@ -232,10 +234,10 @@ def asdm_encode(u, dt, b, d, k=1.0, dte=0.0, y=0.0, interval=0.0,
     else:
         return np.array(s)
 
-def asdm_decode(s, dur, dt, bw, b, d, k=1.0, sgn=-1):    
+def asdm_decode(s, dur, dt, bw, b, d, k=1.0, sgn=-1):
     """
     ASDM time decoding machine.
-    
+
     Decode a signal encoded with an Asynchronous Sigma-Delta Modulator.
 
     Parameters
@@ -262,7 +264,6 @@ def asdm_decode(s, dur, dt, bw, b, d, k=1.0, sgn=-1):
     -------
     u_rec : ndarray of floats
         Recovered signal.
-
     """
 
     Ns = len(s)
@@ -278,9 +279,9 @@ def asdm_decode(s, dur, dt, bw, b, d, k=1.0, sgn=-1):
     # Compute the midpoints between spike times:
     tsh = (ts[0:-1]+ts[1:])/2
     Nsh = len(tsh)
-    
+
     bwpi = bw/np.pi
-    
+
     # Compute G matrix:
     G = np.empty((Nsh, Nsh), np.float)
     for j in xrange(Nsh):
@@ -297,7 +298,7 @@ def asdm_decode(s, dur, dt, bw, b, d, k=1.0, sgn=-1):
         q = (-1)**np.arange(1, Nsh+1)*(2*k*d-b*s[1:])
     else:
         q = (-1)**np.arange(0, Nsh)*(2*k*d-b*s[1:])
-        
+
     # Reconstruct signal by adding up the weighted sinc functions. The
     # weighted sinc functions are computed on the fly here to save
     # memory:
@@ -308,10 +309,10 @@ def asdm_decode(s, dur, dt, bw, b, d, k=1.0, sgn=-1):
         u_rec += np.sinc(bwpi*(t-tsh[i]))*bwpi*c[i]
     return u_rec
 
-def asdm_decode_ins(s, dur, dt, bw, b, sgn=-1):    
+def asdm_decode_ins(s, dur, dt, bw, b, sgn=-1):
     """
     Threshold-insensitive ASDM time decoding machine.
-    
+
     Decode a signal encoded with an Asynchronous Sigma-Delta
     Modulator using a threshold-insensitive recovery algorithm.
 
@@ -335,12 +336,11 @@ def asdm_decode_ins(s, dur, dt, bw, b, sgn=-1):
     -------
     u_rec : ndarray of floats
         Recovered signal.
-
     """
-    
+
     Ns = len(s)
     if Ns < 2:
-        raise ValueError('s must contain at least 2 elements') 
+        raise ValueError('s must contain at least 2 elements')
 
     # Cast s to an ndarray to permit ndarray operations:
     s = np.asarray(s)
@@ -351,11 +351,11 @@ def asdm_decode_ins(s, dur, dt, bw, b, sgn=-1):
     # Compute the midpoints between spike times:
     tsh = (ts[0:-1]+ts[1:])/2
     Nsh = len(tsh)
-    
+
     t = np.arange(0, dur, dt)
-    
+
     bwpi = bw/np.pi
-    
+
     # Compute G matrix:
     G = np.empty((Nsh, Nsh), np.float)
     for j in xrange(Nsh):
@@ -365,14 +365,14 @@ def asdm_decode_ins(s, dur, dt, bw, b, sgn=-1):
         # integrals between spike times:
         temp = scipy.special.sici(bw*(ts-tsh[j]))[0]/np.pi
         G[:, j] = temp[1:]-temp[:-1]
-    
+
     # Apply compensation principle:
     B = np.diag(np.ones(Nsh-1), -1)+np.eye(Nsh)
     if sgn == -1:
         Bq = (-1)**np.arange(Nsh)*b*(s[1:]-s[:-1])
     else:
         Bq = (-1)**np.arange(1, Nsh+1)*b*(s[1:]-s[:-1])
-        
+
     # Reconstruct signal by adding up the weighted sinc functions; the
     # first row of B is removed to eliminate boundary issues. The
     # weighted sinc functions are computed on the fly to save memory:
@@ -385,7 +385,7 @@ def asdm_decode_ins(s, dur, dt, bw, b, sgn=-1):
 def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0, sgn=-1):
     """
     Fast ASDM time decoding machine.
-    
+
     Decode a signal encoded by an Asynchronous Sigma-Delta Modulator
     using a fast recovery algorithm.
 
@@ -415,9 +415,8 @@ def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0, sgn=-1):
     -------
     u_rec : ndarray of floats
         Recovered signal.
-
     """
-    
+
     Ns = len(s)
     if Ns < 2:
         raise ValueError('s must contain at least 2 elements')
@@ -441,7 +440,7 @@ def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0, sgn=-1):
         q = (-1)**np.arange(1, Nsh+1)*(2*k*d-b*s[1:])
     else:
         q = (-1)**np.arange(0, Nsh)*(2*k*d-b*s[1:])
-        
+
     # Compute approximation coefficients:
     a = bw/(np.pi*(2*M+1))
     m = np.arange(-M, M+1)
@@ -459,7 +458,7 @@ def asdm_decode_fast(s, dur, dt, bw, M, b, d, k=1.0, sgn=-1):
 def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
     """
     Multi-input single-output ASDM time decoding machine.
-    
+
     Decode a signal encoded by an ensemble of Asynchronous Sigma-Delta
     Modulators.
 
@@ -494,7 +493,6 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
     -----
     The number of spikes contributed by each neuron may differ from the
     number contributed by other neurons.
-
     """
 
     M = len(s_list)
@@ -508,7 +506,7 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
         raise ValueError('incorrect number of first spike signs')
 
     bwpi = bw/np.pi
-    
+
     # Compute the spike times:
     ts_list = map(np.cumsum, s_list)
 
@@ -518,7 +516,7 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
     # Compute number of spikes in each spike list:
     Ns_list = map(len, ts_list)
     Nsh_list = map(len, tsh_list)
-        
+
     # Compute the values of the matrix that must be inverted to obtain
     # the reconstruction coefficients:
     Nsh_cumsum = np.cumsum([0.0]+Nsh_list)
@@ -548,7 +546,7 @@ def asdm_decode_pop(s_list, dur, dt, bw, b_list, d_list, k_list, sgn_list=[]):
             q[Nsh_cumsum[l]:Nsh_cumsum[l+1], 0] = \
                 (-1)**np.arange(0, Nsh_list[l])* \
                 (2*k_list[l]*d_list[l]-b_list[l]*s_list[l][1:])
-            
+
     # Compute the reconstruction coefficients:
     c = np.dot(np.linalg.pinv(G), q)
 
@@ -564,7 +562,7 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
     """
     Threshold-insensitive multi-input single-output time decoding
     machine.
-    
+
     Decode a signal encoded by an ensemble of ASDM encoders using a
     threshold-insensitive recovery algorithm.
 
@@ -593,7 +591,6 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
     -----
     The number of spikes contributed by each neuron may differ from the
     number contributed by other neurons.
-
     """
 
     M = len(s_list)
@@ -607,7 +604,7 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
         raise ValueError('incorrect number of first spike signs')
 
     bwpi = bw/np.pi
-    
+
     # Compute the spike times:
     ts_list = map(np.cumsum, s_list)
 
@@ -616,7 +613,7 @@ def asdm_decode_pop_ins(s_list, dur, dt, bw, b_list, sgn_list=[]):
 
     # Compute number of spikes in each spike list:
     Nsh_list = map(lambda x: len(x)-1, tsh_list)
-    
+
     # Compute the values of the matrix that must be inverted to obtain
     # the reconstruction coefficients:
     Nsh_cumsum = np.cumsum([0.0]+Nsh_list)

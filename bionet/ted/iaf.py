@@ -16,8 +16,12 @@ integrate-and-fire neuron model.
 - iaf_encode_coupled    - SIMO coupled IAF time encoding machine.
 - iaf_encode_pop        - MIMO IAF time encoding machine.
 - iaf_recoverable       - IAF time encoding parameter check.
-
 """
+
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
 
 __all__ = ['iaf_recoverable', 'iaf_encode', 'iaf_decode',
            'iaf_decode_fast',
@@ -47,7 +51,7 @@ __pinv_rcond__ = 1e-8
 def iaf_recoverable(u, bw, b, d, R, C):
     """
     IAF time encoding parameter check.
-    
+
     Determine whether a signal encoded with an Integrate-and-Fire
     neuron with the specified parameters can be perfectly recovered.
 
@@ -70,12 +74,11 @@ def iaf_recoverable(u, bw, b, d, R, C):
     -------
     rec : bool
         True if the specified signal is recoverable.
-        
+
     Raises
     ------
     ValueError
         When the signal cannot be perfectly recovered.
-
     """
 
     c = np.max(np.abs(u))
@@ -95,7 +98,7 @@ def iaf_encode(u, dt, b, d, R=np.inf, C=1.0, dte=0, y=0.0, interval=0.0,
                quad_method='trapz', full_output=False):
     """
     IAF time encoding machine.
-    
+
     Encode a finite length signal with an Integrate-and-Fire neuron.
 
     Parameters
@@ -138,12 +141,11 @@ def iaf_encode(u, dt, b, d, R=np.inf, C=1.0, dte=0, y=0.0, interval=0.0,
     [s, dt, b, d, R, C, dte, y, interval, quad_method, full_output] : list
         If `full_output` == True, returns the encoded signal
         followed by updated encoder parameters.
-        
+
     Notes
     -----
     When trapezoidal integration is used, the value of the integral
     will not be computed for the very last entry in `u`.
-
     """
 
     Nu = len(u)
@@ -153,7 +155,7 @@ def iaf_encode(u, dt, b, d, R=np.inf, C=1.0, dte=0, y=0.0, interval=0.0,
                    quad_method, full_output
         else:
             return np.array((),np.float)
-    
+
     # Check whether the encoding resolution is finer than that of the
     # original sampled signal:
     if dte > dt:
@@ -173,7 +175,7 @@ def iaf_encode(u, dt, b, d, R=np.inf, C=1.0, dte=0, y=0.0, interval=0.0,
     s = []
 
     # Choose integration method:
-    if np.isinf(R):        
+    if np.isinf(R):
         if quad_method == 'rect':
             compute_y = lambda y, i: y + dt*(b+u[i])/C
             last = Nu
@@ -189,7 +191,7 @@ def iaf_encode(u, dt, b, d, R=np.inf, C=1.0, dte=0, y=0.0, interval=0.0,
         RC = R*C
         compute_y = lambda y, i: y*np.exp(-dt/RC)+R*(1-np.exp(-dt/RC))*(b+u[i])
         last = Nu
-        
+
     # The interval between spikes is saved between iterations rather than the
     # absolute time so as to avoid overflow problems for very long signals:
     for i in xrange(last):
@@ -210,7 +212,7 @@ def iaf_encode_pop(u_list, dt, b_list, d_list, R_list, C_list, dte=0, y=None, in
                quad_method='trapz', full_output=False):
     """
     Multi-input multi-output IAF time encoding machine.
-    
+
     Encode several signals with an ensemble of Integrate-and-Fire neurons.
 
     Parameters
@@ -224,7 +226,7 @@ def iaf_encode_pop(u_list, dt, b_list, d_list, R_list, C_list, dte=0, y=None, in
         List of encoder biases.
     d_list : list of floats
         List of encoder thresholds.
-    R_list : list of floats 
+    R_list : list of floats
         List of encoder resistances.
     C_list : list of floats
         List of encoder capacitances.
@@ -254,7 +256,7 @@ def iaf_encode_pop(u_list, dt, b_list, d_list, R_list, C_list, dte=0, y=None, in
     quad_method, full_output] : list
         If `full_output` == True, returns the encoded signal
         followed by updated encoder parameters.
-        
+
     Notes
     -----
     When trapezoidal integration is used, the value of the integral
@@ -263,7 +265,6 @@ def iaf_encode_pop(u_list, dt, b_list, d_list, R_list, C_list, dte=0, y=None, in
     Using this function to encode multiple signals is faster than than
     repeatedly invoking `iaf_encode()` when the number of signals is
     sufficiently high.
-
     """
 
     u_array = np.array(u_list)
@@ -282,7 +283,7 @@ def iaf_encode_pop(u_list, dt, b_list, d_list, R_list, C_list, dte=0, y=None, in
         raise ValueError('encoding time resolution must not exceeed original signal resolution')
     if dte < 0:
         raise ValueError('encoding time resolution must be nonnegative')
-    if dte != 0 and dte != dt:        
+    if dte != 0 and dte != dt:
         M = int(dt/dte)
         u_array = np.array([scipy.signal.resample(u, len(u)*M) for u in u_list])
         Nu *= M
@@ -304,7 +305,7 @@ def iaf_encode_pop(u_list, dt, b_list, d_list, R_list, C_list, dte=0, y=None, in
                          'ideal or exclusively leaky')
 
     # Choose integration method:
-    if np.all(R_array == np.inf):        
+    if np.all(R_array == np.inf):
         if quad_method == 'rect':
             compute_y = lambda y, i: y + dt*(b_array+u_array[:, i])/C_array
             last = Nu
@@ -328,7 +329,7 @@ def iaf_encode_pop(u_list, dt, b_list, d_list, R_list, C_list, dte=0, y=None, in
         y = np.zeros(u_array.shape[0], np.float)
     if interval == None:
         interval = np.zeros(u_array.shape[0], np.float)
-        
+
     # The interval between spikes is saved between iterations rather than the
     # absolute time so as to avoid overflow problems for very long signals:
     for i in xrange(last):
@@ -350,7 +351,7 @@ def iaf_encode_pop(u_list, dt, b_list, d_list, R_list, C_list, dte=0, y=None, in
 def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
     """
     IAF time decoding machine.
-    
+
     Decode a finite length signal encoded with an Integrate-and-Fire
     neuron.
 
@@ -378,9 +379,8 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
     -------
     u_rec : ndarray of floats
         Recovered signal.
-        
     """
-    
+
     Ns = len(s)
     if Ns < 2:
         raise ValueError('s must contain at least 2 elements')
@@ -396,7 +396,7 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
     Nsh = len(tsh)
 
     t = np.arange(0, dur, dt)
-    
+
     bwpi = bw/np.pi
     RC = R*C
 
@@ -409,7 +409,7 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
                 G[i,j] = temp[i+1]-temp[i]
         q = C*d-b*s[1:]
     else:
-        for i in xrange(Nsh):            
+        for i in xrange(Nsh):
             for j in xrange(Nsh):
 
                 # The code below is functionally equivalent to (but
@@ -433,12 +433,12 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
                               se.ei((1-1j*RC*bw)*(ts[i+1]-tsh[j])/RC)-
                               se.ei((1+1j*RC*bw)*(ts[i]-tsh[j])/RC)+
                               se.ei((1+1j*RC*bw)*(ts[i+1]-tsh[j])/RC))/np.pi
-                    
+
         q = C*(d+b*R*(np.exp(-s[1:]/RC)-1))
 
     # Compute the reconstruction coefficients:
     c = np.dot(np.linalg.pinv(G, __pinv_rcond__), q)
-    
+
     # Reconstruct signal by adding up the weighted sinc functions.
     u_rec = np.zeros(len(t), np.complex)
     for i in xrange(Nsh):
@@ -448,7 +448,7 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
 def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=np.inf, C=1.0):
     """
     Fast IAF time decoding machine.
-    
+
     Decode a signal encoded with an Integrate-and-Fire neuron using a
     fast recovery algorithm.
 
@@ -478,9 +478,8 @@ def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=np.inf, C=1.0):
     -------
     u_rec : ndarray of floats
         Recovered signal.
-        
     """
-    
+
     Ns = len(s)
     if Ns < 2:
         raise ValueError('s must contain at least 2 elements')
@@ -524,7 +523,7 @@ def iaf_decode_fast(s, dur, dt, bw, M, b, d, R=np.inf, C=1.0):
 def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
     """
     Multi-input single-output IAF time decoding machine.
-    
+
     Decode a signal encoded with an ensemble of Integrate-and-Fire neurons.
 
     Parameters
@@ -546,14 +545,14 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
         List of encoder thresholds.
     R_list : list of floats
         List of encoder neuron resistances.
-    C_list : list of floats.    
+    C_list : list of floats.
         List of encoder neuron capacitances.
 
     Returns
     -------
     u_rec : ndarray of floats
         Recovered signal.
-        
+
     Notes
     -----
     The number of spikes contributed by each neuron may differ from the
@@ -597,10 +596,10 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
 
                 G[Nsh_cumsum[l]:Nsh_cumsum[l+1],
                   Nsh_cumsum[m]:Nsh_cumsum[m+1]] = G_block
-                
+
             # Compute the quanta:
             q[Nsh_cumsum[l]:Nsh_cumsum[l+1], 0] = \
-                        C_list[l]*d_list[l]-b_list[l]*s_list[l][1:]            
+                        C_list[l]*d_list[l]-b_list[l]*s_list[l][1:]
     else:
         for l in xrange(M):
             for m in xrange(M):
@@ -634,7 +633,7 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
                                             (se.ei((1-1j*RC*bw)*(ts[n]-tsh[k])/RC)-
                                              se.ei((1-1j*RC*bw)*(ts[n+1]-tsh[k])/RC)-
                                              se.ei((1+1j*RC*bw)*(ts[n]-tsh[k])/RC)+
-                                             se.ei((1+1j*RC*bw)*(ts[n+1]-tsh[k])/RC))/np.pi   
+                                             se.ei((1+1j*RC*bw)*(ts[n+1]-tsh[k])/RC))/np.pi
 
                 G[Nsh_cumsum[l]:Nsh_cumsum[l+1],
                   Nsh_cumsum[m]:Nsh_cumsum[m+1]] = G_block
@@ -643,7 +642,7 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list, C_list):
             q[Nsh_cumsum[l]:Nsh_cumsum[l+1], 0] = \
                        C_list[l]*(d_list[l]+b_list[l]*R_list[l]* \
                                   (np.exp(-s_list[l][1:]/(R_list[l]*C_list[l]))-1))
-    
+
     # Compute the reconstruction coefficients:
     c = np.dot(np.linalg.pinv(G, __pinv_rcond__), q)
 
@@ -684,9 +683,8 @@ def iaf_decode_spline(s, dur, dt, b, d, R=np.inf, C=1.0):
     -------
     u_rec : ndarray of floats
         Recovered signal.
-
     """
-    
+
     ns = len(s)
     if ns < 2:
         raise ValueError('s must contain at least 2 elements')
@@ -699,7 +697,7 @@ def iaf_decode_spline(s, dur, dt, b, d, R=np.inf, C=1.0):
     n = ns-1
 
     RC = R*C
-    
+
     # Define the spline polynomials:
     f = lambda x: x**3-3*x**2+6*x-6
     g = lambda x: x**3+6*x
@@ -724,15 +722,15 @@ def iaf_decode_spline(s, dur, dt, b, d, R=np.inf, C=1.0):
                     Gpr[k, l] = 0.05*((ts[k+1]-ts[l+1])**5+\
                                     (ts[k]-ts[l])**5-\
                                     (ts[k]-ts[l+1])**5-\
-                                    (ts[k+1]-ts[l])**5)                                   
+                                    (ts[k+1]-ts[l])**5)
                 elif k == l:
-                    Gpr[k, l] = 0.1*(ts[k+1]-ts[k])**5    
+                    Gpr[k, l] = 0.1*(ts[k+1]-ts[k])**5
                 else:
                     Gpr[k, l] = 0.05*((ts[l+1]-ts[k+1])**5+\
                                     (ts[l]-ts[k])**5-\
                                     (ts[l]-ts[k+1])**5-\
-                                    (ts[l+1]-ts[k])**5)                                   
-                    
+                                    (ts[l+1]-ts[k])**5)
+
     else:
 
         # Compute p and r:
@@ -758,7 +756,7 @@ def iaf_decode_spline(s, dur, dt, b, d, R=np.inf, C=1.0):
                                      g((ts[k+1]-ts[l])/RC)*np.exp(-(ts[l+1]-ts[l])/RC)-\
                                      g((ts[k]-ts[l+1])/RC)*np.exp(-(ts[k+1]-ts[k])/RC)+\
                                      g((ts[k]-ts[l])/RC)*np.exp(-(ts[l+1]-ts[l])/RC-(ts[k+1]-ts[k])/RC))
-                                     
+
     # Compute the reconstruction coefficients:
     ## NOTE: setting the svd cutoff higher than 10**-15 appears to
     ## introduce considerable recovery error:
@@ -784,14 +782,14 @@ def iaf_decode_spline(s, dur, dt, b, d, R=np.inf, C=1.0):
                                   f((ts[k]-t)/RC)*np.exp(-(ts[k+1]-ts[k])/RC)-f((ts[k+1]-t)/RC)))
     for k in xrange(n):
         u_rec += cd[k]*psi(t, k)
-                                     
+
     return u_rec
 
 def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
                           C_list):
     """
     Multi-input single-output spline interpolation IAF time decoding machine.
-                          
+
     Decode a signal encoded with an ensemble of Integrate-and-Fire
     neurons using spline interpolation.
 
@@ -812,7 +810,7 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
         List of encoder thresholds.
     R_list: list of floats
         List of encoder neuron resistances.
-    C_list: list of floats.    
+    C_list: list of floats.
 
     Returns
     -------
@@ -823,7 +821,6 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
     -----
     The number of spikes contributed by each neuron may differ from the
     number contributed by other neurons.
-
     """
 
     M = len(s_list)
@@ -842,7 +839,7 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
     n_cumsum = np.cumsum([0.0]+n_list)
     n_sum = n_cumsum[-1]
     Gpr = np.zeros((n_sum+2, n_sum+2), np.float)
-    qz = np.zeros(n_sum+2, np.float)    
+    qz = np.zeros(n_sum+2, np.float)
     if np.all(np.isinf(R_list)):
         for i in xrange(M):
 
@@ -858,7 +855,7 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
             # Compute the quanta:
             qz[n_cumsum[i]:n_cumsum[i+1]] = \
                 C_list[i]*d_list[i]-b_list[i]*s[1:]
-            
+
             # Compute the G matrix:
             for j in xrange(M):
                 Gpr_block = np.zeros((n_list[i], n_list[j]), np.float)
@@ -873,7 +870,7 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
                         b2 = min(ts_list[j][l+1], ts_list[i][k+1])
                         a3 = max(ts_list[j][l+1], ts_list[i][k])
                         b3 = ts_list[i][k+1]
-                        
+
                         # The analytic expression for Gpr_block[k, l] is equivalent
                         # to the integration described in the comment below:
                         # f1 = lambda t: \
@@ -901,7 +898,7 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
                             Gpr_block[k, l] += \
                                          0.05*(((b3-ts_list[j][l])**5-(b3-ts_list[j][l+1])**5)\
                                                -((a3-ts_list[j][l])**5-(a3-ts_list[j][l+1])**5))
-                            
+
                 Gpr[n_cumsum[i]:n_cumsum[i+1],
                     n_cumsum[j]:n_cumsum[j+1]] = Gpr_block
 
@@ -992,7 +989,7 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
 
                 Gpr[n_cumsum[i]:n_cumsum[i+1],
                     n_cumsum[j]:n_cumsum[j+1]] = Gpr_block
-                
+
     # Compute the reconstruction coefficients:
     cd = np.dot(np.linalg.pinv(Gpr), qz)
 
@@ -1008,7 +1005,7 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
                                    ((t-ts[k+1])**4+(t-ts[k])**4),
                                    ((t-ts[k])**4-(t-ts[k+1])**4)))
             for k in xrange(n_list[j]):
-                u_rec += cd[n_cumsum[j]+k]*psi(t, k)                
+                u_rec += cd[n_cumsum[j]+k]*psi(t, k)
     else:
         for j in xrange(M):
             RC = R_list[j]*C_list[j]
@@ -1021,7 +1018,7 @@ def iaf_decode_spline_pop(s_list, dur, dt, b_list, d_list, R_list,
                                       f((ts[k]-t)/RC)*np.exp(-(ts[k+1]-ts[k])/RC),
                                       f((ts[k]-t)/RC)*np.exp(-(ts[k+1]-ts[k])/RC)-f((ts[k+1]-t)/RC)))
             for k in xrange(n_list[j]):
-                u_rec += cd[n_cumsum[j]+k]*psi(t, k)                
+                u_rec += cd[n_cumsum[j]+k]*psi(t, k)
 
     return u_rec
 
@@ -1029,7 +1026,7 @@ def iaf_encode_coupled(u, dt, b_list, d_list, k_list, h_list, type_list):
     """
     Single-input multi-output coupled IAF time encoding
     machine.
-    
+
     Encode a signal with an ensemble of coupled ideal ON-OFF
     Integrate-and-Fire neurons.
 
@@ -1059,12 +1056,11 @@ def iaf_encode_coupled(u, dt, b_list, d_list, k_list, h_list, type_list):
     -------
     s_list : list of ndarrays of floats
         Encoded signal.
-        
     """
 
     M = len(b_list)
     N = len(u)
-    
+
     s_list = [[] for i in xrange(M)]
     ts_list = [[0.0] for i in xrange(M)]
 
@@ -1085,7 +1081,7 @@ def iaf_encode_coupled(u, dt, b_list, d_list, k_list, h_list, type_list):
             # Check whether the threshold was exceeded depending on
             # whether the neuron is an ON-type or OFF-type neuron:
             if (type_list[i] == 1 and y_list[i] >= d_list[i]) or \
-                   (type_list[i] == -1 and y_list[i] <= d_list[i]):        
+                   (type_list[i] == -1 and y_list[i] <= d_list[i]):
                 s_list[i].append(interval_list[i])
 
                 ## NOTE: computing and saving the spike time may
@@ -1099,7 +1095,7 @@ def iaf_encode_coupled(u, dt, b_list, d_list, k_list, h_list, type_list):
 def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
     """
     Multi-input single-output coupled IAF time decoding machine.
-    
+
     Decode a signal encoded with an ensemble of coupled ON-OFF
     Integrate-and-Fire neurons.
 
@@ -1124,7 +1120,7 @@ def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
         Coupling functions. Function `h_list[i][j]` describes the
         coupling from the integrator output of neuron `i` to the input
         of neuron `j`.
-        
+
     Returns
     -------
     u_rec : ndarray of floats
@@ -1150,7 +1146,7 @@ def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
     n_cumsum = np.cumsum([0.0]+n_list)
     n_sum = n_cumsum[-1]
     Gpr = np.zeros((n_sum+2, n_sum+2), np.float)
-    qz = np.zeros(n_sum+2, np.float)    
+    qz = np.zeros(n_sum+2, np.float)
 
     for i in xrange(M):
 
@@ -1174,7 +1170,7 @@ def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
                     temp -= scipy.integrate.quad(lambda t: h_list[j][i](t-ts_list[j][l]), ts[k], ts[k+1])[0]
 
             qz[n_cumsum[i]+k] = temp
-        
+
         # Compute the G matrix:
         for j in xrange(M):
             Gpr_block = np.zeros((n_list[i], n_list[j]), np.float)
@@ -1186,7 +1182,7 @@ def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
                     b2 = min(ts_list[j][l+1], ts_list[i][k+1])
                     a3 = max(ts_list[j][l+1], ts_list[i][k])
                     b3 = ts_list[i][k+1]
-                        
+
                     if (ts_list[i][k]<ts_list[j][l]):
                         Gpr_block[k, l] += \
                                      0.05*(((b1-ts_list[j][l+1])**5-(b1-ts_list[j][l])**5)\
@@ -1199,7 +1195,7 @@ def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
                         Gpr_block[k, l] += \
                                      0.05*(((b3-ts_list[j][l])**5-(b3-ts_list[j][l+1])**5)\
                                            -((a3-ts_list[j][l])**5-(a3-ts_list[j][l+1])**5))
-                            
+
             Gpr[n_cumsum[i]:n_cumsum[i+1],
                 n_cumsum[j]:n_cumsum[j+1]] = Gpr_block
 
@@ -1216,7 +1212,7 @@ def iaf_decode_coupled(s_list, dur, dt, b_list, d_list, k_list, h_list):
                                ((t-ts[k+1])**4+(t-ts[k])**4),
                                ((t-ts[k])**4-(t-ts[k+1])**4)))
         for k in xrange(n_list[j]):
-            u_rec += cd[n_cumsum[j]+k]*psi(t, k)                
+            u_rec += cd[n_cumsum[j]+k]*psi(t, k)
 
     return u_rec
 
@@ -1225,7 +1221,7 @@ def iaf_encode_delay(u_list, t_start, dt, b_list, d_list, k_list, a_list,
                      full_output=False):
     """
     Multi-input multi-output delayed IAF time encoding machine.
-                     
+
     Encode several signals with an ensemble of ideal
     Integrate-and-Fire neurons with delays.
 
@@ -1272,7 +1268,6 @@ def iaf_encode_delay(u_list, t_start, dt, b_list, d_list, k_list, a_list,
     Notes
     -----
     `t_start` must exceed `max(a)`.
-    
     """
 
     M = len(u_list) # number of input signals
@@ -1282,7 +1277,7 @@ def iaf_encode_delay(u_list, t_start, dt, b_list, d_list, k_list, a_list,
     if len(set(map(len, u_list))) > 1:
         raise ValueError('all input signals must be of the same length')
     Nt = len(u_list[0])
-    
+
     N = len(b_list) # number of neurons
     if np.shape(a_list) != (N, M):
         raise ValueError('incorrect number of delay parameters')
@@ -1295,11 +1290,11 @@ def iaf_encode_delay(u_list, t_start, dt, b_list, d_list, k_list, a_list,
     if t_start < a_max:
         raise ValueError('encoding start time is too small')
     T = Nt*dt-t_start
-    
+
     s_list = [[] for i in xrange(N)]
     if interval_list == None:
         interval_list = [0.0 for i in xrange(N)]
-    if y_list == None:        
+    if y_list == None:
         y_list = [0.0 for i in xrange(N)]
 
     k_start = int(np.round(t_start/dt))
@@ -1319,18 +1314,18 @@ def iaf_encode_delay(u_list, t_start, dt, b_list, d_list, k_list, a_list,
                 s_list[j].append(interval_list[j])
                 interval_list[j] = 0.0
                 y_list[j] -= d_list[j]
-    
+
     if full_output:
         return [[np.asarray(s) for s in s_list], t_start, dt, b_list, d_list, \
                k_list, a_list, w_list, y_list, interval_list, \
                full_output]
-    else:        
+    else:
         return [np.asarray(s) for s in s_list]
 
 def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
     """
     Multi-input multi-output delayed IAF time decoding machine.
-    
+
     Decode several signals encoded with an ensemble of ideal
     Integrate-and-Fire neurons with delays.
 
@@ -1341,7 +1336,7 @@ def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
         represent the time between spikes (in s). The number of arrays
         in the list corresponds to the number of encoders in the ensemble.
     T : float
-        Temporal support of signals (in s). 
+        Temporal support of signals (in s).
     dt : float
         Sampling resolution of input signals; the sampling frequency
         is 1/dt Hz.
@@ -1366,12 +1361,11 @@ def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
     The specified signal length `max(map(sum, s_list))` must exceed
     the support `T` over which the signal is decoded by the length of
     the longest delay.
-    
     """
 
     N = len(s_list)      # number of neurons
     M = np.shape(a_list)[1] # number of decoded signals
-    
+
     # Compute the spike times:
     ts_list = map(np.cumsum, s_list)
     n_list = map(lambda ts: len(ts)-1, ts_list)
@@ -1409,7 +1403,7 @@ def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
             Gpr[n_cumsum[j]:n_cumsum[j+1], n_sum+i+M] = \
                 Gpr[n_sum+i+M, n_cumsum[j]:n_cumsum[j+1]] = r
 
-    for i in xrange(N):                
+    for i in xrange(N):
         for j in xrange(N):
 
             # Compute the G matrix:
@@ -1434,7 +1428,7 @@ def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
                         # Gpr_block[k, l] += \
                         #              w_list[i][m]*scipy.integrate.quad(psi, tau_im[k],
                         #                                tau_im[k+1])[0]
-                        
+
                         temp = 0.0
                         if tau_jm[l+1] <= tau_im[k]:
                             temp += \
@@ -1449,7 +1443,7 @@ def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
                                (tau_im[k+1] <= tau_jm[l+1]):
                             temp += \
                                  (tau_im[k+1]-tau_jm[l])**5-(tau_im[k]-tau_jm[l+1])**5-\
-                                 (tau_im[k]-tau_jm[l])**5+(tau_im[k+1]-tau_jm[l+1])**5        
+                                 (tau_im[k]-tau_jm[l])**5+(tau_im[k+1]-tau_jm[l+1])**5
                         if (tau_im[k] <= tau_jm[l]) and (tau_jm[l] <= tau_jm[l+1]) and \
                                (tau_jm[l+1] <= tau_im[k+1]):
                             temp += \
@@ -1465,7 +1459,7 @@ def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
                                  -(tau_im[k+1]-tau_jm[l])**5-(tau_im[k]-tau_jm[l+1])**5+\
                                  (tau_im[k]-tau_jm[l])**5+(tau_im[k+1]-tau_jm[l+1])**5
                         Gpr_block[k, l] += temp*w_list[i][m]*w_list[j][m]/20.0
-            
+
             Gpr[n_cumsum[i]:n_cumsum[i+1],
                 n_cumsum[j]:n_cumsum[j+1]] = Gpr_block
 
@@ -1491,6 +1485,6 @@ def iaf_decode_delay(s_list, T, dt, b_list, d_list, k_list, a_list, w_list):
             nj = np.sum(n_list[:j])
             for k in xrange(n_list[j]):
                 u_rec_list[i] += cd[nj+k]*psi(t, k)
-            
-    return u_rec_list 
+
+    return u_rec_list
 

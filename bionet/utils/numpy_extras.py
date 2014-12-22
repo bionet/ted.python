@@ -3,7 +3,6 @@
 """
 Numpy Extras
 ============
-
 This module contains various functions not currently included in
 numpy [1]_.
 
@@ -17,8 +16,12 @@ numpy [1]_.
 - rank            Estimate the number of linearly independent rows in a matrix.
 
 .. [1] http://numpy.scipy.org/
-
 """
+
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
 
 __all__ = ['crand', 'iceil', 'ifloor', 'iround', 'mdot', 'rank', 'mpower', 'hilb']
 
@@ -41,7 +44,6 @@ def crand(*args):
     -------
     out : numpy.ndarray
         Complex random variables.
-
     """
 
     return np.random.rand(*args)+1j*np.random.rand(*args)
@@ -62,7 +64,6 @@ def iceil(x):
     -------
     y : {numpy.ndarray, scalar}
         The ceiling of each element in `x`, with `int` dtype.
-
     """
 
     return np.ceil(x).astype(int)
@@ -83,7 +84,6 @@ def ifloor(x):
     -------
     y : {numpy.ndarray, scalar}
         The floor of each element in `x`, with `int` dtype.
-
     """
 
     return np.floor(x).astype(int)
@@ -101,7 +101,6 @@ def iround(x):
     -------
     y : {numpy.ndarray, scalar}
         The rounded elements in `x`, with `int` dtype.
-
     """
 
     return np.round(x).astype(int)
@@ -128,7 +127,7 @@ def rank(x, *args):
 
     Parameters
     ----------
-    x : array_like, shape `(M, N)` 
+    x : array_like, shape `(M, N)`
         Matrix to analyze.
     tol : float
         Tolerance; the default is `max(svd(x)[1])*max(shape(x))*1e-13`
@@ -137,8 +136,8 @@ def rank(x, *args):
     -------
     r : int
         Estimated rank of matrix.
-        
     """
+
     x = np.asarray(x)
     s = np.linalg.svd(x, compute_uv=False)
     if args:
@@ -183,7 +182,7 @@ def mpower(x, y):
         return np.real(result)
     else:
         return result
-    
+
 def hilb(n):
     """
     Construct a Hilbert matrix.
@@ -196,8 +195,7 @@ def hilb(n):
     Returns
     -------
     h : numpy.ndarray
-        Generated Hilbert matrix of shape `(n, n)`. 
-
+        Generated Hilbert matrix of shape `(n, n)`.
     """
 
     h = np.empty((n, n), float)

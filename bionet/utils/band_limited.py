@@ -3,10 +3,13 @@
 """
 Routines for Manipulating Band-Limited Signals
 ==============================================
-
 - gen_band_limited    Generate band-limited signal
-
 """
+
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
 
 __all__ = ['gen_band_limited']
 

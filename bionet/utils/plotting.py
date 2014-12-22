@@ -3,7 +3,6 @@
 """
 Plotting Utilities
 ==================
-
 This module contains functions for plotting the results of functions
 that produce numerical data.
 
@@ -20,8 +19,12 @@ facilities.
 - contourf        Create a filled 3D contour plot.
 - surf            Create a 3D surface plot.
 - wireframe       Create a 3D wireframe plot.
-
 """
+
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
 
 __all__ = ['plot_compare', 'plot_encoded',
            'plot_fourier','plot_raster', 'plot_signal',

@@ -4,6 +4,11 @@
 Demos for real-time ASDM time encoding and decoding algorithms.
 """
 
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
+
 import sys
 import numpy as np
 

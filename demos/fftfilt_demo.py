@@ -4,6 +4,11 @@
 Demo of fftfilt function.
 """
 
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
+
 import scipy.signal as si
 
 import bionet.utils.signal_extras as s

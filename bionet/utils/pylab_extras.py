@@ -3,7 +3,6 @@
 """
 Pylab Extras
 ============
-
 This module contains various functions similar to those in
 Matlab that are not in pylab.
 
@@ -11,8 +10,12 @@ Matlab that are not in pylab.
 - minmax          Return range of array.
 - realmax         Return largest representable positive floating point number.
 - realmin         Return smallest representable positive floating point number.
-
 """
+
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
 
 __all__ = ['eps', 'realmax', 'realmin']
 

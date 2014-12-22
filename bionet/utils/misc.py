@@ -3,14 +3,17 @@
 """
 Miscellaneous Functions
 =======================
-
 This module contains various unclassified utility functions and classes.
 
 - chunks           Return a generator that splits a sequence into chunks.
 - func_timer       Function execution timer. Can be used as a decorator.
 - SerialBuffer     Buffer interface to a serial data source.
-
 """
+
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
 
 __all__ = ['chunks', 'func_timer', 'SerialBuffer']
 
@@ -19,7 +22,7 @@ import time
 def chunks(seq, n):
     """
     Chunk generator.
-    
+
     Return a generator whose `next()` method returns length `n`
     subsequences of the given sequence.  If `len(seq) % n != 0`, the
     last subsequence returned will contain fewer than `n` entries.
@@ -35,9 +38,8 @@ def chunks(seq, n):
     -------
     g : generator
         Generator that will return length `n` chunks of `seq`.
-        
     """
-    
+
     for i in xrange(0, len(seq), n):
         yield seq[i:i+n]
 
@@ -49,9 +51,8 @@ def func_timer(f):
     ----------
     f : function
         Function to time.
-
     """
-    
+
     def wrapper(*args, **kwargs):
         start = time.time()
         res = f(*args, **kwargs)
@@ -63,7 +64,7 @@ def func_timer(f):
 class SerialBuffer:
     """
     Serial buffer class.
-    
+
     This class implements a buffer that automatically replenishes
     its contents from a specified serial data source when it contains
     too little data to honor a read request.
@@ -86,7 +87,7 @@ class SerialBuffer:
         Replenish buffer to contain at least `n` elements.
 
     """
-    
+
     def __init__(self, get, n=1):
 
         if not callable(get):
@@ -95,16 +96,16 @@ class SerialBuffer:
             self.get = get
             self.data = []
             self.replenish(n)
-            
+
     def __len__(self):
         return len(self.data)
 
     def __repr__(self):
         return repr(self.data)
-    
+
     def __iterable(self, y):
         """Check whether `y` is iterable."""
-        
+
         try:
             iter(y)
         except:
@@ -146,10 +147,10 @@ class SerialBuffer:
         # Attempt to replenish queue if it contains too few elements:
         if n > len(self.data):
             self.replenish(n)
-            
+
         # This will return without error regardless of the number of
         # entries in self.data:
-        result = self.data[0:n]            
+        result = self.data[0:n]
         del self.data[0:n]
         return result
 

@@ -3,7 +3,6 @@
 """
 Scipy Extras
 ============
-
 This module contains various functions not currently included in
 scipy [1]_.
 
@@ -14,8 +13,12 @@ scipy [1]_.
 - chi             Compute the hyperbolic cosine of a complex value.
 
 .. [1] http://www.scipy.org/
-
 """
+
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
 
 __all__ = ['ei', 'si', 'ci', 'li', 'shi', 'chi']
 

@@ -4,6 +4,11 @@
 Demo of how to filter trigonometric polynomial signals.
 """
 
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
+
 import numpy as np
 import bionet.utils.trig_poly as tp
 

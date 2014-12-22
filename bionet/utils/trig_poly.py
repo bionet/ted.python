@@ -3,15 +3,18 @@
 """
 Routines for Manipulating Trigonometric Polynomials
 ===================================================
-
 - em                    Trigonometric polynomial basis function.
 - gen_dirichlet_coeffs  Generate random Dirichlet coefficients.
 - gen_trig_poly         Generate a 1D trigonometric polynomial.
 - gen_trig_poly_2d      Generate a 2D trigonometric polynomial.
 - get_dirichlet_coeffs  Compute Dirichlet coefficients of a signal.
 - scale_down_coeffs     Scale down Dirichlet coefficients.
-
 """
+
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
 
 __all__ = ['em', 'scale_down_coeffs', 'gen_dirichlet_coeffs',
            'gen_trig_poly', 'get_dirichlet_coeffs',

@@ -10,8 +10,12 @@ integrate-and-fire neuron model.
 - iaf_encode_pop        - SIMO IAF time encoding machine.
 
 These functions make use of CUDA.
-
 """
+
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
 
 __all__ = ['iaf_decode', 'iaf_decode_pop', 'iaf_encode', 'iaf_encode_pop']
 
@@ -62,7 +66,7 @@ __global__ void iaf_encode(FLOAT *u, FLOAT *s,
     FLOAT y_curr, interval_curr;
     unsigned int ns_curr, last;
     FLOAT RC = R*C;
-    
+
     if (idx == 0) {
         y_curr = y[0];
         interval_curr = interval[0];
@@ -97,7 +101,7 @@ __global__ void iaf_encode(FLOAT *u, FLOAT *s,
         y[0] = y_curr;
         interval[0] = interval_curr;
         ns[0] = ns_curr;
-    }                     
+    }
 }
 """)
 
@@ -105,7 +109,7 @@ def iaf_encode(u, dt, b, d, R=np.inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
                quad_method='trapz', full_output=False):
     """
     IAF time encoding machine.
-    
+
     Encode a finite length signal with an Integrate-and-Fire neuron.
 
     Parameters
@@ -148,7 +152,7 @@ def iaf_encode(u, dt, b, d, R=np.inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
     [s, dt, b, d, R, C, dte, y, interval, quad_method, full_output] : list
         If `full_output` is true, returns the encoded signal
         followed by updated encoder parameters.
-        
+
     Notes
     -----
     When trapezoidal integration is used, the value of the integral
@@ -173,7 +177,7 @@ def iaf_encode(u, dt, b, d, R=np.inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
                    quad_method, full_output
         else:
             return array((),float)
-    
+
     # Check whether the encoding resolution is finer than that of the
     # original sampled signal:
     if dte > dt:
@@ -189,10 +193,10 @@ def iaf_encode(u, dt, b, d, R=np.inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
         dt = dte
 
     dev = cumisc.get_current_device()
-    
+
     # Configure kernel:
     iaf_encode_mod = \
-                   SourceModule(iaf_encode_template.substitute(use_double=use_double)) 
+                   SourceModule(iaf_encode_template.substitute(use_double=use_double))
     iaf_encode = iaf_encode_mod.get_function("iaf_encode")
 
     # XXX: A very long s array might cause memory problems:
@@ -202,7 +206,7 @@ def iaf_encode(u, dt, b, d, R=np.inf, C=1.0, dte=0.0, y=0.0, interval=0.0,
     interval_0 = np.asarray([interval], float_type)
     iaf_encode(drv.In(u), drv.Out(s), drv.InOut(i_s_0),
                float_type(dt), float_type(b),
-               float_type(d), float_type(R), float_type(C), 
+               float_type(d), float_type(R), float_type(C),
                drv.InOut(y_0), drv.InOut(interval_0),
                np.uint32(True if quad_method == 'trapz' else False),
                np.uint32(Nu),
@@ -227,7 +231,7 @@ compute_q_template = Template("""
 
 // N must equal one less the length of s:
 __global__ void compute_q_ideal(FLOAT *s, COMPLEX *q, FLOAT b,
-                                FLOAT d, FLOAT C, unsigned int N) {                          
+                                FLOAT d, FLOAT C, unsigned int N) {
     unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
                        blockIdx.x*blockDim.x+threadIdx.x;
 
@@ -237,7 +241,7 @@ __global__ void compute_q_ideal(FLOAT *s, COMPLEX *q, FLOAT b,
 }
 
 __global__ void compute_q_leaky(FLOAT *s, COMPLEX *q, FLOAT b,
-                                FLOAT d, FLOAT R, FLOAT C, unsigned int N) {                          
+                                FLOAT d, FLOAT R, FLOAT C, unsigned int N) {
     unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
                        blockIdx.x*blockDim.x+threadIdx.x;
     FLOAT RC = R*C;
@@ -262,7 +266,7 @@ __global__ void compute_ts(FLOAT *s, FLOAT *ts, unsigned int N) {
     if (idx < N) {
         ts[idx] = 0.0;
         for (unsigned int i = 0; i < idx+1; i++)
-            ts[idx] += s[i]; 
+            ts[idx] += s[i];
     }
 }
 """)
@@ -282,7 +286,7 @@ __global__ void compute_tsh(FLOAT *ts, FLOAT *tsh, unsigned int Nsh) {
     if (idx < Nsh) {
         tsh[idx] = (ts[idx]+ts[idx+1])/2;
     }
-}   
+}
 """)
 
 compute_G_template = Template("""
@@ -311,7 +315,7 @@ __global__ void compute_G_ideal(FLOAT *ts, FLOAT *tsh, COMPLEX *G,
     unsigned int ix = idx/${cols};
     unsigned int iy = idx%${cols};
     FLOAT si0, si1, ci;
-    
+
     if (idx < N) {
         SICI(bw*(ts[ix+1]-tsh[iy]), &si1, &ci);
         SICI(bw*(ts[ix]-tsh[iy]), &si0, &ci);
@@ -327,7 +331,7 @@ __global__ void compute_G_leaky(FLOAT *ts, FLOAT *tsh, COMPLEX *G,
     unsigned int ix = idx/${cols};
     unsigned int iy = idx%${cols};
     FLOAT RC = R*C;
-    
+
     if (idx < N) {
         if ((ts[ix] < tsh[iy]) && (tsh[iy] < ts[ix+1])) {
             G[idx] = COMPLEX(0,-1.0/4.0)*exp((tsh[iy]-ts[ix+1])/RC)*
@@ -340,7 +344,7 @@ __global__ void compute_G_leaky(FLOAT *ts, FLOAT *tsh, COMPLEX *G,
                  log(COMPLEX(0,-1)/COMPLEX(RC*bw,-1))-log(COMPLEX(0,1)/COMPLEX(RC*bw,-1))+
                  log(COMPLEX(0,-1)/COMPLEX(RC*bw,1))-log(COMPLEX(0,1)/COMPLEX(RC*bw,1)))/FLOAT(PI);
         } else {
-            G[idx] = COMPLEX(0,-1.0/2.0)*exp((tsh[iy]-ts[ix+1])/RC)* 
+            G[idx] = COMPLEX(0,-1.0/2.0)*exp((tsh[iy]-ts[ix+1])/RC)*
                 (EXPI(COMPLEX(1,-RC*bw)*(ts[ix]-tsh[iy])/RC)-
                  EXPI(COMPLEX(1,-RC*bw)*(ts[ix+1]-tsh[iy])/RC)-
                  EXPI(COMPLEX(1,RC*bw)*(ts[ix]-tsh[iy])/RC)+
@@ -366,12 +370,12 @@ compute_u_template = Template("""
 
 // Nt == len(t)
 // Nsh == len(tsh)
-__global__ void compute_u(COMPLEX *u_rec, COMPLEX *c, FLOAT *tsh, 
+__global__ void compute_u(COMPLEX *u_rec, COMPLEX *c, FLOAT *tsh,
                           FLOAT bw, FLOAT dt, unsigned Nt, unsigned int Nsh) {
     unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
                        blockIdx.x*blockDim.x+threadIdx.x;
     FLOAT bwpi = bw/PI;
-    
+
     // Each thread reconstructs the signal at time t[idx]:
     if (idx < Nt) {
         COMPLEX u_temp = COMPLEX(0);
@@ -386,7 +390,7 @@ __global__ void compute_u(COMPLEX *u_rec, COMPLEX *c, FLOAT *tsh,
 def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
     """
     IAF time decoding machine.
-    
+
     Decode a finite length signal encoded with an Integrate-and-Fire
     neuron.
 
@@ -409,12 +413,11 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
         Neuron resistance.
     C : float
         Neuron capacitance.
-        
+
     Returns
     -------
     u_rec : ndarray of floats
         Recovered signal.
-
     """
 
     N = len(s)
@@ -428,8 +431,8 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
         complex_type = np.complex128
         __pinv_rcond__ = 1e-8
     else:
-        raise ValueError('unsupported data type')        
-        
+        raise ValueError('unsupported data type')
+
     # Prepare kernels:
     compute_ts_mod = \
                    SourceModule(compute_ts_template.substitute(use_double=use_double))
@@ -447,19 +450,19 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
                     compute_q_mod.get_function('compute_q_ideal')
     compute_q_leaky = \
                     compute_q_mod.get_function('compute_q_leaky')
-                          
+
     compute_G_mod = \
                   SourceModule(compute_G_template.substitute(use_double=use_double,
                                                              cols=(N-1)),
                                options=['-I', install_headers])
-    compute_G_ideal = compute_G_mod.get_function('compute_G_ideal') 
-    compute_G_leaky = compute_G_mod.get_function('compute_G_leaky') 
+    compute_G_ideal = compute_G_mod.get_function('compute_G_ideal')
+    compute_G_leaky = compute_G_mod.get_function('compute_G_leaky')
 
     compute_u_mod = \
                   SourceModule(compute_u_template.substitute(use_double=use_double),
                                options=["-I", install_headers])
-    compute_u = compute_u_mod.get_function('compute_u') 
-    
+    compute_u = compute_u_mod.get_function('compute_u')
+
     # Load data into device memory:
     s_gpu = gpuarray.to_gpu(s)
 
@@ -467,7 +470,7 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
     ts_gpu = gpuarray.empty(N, float_type)
     tsh_gpu = gpuarray.empty(N-1, float_type)
     q_gpu = gpuarray.empty((N-1, 1), complex_type)
-    G_gpu = gpuarray.empty((N-1, N-1), complex_type) 
+    G_gpu = gpuarray.empty((N-1, N-1), complex_type)
 
     # Get required block/grid sizes for constructing ts, tsh, and q;
     # use a smaller block size than the maximum to prevent the kernels
@@ -476,11 +479,11 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
     max_threads_per_block = 128
     block_dim_s, grid_dim_s = \
                  cumisc.select_block_grid_sizes(dev, s_gpu.shape, max_threads_per_block)
-    
+
     # Get required block/grid sizes for constructing G:
     block_dim_G, grid_dim_G = \
                  cumisc.select_block_grid_sizes(dev, G_gpu.shape, max_threads_per_block)
-    
+
     # Run the kernels:
     compute_ts(s_gpu, ts_gpu, np.uint32(N),
                block=block_dim_s, grid=grid_dim_s)
@@ -502,13 +505,13 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
                         float_type(bw), float_type(R), float_type(C),
                         np.uint32((N-1)**2),
                         block=block_dim_G, grid=grid_dim_G)
-    
+
     # Free unneeded s and ts to provide more memory to the pinv computation:
     del s_gpu, ts_gpu
-    
+
     # Compute the reconstruction coefficients:
     c_gpu = culinalg.dot(culinalg.pinv(G_gpu, __pinv_rcond__), q_gpu)
-    
+
     # Free unneeded G, G_inv and q:
     del G_gpu, q_gpu
 
@@ -523,10 +526,10 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0):
     # Get required block/grid sizes for constructing u:
     block_dim_t, grid_dim_t = \
                  cumisc.select_block_grid_sizes(dev, Nt, max_threads_per_block)
-                              
+
     # Reconstruct signal:
     compute_u(u_rec_gpu, c_gpu,
-              tsh_gpu, float_type(bw), float_type(dt),                    
+              tsh_gpu, float_type(bw), float_type(dt),
               np.uint32(Nt), np.uint32(N-1),
               block=block_dim_t, grid=grid_dim_t)
     u_rec = u_rec_gpu.get()
@@ -571,16 +574,16 @@ __global__ void iaf_encode_pop(FLOAT *u, FLOAT *s,
     unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
                        blockIdx.x*blockDim.x+threadIdx.x;
 
-    FLOAT y_curr, interval_curr;                       
+    FLOAT y_curr, interval_curr;
     FLOAT u_curr, u_next, b_curr, d_curr, R_curr, C_curr, RC_curr;
     unsigned int ns_curr, last;
-    
+
     if (idx < N) {
         // Initialize integrator accumulator, interspike interval,
         // and the spike counter for the current train:
         y_curr = y[idx];
         interval_curr = interval[idx];
-        ns_curr = ns[idx]; 
+        ns_curr = ns[idx];
 
         b_curr = b[idx];
         d_curr = d[idx];
@@ -603,10 +606,10 @@ __global__ void iaf_encode_pop(FLOAT *u, FLOAT *s,
                     y_curr += dt*(b_curr+(u_curr+u_next)/2)/C_curr;
                 else
                     y_curr += dt*(b_curr+u_curr)/C_curr;
-            } else 
+            } else
                 y_curr = y_curr*exp(-dt/RC_curr)+
-                         R_curr*(1-exp(-dt/RC_curr))*(b_curr+u_curr);                        
-            
+                         R_curr*(1-exp(-dt/RC_curr))*(b_curr+u_curr);
+
             interval_curr += dt;
             if (y_curr >= d_curr) {
                 s[INDEX(idx, ns_curr, Nu)] = interval_curr;
@@ -621,7 +624,7 @@ __global__ void iaf_encode_pop(FLOAT *u, FLOAT *s,
         y[idx] = y_curr;
         interval[idx] = interval_curr;
         ns[idx] = ns_curr;
-    }                     
+    }
 }
 """)
 
@@ -633,7 +636,7 @@ def iaf_encode_pop(u_gpu, dt, b_gpu, d_gpu, R_gpu, C_gpu,
 
     Encode a finite length signal with a population of Integrate-and-Fire
     Neurons.
-    
+
     Parameters
     ----------
     u_gpu : pycuda.gpuarray.GPUArray
@@ -694,7 +697,7 @@ def iaf_encode_pop(u_gpu, dt, b_gpu, d_gpu, R_gpu, C_gpu,
         raise ValueError('parameter arrays must be of same length')
 
     dev = cumisc.get_current_device()
-    
+
     # Use a smaller block size than the maximum to prevent the kernels
     # from using too many registers:
     max_threads_per_block = 256
@@ -722,7 +725,7 @@ def iaf_encode_pop(u_gpu, dt, b_gpu, d_gpu, R_gpu, C_gpu,
     ns_gpu = gpuarray.zeros(N, np.uint32)
     iaf_encode_pop(u_gpu, s_gpu, ns_gpu,
                    float_type(dt), b_gpu, d_gpu,
-                   R_gpu, C_gpu,                   
+                   R_gpu, C_gpu,
                    y_gpu, interval_gpu,
                    np.uint32(True if quad_method == 'trapz' else False),
                    np.uint32(Nu),
@@ -750,16 +753,16 @@ def _compute_idx_map(ns):
         Map of linear index to neuron index.
     idx_to_k : ndarray
         Map of linear index to interspike interval index.
-        
+
     Notes
     -----
     The relationship between the linear index and the output arrays is
     as follows:
-    
+
     idx | idx_to_ni | idx_to_k
     ----+-----------+---------
      0  |     0     |    0
-     1  |     0     |    1 
+     1  |     0     |    1
      2  |     1     |    0
      3  |     1     |    1
      4  |     1     |    2
@@ -770,7 +773,6 @@ def _compute_idx_map(ns):
     one for each neuron that has generated more than 1 spike.
 
     This function should be reimplemented to run directly on the GPU.
-    
     """
 
     # Number of neurons:
@@ -778,7 +780,7 @@ def _compute_idx_map(ns):
 
     # Number of index values:
     Nidx = np.sum(ns)-np.sum(ns>1)
-    
+
     # Map from index to neuron index:
     idx_to_ni = np.empty(Nidx, np.uint32)
 
@@ -809,28 +811,11 @@ compute_q_pop_template = Template("""
 
 #define INDEX(row,col,cols) row*cols+col
 
-__global__ void compute_q_ideal(FLOAT *s, COMPLEX *q, FLOAT *b, 
+__global__ void compute_q_ideal(FLOAT *s, COMPLEX *q, FLOAT *b,
                                 FLOAT *d, FLOAT *C,
                                 unsigned int *idx_to_ni,
                                 unsigned int *idx_to_k,
-                                unsigned int s_cols,                          
-                                unsigned int Nq) {                          
-    unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
-                       blockIdx.x*blockDim.x+threadIdx.x;
-
-    if (idx < Nq) {
-        unsigned int ni = idx_to_ni[idx];
-        unsigned int k = idx_to_k[idx];
-        
-        q[idx] = C[ni]*d[ni]-b[ni]*s[INDEX(ni,k+1,s_cols)];
-    }
-}
-
-__global__ void compute_q_leaky(FLOAT *s, COMPLEX *q, FLOAT *b, 
-                                FLOAT *d, FLOAT *R, FLOAT *C,
-                                unsigned int *idx_to_ni,
-                                unsigned int *idx_to_k,
-                                unsigned int s_cols,                          
+                                unsigned int s_cols,
                                 unsigned int Nq) {
     unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
                        blockIdx.x*blockDim.x+threadIdx.x;
@@ -838,10 +823,27 @@ __global__ void compute_q_leaky(FLOAT *s, COMPLEX *q, FLOAT *b,
     if (idx < Nq) {
         unsigned int ni = idx_to_ni[idx];
         unsigned int k = idx_to_k[idx];
-        
+
+        q[idx] = C[ni]*d[ni]-b[ni]*s[INDEX(ni,k+1,s_cols)];
+    }
+}
+
+__global__ void compute_q_leaky(FLOAT *s, COMPLEX *q, FLOAT *b,
+                                FLOAT *d, FLOAT *R, FLOAT *C,
+                                unsigned int *idx_to_ni,
+                                unsigned int *idx_to_k,
+                                unsigned int s_cols,
+                                unsigned int Nq) {
+    unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
+                       blockIdx.x*blockDim.x+threadIdx.x;
+
+    if (idx < Nq) {
+        unsigned int ni = idx_to_ni[idx];
+        unsigned int k = idx_to_k[idx];
+
         q[idx] = C[ni]*(d[ni]+b[ni]*R[ni]*(EXP(-s[INDEX(ni,k+1,s_cols)]/(R[ni]*C[ni]))-1));
     }
-}                                
+}
 """)
 
 compute_ts_pop_template = Template("""
@@ -899,7 +901,7 @@ __global__ void compute_tsh(FLOAT *ts, unsigned int *ns,
             tsh[j_curr] = (ts[j_curr]+ts[j_next])/2;
         }
     }
-}                            
+}
 """)
 
 compute_G_pop_template = Template("""
@@ -927,7 +929,7 @@ __global__ void compute_G_ideal(FLOAT *ts, FLOAT *tsh, COMPLEX *G, FLOAT bw,
                                 unsigned int *idx_to_ni,
                                 unsigned int *idx_to_k,
                                 unsigned int Nq,
-                                unsigned int s_cols,                              
+                                unsigned int s_cols,
                                 unsigned int N) {
     unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
                        blockIdx.x*blockDim.x+threadIdx.x;
@@ -941,7 +943,7 @@ __global__ void compute_G_ideal(FLOAT *ts, FLOAT *tsh, COMPLEX *G, FLOAT bw,
         unsigned int m = idx_to_ni[col];
         unsigned int n = idx_to_k[row];
         unsigned int k = idx_to_k[col];
-        
+
         SICI(bw*(ts[INDEX(l,n,s_cols)]-tsh[INDEX(m,k,s_cols)]), &si1, &ci);
         SICI(bw*(ts[INDEX(l,n+1,s_cols)]-tsh[INDEX(m,k,s_cols)]), &si0, &ci);
         G[idx] = COMPLEX((si0-si1)/PI);
@@ -953,7 +955,7 @@ __global__ void compute_G_leaky(FLOAT *ts, FLOAT *tsh, COMPLEX *G, FLOAT bw,
                                 unsigned int *idx_to_ni,
                                 unsigned int *idx_to_k,
                                 unsigned int Nq,
-                                unsigned int s_cols,                              
+                                unsigned int s_cols,
                                 unsigned int N) {
     unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
                        blockIdx.x*blockDim.x+threadIdx.x;
@@ -1023,7 +1025,7 @@ __global__ void compute_u(COMPLEX *u_rec, COMPLEX *c,
     unsigned int idx = blockIdx.y*blockDim.x*gridDim.x+
                        blockIdx.x*blockDim.x+threadIdx.x;
     FLOAT bwpi = bw/PI;
-    
+
     // Each thread reconstructs the signal at time t[idx]:
     if (idx < Nt) {
         COMPLEX u_temp = COMPLEX(0);
@@ -1075,7 +1077,7 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu,
         Array of neuron resistances.
     C_gpu : pycuda.gpuarray.GPUArray
         Array of neuron capacitances.
-    
+
     Returns
     -------
     u_rec : pycuda.gpuarray.GPUArray
@@ -1085,9 +1087,8 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu,
     -----
     The number of spikes contributed by each neuron may differ from the
     number contributed by other neurons.
-    
     """
-    
+
     # Sanity checks:
     float_type = s_gpu.dtype.type
     if float_type == np.float32:
@@ -1096,7 +1097,7 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu,
         __pinv_rcond__ = 1e-4
     elif float_type == np.float64:
         use_double = 1
-        complex_type = np.complex128        
+        complex_type = np.complex128
         __pinv_rcond__ = 1e-8
     else:
         raise ValueError('unsupported data type')
@@ -1114,7 +1115,7 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu,
     idx_to_ni, idx_to_k = _compute_idx_map(ns)
     idx_to_ni_gpu = gpuarray.to_gpu(idx_to_ni)
     idx_to_k_gpu = gpuarray.to_gpu(idx_to_k)
-    
+
     # Get required block/grid sizes; use a smaller block size than the
     # maximum to prevent the kernels from using too many registers:
     dev = cumisc.get_current_device()
@@ -1135,7 +1136,7 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu,
                      cache_dir=cache_dir)
     compute_ts_pop = \
                    compute_ts_pop_mod.get_function('compute_ts')
-    
+
     compute_tsh_pop_mod = \
         SourceModule(compute_tsh_pop_template.substitute(use_double=use_double),
                      cache_dir=cache_dir)
@@ -1149,7 +1150,7 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu,
                         compute_G_pop_mod.get_function('compute_G_ideal')
     compute_G_leaky_pop = \
                         compute_G_pop_mod.get_function('compute_G_leaky')
-                            
+
     compute_u_pop_mod = \
         SourceModule(compute_u_pop_template.substitute(use_double=use_double),
                      options=['-I', install_headers])
@@ -1161,8 +1162,8 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu,
     Nq = int(np.sum(ns)-np.sum(ns>1))
 
     # Set up GPUArrays for intermediary data:
-    ts_gpu = gpuarray.zeros_like(s_gpu)    
-    tsh_gpu = gpuarray.zeros_like(s_gpu)    
+    ts_gpu = gpuarray.zeros_like(s_gpu)
+    tsh_gpu = gpuarray.zeros_like(s_gpu)
 
     # Note that these arrays are complex to enable use of CUBLAS
     # matrix multiplication functions:
@@ -1179,12 +1180,12 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu,
     block_dim_G, grid_dim_G = \
                  cumisc.select_block_grid_sizes(dev, G_gpu.shape,
                                                 max_threads_per_block)
-    
+
     # Launch kernels:
-    compute_ts_pop(s_gpu, ns_gpu, ts_gpu, 
+    compute_ts_pop(s_gpu, ns_gpu, ts_gpu,
                    np.uint32(s_gpu.shape[1]), np.uint32(N),
                    block=block_dim_ts, grid=grid_dim_ts)
-    compute_tsh_pop(ts_gpu, ns_gpu, tsh_gpu, 
+    compute_tsh_pop(ts_gpu, ns_gpu, tsh_gpu,
                     np.uint32(s_gpu.shape[1]), np.uint32(N),
                     block=block_dim_q, grid=grid_dim_q)
     if np.all(np.isinf(R_gpu.get())):
@@ -1200,7 +1201,7 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu,
                             np.uint32(G_gpu.size),
                             block=block_dim_G, grid=grid_dim_G)
     else:
-        compute_q_leaky_pop(s_gpu, q_gpu, b_gpu, d_gpu, R_gpu, C_gpu, 
+        compute_q_leaky_pop(s_gpu, q_gpu, b_gpu, d_gpu, R_gpu, C_gpu,
                             idx_to_ni_gpu, idx_to_k_gpu,
                             np.uint32(s_gpu.shape[1]),
                             np.uint32(Nq),
@@ -1233,14 +1234,14 @@ def iaf_decode_pop(s_gpu, ns_gpu, dur, dt, bw, b_gpu, d_gpu,
     # Get required block/grid sizes for constructing u:
     block_dim_t, grid_dim_t = \
                  cumisc.select_block_grid_sizes(dev, Nt, max_threads_per_block)
-                                                
+
     # Reconstruct signal:
     compute_u_pop(u_rec_gpu, c_gpu, tsh_gpu, ns_gpu,
                   float_type(bw), float_type(dt),
                   np.uint32(s_gpu.shape[1]),
-                  np.uint32(N),                  
-                  np.uint32(Nt), 
+                  np.uint32(N),
+                  np.uint32(Nt),
                   block=block_dim_t, grid=grid_dim_t)
     u_rec = u_rec_gpu.get()
-    
+
     return np.real(u_rec)

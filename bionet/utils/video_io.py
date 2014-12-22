@@ -3,7 +3,6 @@
 """
 Video I/O classes
 =================
-
 Classes for reading and writing video files into and from numpy [1]
 ndarrays using OpenCV [2]_ and
 matplotlib [3]_.
@@ -16,8 +15,12 @@ matplotlib [3]_.
 .. [1] http://numpy.scipy.org/
 .. [2] http://opencv.willowgarage.com/wiki/PythonInterface/
 .. [3] http://matplotlib.sf.net/
-
 """
+
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
 
 __all__ = ['ReadVideo', 'WriteVideo', 'WriteFigureVideo',
            'video_capture']

@@ -5,6 +5,11 @@ Demos of time encoding and decoding algorithms that use
 coupled ON-OFF IAF neurons.
 """
 
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
+
 import numpy as np
 
 # Set matplotlib backend so that plots can be generated without a

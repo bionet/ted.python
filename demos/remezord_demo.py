@@ -4,6 +4,11 @@
 Remez filter construction demo.
 """
 
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
+
 from numpy.fft import fft
 from scipy.signal import lfilter, remez
 

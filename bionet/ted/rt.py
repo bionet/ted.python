@@ -14,8 +14,12 @@ limitations of the functions in the asdm and iaf modules.
 - iaf_encode             - Functional wrapper for IAFRealTimeEncoder
 - iaf_decode_delay       - Real-time delayed IAF decoder.
 - iaf_encode_delay       - Real-time delayed IAF encoder.
-
 """
+
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
 
 __all__ = ['SignalProcessor',
            'RealTimeEncoder', 'RealTimeDecoder',

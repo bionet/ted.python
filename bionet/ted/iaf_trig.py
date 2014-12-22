@@ -6,8 +6,12 @@ neuron model and the trigonometric polynomial approximation.
 
 - iaf_decode            - IAF time decoding machine.
 - iaf_decode_pop        - MISO IAF time decoding machine.
-
 """
+
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
 
 __all__ = ['iaf_decode', 'iaf_decode_pop']
 
@@ -47,14 +51,13 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0, M=5, smoothing=0.0):
         2*M+1 coefficients are used for reconstructing the signal.
     smoothing : float
         Smoothing parameter.
-        
+
     Returns
     -------
     u_rec : ndarray of floats
         Recovered signal.
-
     """
-    
+
     N = len(s)
 
     T = 2*np.pi*M/bw
@@ -67,14 +70,14 @@ def iaf_decode(s, dur, dt, bw, b, d, R=np.inf, C=1.0, M=5, smoothing=0.0):
     RC = R*C
     ts = np.cumsum(s)
     F = np.empty((N-1, 2*M+1), complex)
-    if np.isinf(R):        
+    if np.isinf(R):
         for k in xrange(N-1):
             for m in xrange(-M, M+1):
                 if m == 0:
                     F[k, m+M] = s[k+1]
                 else:
-                    F[k, m+M] = np.conj((em(-m, ts[k+1])-em(-m, ts[k]))/(-1j*m*bwM)) 
-        q = C*d-b*s[1:]        
+                    F[k, m+M] = np.conj((em(-m, ts[k+1])-em(-m, ts[k]))/(-1j*m*bwM))
+        q = C*d-b*s[1:]
     else:
         for k in xrange(N-1):
             for m in xrange(-M, M+1):
@@ -97,7 +100,7 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list,
                    C_list, M=5, smoothing=0.0):
     """
     Multi-input single-output IAF time decoding machine.
-    
+
     Decode a signal encoded with an ensemble of Integrate-and-Fire
     neurons assuming that the encoded signal is representable in terms
     of trigonometric polynomials.
@@ -121,7 +124,7 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list,
         List of encoder thresholds.
     R_list : list of floats
         List of encoder neuron resistances.
-    C_list : list of floats.    
+    C_list : list of floats.
         List of encoder neuron capacitances.
     M : int
         2*M+1 coefficients are used for reconstructing the signal.
@@ -132,12 +135,11 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list,
     -------
     u_rec : ndarray of floats
         Recovered signal.
-        
+
     Notes
     -----
     The number of spikes contributed by each neuron may differ from the
     number contributed by other neurons.
-
     """
 
     # Number of neurons:
@@ -154,13 +156,13 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list,
 
     # Number of interspike intervals per neuron:
     ns = np.array(map(len, s_list))
-    
+
     # Compute the spike times:
     ts_list = map(np.cumsum, s_list)
 
     # Indices for accessing subblocks of the reconstruction matrix:
     Fi = np.cumsum(np.hstack([0, ns-1]))
-    
+
     # Compute the values of the matrix that must be inverted to obtain
     # the reconstruction coefficients:
     Nq = np.sum(ns)-np.sum(ns>1)
@@ -178,10 +180,10 @@ def iaf_decode_pop(s_list, dur, dt, bw, b_list, d_list, R_list,
                     else:
                         F_temp[k, m+M] = (em(m, ts[k+1])- \
                                           em(m, ts[k]))/(1j*m*bwM)
-                                                            
+
             F[Fi[i]:Fi[i+1], :] = F_temp
             q[Fi[i]:Fi[i+1], 0] = \
-                C_list[i]*d_list[i]-b_list[i]*s_list[i][1:]            
+                C_list[i]*d_list[i]-b_list[i]*s_list[i][1:]
     else:
         for i in xrange(N):
             ts = ts_list[i]

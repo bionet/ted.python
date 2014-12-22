@@ -3,7 +3,6 @@
 """
 Video Animation Functions
 =========================
-
 This module contains functions for displaying sequences of 2D data as
 animations.
 
@@ -11,8 +10,12 @@ animations.
 - animate2          Animate two 2D video sequences simultaneously.
 - animate_compare   Animate two 2D video sequences and their difference.
 - frame_compare     Display frames from two sequences and their difference.
-
 """
+
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
 
 __all__ = ['animate', 'animate2', 'animate_compare', 'frame_compare']
 
@@ -27,7 +30,7 @@ if p.get_backend() == 'Qt4Agg':
 else:
     def animate_fix():
         pass
-    
+
 def animate(data, step=1, delay=0):
     """
     Animate sequence of frames.
@@ -44,9 +47,8 @@ def animate(data, step=1, delay=0):
         Skip `step` frames between each displayed frames.
     delay : float
         Wait `delay` seconds between each frame refresh.
-
     """
-    
+
     # Get maximum value in data to scale the luminance appropriately:
     mx = np.max(np.abs(data))
     img = p.imshow(data[0, :, :], vmin=-mx, vmax=mx)
@@ -55,7 +57,7 @@ def animate(data, step=1, delay=0):
         img.set_data(data[k, :, :])
         p.draw()
         animate_fix()
-        
+
 def animate2(data_1, data_2, step=1, delay=0):
     """
     Animate two sequence of frames simultaneously.
@@ -75,7 +77,6 @@ def animate2(data_1, data_2, step=1, delay=0):
         Skip `step` frames between each displayed frames.
     delay : float
         Wait `delay` seconds between each frame refresh.
-
     """
 
     if data_1.shape != data_2.shape:
@@ -95,7 +96,7 @@ def animate2(data_1, data_2, step=1, delay=0):
         img_2.set_data(data_2[k, :, :])
         p.draw()
         animate_fix()
-        
+
 def animate_compare(data_1, data_2, step=1, delay=0):
     """
     Animate two sequence of frames and their difference simultaneously.
@@ -115,9 +116,8 @@ def animate_compare(data_1, data_2, step=1, delay=0):
         Skip `step` frames between each displayed frames.
     delay : float
         Wait `delay` seconds between each frame refresh.
-
     """
-    
+
     if data_1.shape != data_2.shape:
         raise ValueError('cannot animate two video sequences with '
                          'different dimensions')
@@ -139,7 +139,7 @@ def animate_compare(data_1, data_2, step=1, delay=0):
         img_err.set_data(data_1[k, :, :]-data_2[k, :, :])
         p.draw()
         animate_fix()
-        
+
 def frame_compare(data_1, data_2, i=0):
     """
     Compare corresponding frames in two video sequences.
@@ -157,7 +157,6 @@ def frame_compare(data_1, data_2, i=0):
         `(M, Ny, Nx)`.
     i : int
         Index of frame to display.
-
     """
 
     if data_1.shape != data_2.shape:

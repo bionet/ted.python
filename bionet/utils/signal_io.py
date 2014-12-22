@@ -3,7 +3,6 @@
 """
 Signal I/O classes
 ==================
-
 Classes for reading and writing numpy [1]_ arrays containing sampled
 or time-encoded signals from and to HDF5 files using PyTables [2]_.
 
@@ -13,8 +12,12 @@ or time-encoded signals from and to HDF5 files using PyTables [2]_.
 
 .. [1] http://numpy.scipy.org/
 .. [2] http://www.pytables.com/
-
 """
+
+# Copyright (c) 2009-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
 
 __all__ = ['ReadArray', 'WriteArray',
            'ReadSignal', 'WriteSignal',
