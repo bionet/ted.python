@@ -11,7 +11,6 @@ downloaded from the Bionet Group's `code repository page
 
 Prerequisites
 -------------
-
 The Python implementation of the Time Encoding and Decoding Toolkit
 requires that several software packages be present in order to be
 built and installed (older versions of these packages may work, but have not
@@ -53,7 +52,6 @@ on other platforms supported by the above packages.
 
 Building and Installation
 -------------------------
-
 To build and install the toolkit, download and unpack the source release and 
 run::
 

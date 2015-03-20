@@ -14,7 +14,7 @@ demonstrating the use of the implementations is included.
 Development
 -----------
 The latest source code can be obtained from
-`<http://github.com/bionet/ted.python>`_.
+`<https://github.com/bionet/ted.python>`_.
 
 Authors & Acknowledgements
 --------------------------
