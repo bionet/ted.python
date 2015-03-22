@@ -18,7 +18,7 @@ numpy [1]_.
 .. [1] http://numpy.scipy.org/
 """
 
-# Copyright (c) 2009-2014, Lev Givon
+# Copyright (c) 2009-2015, Lev Givon
 # All rights reserved.
 # Distributed under the terms of the BSD license:
 # http://www.opensource.org/licenses/bsd-license

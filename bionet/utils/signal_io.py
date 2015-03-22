@@ -14,7 +14,7 @@ or time-encoded signals from and to HDF5 files using PyTables [2]_.
 .. [2] http://www.pytables.com/
 """
 
-# Copyright (c) 2009-2014, Lev Givon
+# Copyright (c) 2009-2015, Lev Givon
 # All rights reserved.
 # Distributed under the terms of the BSD license:
 # http://www.opensource.org/licenses/bsd-license

@@ -5,7 +5,7 @@ Demos of time encoding and decoding algorithms that use spline
 interpolation with IAF neurons.
 """
 
-# Copyright (c) 2009-2014, Lev Givon
+# Copyright (c) 2009-2015, Lev Givon
 # All rights reserved.
 # Distributed under the terms of the BSD license:
 # http://www.opensource.org/licenses/bsd-license

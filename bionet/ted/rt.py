@@ -16,7 +16,7 @@ limitations of the functions in the asdm and iaf modules.
 - iaf_encode_delay       - Real-time delayed IAF encoder.
 """
 
-# Copyright (c) 2009-2014, Lev Givon
+# Copyright (c) 2009-2015, Lev Givon
 # All rights reserved.
 # Distributed under the terms of the BSD license:
 # http://www.opensource.org/licenses/bsd-license

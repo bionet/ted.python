@@ -8,7 +8,7 @@ neuron model and the trigonometric polynomial approximation.
 - iaf_decode_pop        - MISO IAF time decoding machine.
 """
 
-# Copyright (c) 2009-2014, Lev Givon
+# Copyright (c) 2009-2015, Lev Givon
 # All rights reserved.
 # Distributed under the terms of the BSD license:
 # http://www.opensource.org/licenses/bsd-license

@@ -5,7 +5,7 @@ Demos for basic time encoding and decoding algorithms that use
 IAF neurons.
 """
 
-# Copyright (c) 2009-2014, Lev Givon
+# Copyright (c) 2009-2015, Lev Givon
 # All rights reserved.
 # Distributed under the terms of the BSD license:
 # http://www.opensource.org/licenses/bsd-license

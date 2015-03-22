@@ -11,6 +11,10 @@ to and from a time-domain representation consisting of a series of
 time intervals between fixed-amplitude spikes. Sample code
 demonstrating the use of the implementations is included.
 
+Documentation
+-------------
+Package documentation is available at `<https://ted-python.readthedocs.org>`_.
+
 Development
 -----------
 The latest source code can be obtained from
