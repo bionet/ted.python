@@ -2,6 +2,9 @@
 
 Time Encoding and Decoding Toolkit
 ==================================
+.. image:: https://zenodo.org/badge/6233/bionet/ted.python.svg
+   :target: http://dx.doi.org/10.5281/zenodo.16263
+   :alt: 0.7.1
 
 Package Description
 -------------------
