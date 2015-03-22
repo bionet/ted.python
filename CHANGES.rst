@@ -3,8 +3,8 @@
 Change Log
 ==========
 
-Release 0.7.1 - (Under Development)
------------------------------------
+Release 0.7.1 - (March 21, 2015)
+--------------------------------
 * Add pip installation information.
 * Replace distribute_setup with ez_setup.
 * Change name to Time Encoding and Decoding Toolkit.
