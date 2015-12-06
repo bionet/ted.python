@@ -63,6 +63,7 @@ metadata = dict(name = NAME,
                     matplotlib = 'matplotlib >= 0.98',
                     opencv = 'opencv >= 2.1.0',
                     tables = 'tables >= 2.1.1',
+                    sphinx = 'sphinx >= 1.3',
                     sphinx_rtd_theme = 'sphinx_rtd_theme >= 0.1.6'))
 
 # Don't attempt to import numpy when it isn't actually needed; this enables pip

@@ -60,7 +60,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.autosummary',
               'sphinx.ext.pngmath',
               'sphinx.ext.intersphinx',
-              'numpydoc']
+              'sphinx.ext.napoleon']
 try:
     import matplotlib.sphinxext.plot_directive
 except ImportError:
